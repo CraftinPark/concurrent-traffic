@@ -6,3 +6,9 @@ typedef struct {
     float accx;
     float accy;
 } Car;
+
+typedef struct {
+    int cara;
+    int carb;
+    int time;
+} Collision;

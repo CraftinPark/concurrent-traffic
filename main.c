@@ -13,9 +13,13 @@ void update_cars(Car *cars, int num_cars, float time) {
     printf("\n");
 }
 
+int will_collide(Car *cars, int car_a, int car_b) {
+    return 1;
+}
+
 int main() {
 
-    Car *cars; // support up to 100 cars. each car has posx (m), posy (m), velx (m/s), vely (m/s), accx (m/s^2), accy (m/s^2)
+    Car *cars; // support up to 10 cars. each car has posx (m), posy (m), velx (m/s), vely (m/s), accx (m/s^2), accy (m/s^2)
     int num_cars = 2; // number of cars
     cars = (Car *) malloc(sizeof(Car) * num_cars);
 
@@ -50,6 +54,14 @@ int main() {
         printf("car %d: posx: %f, posy: %f ", i, cars[i].posx, cars[i].posy);
     }
     printf("\n");
+
+    Collision *collisions;
+    int num_collisions = 0;
+
+    // calculate collisions
+    for (int a = 0; a < num_cars; a++) {
+        
+    }
 
     while (time_elapsed <= simulation_time) {
         update_cars(cars, num_cars, update_interval);
