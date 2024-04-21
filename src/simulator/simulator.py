@@ -1,41 +1,42 @@
 import pygame
 import numpy as np
+from vehicle import Vehicle
 
 SCREEN_WIDTH = 500
 SCREEN_HEIGHT = 500
 
-NORTH_LINE = np.array([0,1,0])
-EAST_LINE = np.array([1,0,-6])
-WEST_LINE = np.array([1,0,0])
-SOUTH_LINE = np.array([0,1,-6])
+# world describes 100mx100m space
+WORLD_WIDTH = 100
+WORLD_HEIGHT = 100
 
-WORLD_WIDTH_OFFSET = 50
-WORLD_HEIGHT_OFFSET = 50
-WORLD_WIDTH = 106
-WORLD_HEIGHT = 106
+def world_to_screen_vector(x, y):
+    return [(x+(WORLD_WIDTH/2))*SCREEN_WIDTH/WORLD_WIDTH, (y+(WORLD_HEIGHT/2))*SCREEN_HEIGHT/WORLD_HEIGHT]
 
-def coord_to_screen_coord(x, y):
-    return [(x + WORLD_WIDTH_OFFSET) / WORLD_WIDTH * SCREEN_WIDTH, (y + WORLD_HEIGHT_OFFSET) / WORLD_HEIGHT * SCREEN_HEIGHT]
+def world_to_screen_scalar(x):
+    return x*SCREEN_WIDTH/WORLD_WIDTH
 
-def run_simulation():
-    # cars = []
-    # cars.append(Car([-50,4.5],[15,0],[0,0], Direction.EAST_BOUND))
-    # cars.append(Car([1.5,-50],[0,15],[0,0], Direction.SOUTH_BOUND))
-    # # cars.append(Car([4.5,50],[0,-15],[0,0], Direction.NORTH_BOUND))
+def render_vehicles(screen, vehicles: list):
+    for vehicle in vehicles:
+        vehicle_screen_x, vehicle_screen_y = world_to_screen_vector(vehicle.position[0], vehicle.position[1])
+        vehicle_screen_width = world_to_screen_scalar(vehicle.width)
+        vehicle_screen_height = world_to_screen_scalar(vehicle.height)
+        print(vehicle_screen_x, vehicle_screen_y)
+        car_rect = pygame.Rect(vehicle_screen_x, vehicle_screen_y, vehicle_screen_width, vehicle_screen_height)
+        pygame.draw.rect(screen, "red", car_rect, 0)
 
-    # # calculate distances and sort cars by it.
-    # for car in cars:
-    #     update_distance_to_intersection(car)
-    # cars = sorted(cars, key=lambda x: x.distance_to_intersection)
+def update_vehicles(delta_time: float, vehicles: list):
+    for vehicle in vehicles:
+        vehicle.position[0] = vehicle.position[0] + vehicle.velocity[0] * delta_time
+        vehicle.position[1] = vehicle.position[1] + vehicle.velocity[1] * delta_time
 
-    # calculate collisions with first car
-
-
+def run_simulation(initial_vehicles: list): # requires initialization of lanes, manager, vehicles
     pygame.init()
-    screen = pygame.display.set_mode((560, 560))
+    screen = pygame.display.set_mode((500, 500))
     clock = pygame.time.Clock()
     running = True
-    dt = 0
+    delta_time = 0
+
+    vehicles = initial_vehicles
 
     while running:
         # poll for events
@@ -47,23 +48,18 @@ def run_simulation():
         # fill the screen with a color to wipe away anything from last frame
         screen.fill("grey")
 
-        # # render cars
-        # for car in cars:
-        #     car_screen_x, car_screen_y = coord_to_screen_coord(car.pos[0], car.pos[1])
-        #     print(car_screen_x)
-        #     print(car_screen_y)
-        #     # pygame.draw.circle(screen, "red", pygame.Vector2(car_screen_x, car_screen_y), 40)
-        #     car_rect = pygame.Rect(car_screen_x, car_screen_y, 30, 30)
-        #     pygame.draw.rect(screen, "red", car_rect, 0)
+        # render_scenery()
 
-        # # update cars
-        # for car in cars:
-        #     car.pos[0] = car.pos[0] + car.vel[0] * dt
-        #     car.pos[1] = car.pos[1] + car.vel[1] * dt
+        # render_intersection()
+
+        render_vehicles(screen, vehicles)
+
+        # we do not yet consider that Manager is a parallel computation. We can directly apply the adjustments that Manager makes to the vehicles.
+        # manager adjust function call
+
+        update_vehicles(delta_time, vehicles)
 
         # flip() the display to put your work on screen
         pygame.display.flip()
-
-        dt = clock.tick(60) / 1000
-
+        delta_time = clock.tick(60) / 1000
     pygame.quit()
