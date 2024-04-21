@@ -1,16 +1,15 @@
-import numpy as np
-from enum import Enum
-
-class Direction(Enum):
-    NORTH_BOUND = 0
-    EAST_BOUND = 1
-    WEST_BOUND = 2
-    SOUTH_BOUND = 3
-
 class Vehicle:
-    def __init__(self, pos: list[2], vel: list[2], acc: list[2], dir: Direction):
-        self.pos = np.array(pos)
-        self.vel = np.array(vel)
-        self.acc = np.array(acc)
-        self.dir = dir
-        self.distance_to_intersection = None
+    position = None     # numpy array[2] describing world coordinates
+    velocity = None     # numpy array[2] describing euclidean velocity vector
+    acceleration = None # numpy array[2] describing euclidean acceleration vector
+    direction = None    # numpy array[2] describing unit directional vector
+    width = None        # float representing width of car in meters. orthogonal to direction
+    length = None       # float representing length of car in meters. parallel to direction
+
+    def __init__(self, position, velocity, acceleration, direction, width, height):
+        self.position = position
+        self.velocity = velocity
+        self.acceleration = acceleration
+        self.dir = direction
+        self.width = width
+        self.height = height
