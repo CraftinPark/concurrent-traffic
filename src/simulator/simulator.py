@@ -4,8 +4,8 @@ import numpy as np
 from vehicle import Vehicle
 from route import Node, Edge, Route
 
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 800
+SCREEN_WIDTH = 900
+SCREEN_HEIGHT = 900
 
 # world describes 100mx100m space
 WORLD_WIDTH = 100
@@ -17,14 +17,42 @@ def world_to_screen_vector(x: float, y: float):
 def world_to_screen_scalar(x: float):
     return x*SCREEN_WIDTH/WORLD_WIDTH
 
+def distance(vector1: list, vector2: list):
+    vec1 = np.array(vector1)
+    vec2 = np.array(vector2)
+    return np.linalg.norm(vec2-vec1)
+
 def render_paths(screen: Surface, nodes: list[Node], edges: list[Edge]):
     for node in nodes:
         node_position = world_to_screen_vector(node.position[0], node.position[1])
         pygame.draw.circle(screen, "red", node_position, 3)
-    for edge in edges:
-        start_position = world_to_screen_vector(edge.start.position[0], edge.start.position[1])
-        end_position   = world_to_screen_vector(edge.end.position[0], edge.end.position[1])
-        pygame.draw.line(screen, "red", start_position, end_position)
+    for i, edge in enumerate(edges):
+        if edge.curved == False:
+            start_position = world_to_screen_vector(edge.start.position[0], edge.start.position[1])
+            end_position   = world_to_screen_vector(edge.end.position[0], edge.end.position[1])
+            pygame.draw.line(screen, "red", start_position, end_position)
+        else:
+            # define rect
+            radius = world_to_screen_scalar(distance(edge.center, edge.start.position))
+            diameter = radius*2
+            arc_rect = pygame.Rect(0,0,diameter, diameter)
+            arc_rect.center = world_to_screen_vector(edge.center[0], edge.center[1])
+
+            # find angle of start point
+            vector_to_start = [edge.start.position[0]-edge.center[0],edge.start.position[1]-edge.center[1]]
+            rad_angle_to_start = np.arctan2(-vector_to_start[1], vector_to_start[0]) # invert y to use rendering coords. Y is positive downward.
+            # find angle of end point
+            vector_to_end = [edge.end.position[0]-edge.center[0],edge.end.position[1]-edge.center[1]]
+            rad_angle_to_end = np.arctan2(-vector_to_end[1], vector_to_end[0]) # invert y to use rendering coords. Y is positive downward.
+
+            cross_product = np.cross(np.array([vector_to_start[0],-vector_to_start[1]]), np.array([vector_to_end[0],-vector_to_end[1]]))
+            if cross_product < 0:
+                rad_angle_to_start, rad_angle_to_end = rad_angle_to_end, rad_angle_to_start
+            elif cross_product == 0:
+                raise ValueError("cross product of curved edge vectors is 0. This implies a U-turn...")
+
+            pygame.draw.arc(screen, "red", arc_rect, rad_angle_to_start, rad_angle_to_end)
+
 
 def render_vehicles(screen: Surface, vehicles: list):
     for vehicle in vehicles:

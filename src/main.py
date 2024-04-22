@@ -49,20 +49,20 @@ def main():
 
     # edges within intersection
     edges.append(Edge(nodes[ 9], nodes[12])) # straight from south
-    edges.append(Edge(nodes[ 9], nodes[10])) # right from south
-    edges.append(Edge(nodes[ 9], nodes[14])) # left from south
+    edges.append(Edge(nodes[ 9], nodes[10], curved=True, center=[ 6, 6])) # right from south
+    edges.append(Edge(nodes[ 9], nodes[14], curved=True, center=[-6, 6])) # left from south
 
     edges.append(Edge(nodes[11], nodes[14])) # straight from east
-    edges.append(Edge(nodes[11], nodes[12])) # right from east
-    edges.append(Edge(nodes[11], nodes[8])) # left from east
+    edges.append(Edge(nodes[11], nodes[12], curved=True, center=[ 6,-6])) # right from east
+    edges.append(Edge(nodes[11], nodes[ 8], curved=True, center=[ 6, 6])) # left from east
 
-    edges.append(Edge(nodes[13], nodes[8])) # straight from north
-    edges.append(Edge(nodes[13], nodes[14])) # right from north
-    edges.append(Edge(nodes[13], nodes[10])) # left from north
+    edges.append(Edge(nodes[13], nodes[ 8])) # straight from north
+    edges.append(Edge(nodes[13], nodes[14], curved=True, center=[-6,-6])) # right from north
+    edges.append(Edge(nodes[13], nodes[10], curved=True, center=[ 6,-6])) # left from north
 
     edges.append(Edge(nodes[15], nodes[10])) # straight from west
-    edges.append(Edge(nodes[15], nodes[8])) # right from west
-    edges.append(Edge(nodes[15], nodes[12])) # left from west
+    edges.append(Edge(nodes[15], nodes[ 8], curved=True, center=[-6, 6])) # right from west
+    edges.append(Edge(nodes[15], nodes[12], curved=True, center=[-6,-6])) # left from west
 
     # routes
     routes.append(Route([edges[ 1], edges[ 8], edges[ 4]])) # straight from south
