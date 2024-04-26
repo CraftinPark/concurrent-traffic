@@ -81,9 +81,12 @@ def main():
     routes.append(Route([edges[ 7], edges[18], edges[ 8]])) # right from west
     routes.append(Route([edges[ 7], edges[19], edges[12]])) # left from west
 
-    vehicles.append(Vehicle([-50,1.5],[15,0],[0,0],[1,0],1.95,4.90))  # west to east
-    vehicles.append(Vehicle([-1.5,-50],[0,15],[0,0],[0,1],1.95,4.90)) # north to south
-    vehicles.append(Vehicle([1.5,50],[0,-15],[0,0],[0,-1],1.95,4.90)) # south to north
+    vehicles.append(Vehicle([-50,1.5],[8,0],[0,0],[1,0],1.95,4.90, 'sedan.png'))  # west to east
+    vehicles.append(Vehicle([-1.5,-50],[0,8],[0,0],[0,1],1.95,4.90, 'sedan.png')) # north to south
+    vehicles.append(Vehicle([1.5,50],[0,-8],[0,0],[0,-1],1.95,4.90, 'sedan.png')) # south to north
+
+    # scenery
+    # 2 rects for road, 
 
     run_simulation(vehicles, nodes, edges, routes)
 

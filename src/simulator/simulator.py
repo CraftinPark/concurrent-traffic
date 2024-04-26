@@ -54,14 +54,21 @@ def render_paths(screen: Surface, nodes: list[Node], edges: list[Edge]):
             pygame.draw.arc(screen, "red", arc_rect, rad_angle_to_start, rad_angle_to_end)
 
 
+
 def render_vehicles(screen: Surface, vehicles: list):
     for vehicle in vehicles:
         vehicle_screen_x, vehicle_screen_y = world_to_screen_vector(vehicle.position[0], vehicle.position[1])
         vehicle_screen_width = world_to_screen_scalar(vehicle.width)
-        vehicle_screen_height = world_to_screen_scalar(vehicle.height)
-        car_rect = pygame.Rect(0, 0, vehicle_screen_width, vehicle_screen_height)
+        vehicle_screen_length = world_to_screen_scalar(vehicle.length)
+
+        img = pygame.transform.smoothscale(vehicle.image, (vehicle_screen_length, vehicle_screen_width))
+        vehicle_angle = np.rad2deg(np.arctan2(-vehicle.direction[1], vehicle.direction[0]))
+        img = pygame.transform.rotate(img, vehicle_angle)
+
+        car_rect = img.get_rect()
         car_rect.center = vehicle_screen_x, vehicle_screen_y
-        pygame.draw.rect(screen, "red", car_rect, 0)
+        # pygame.draw.rect(screen, "red", car_rect, 0)
+        screen.blit(img, car_rect)
 
 def update_vehicles(delta_time: float, vehicles: list):
     for vehicle in vehicles:
