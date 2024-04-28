@@ -10,6 +10,9 @@ class Vehicle:
     width: float             = 2.23            # float representing width of car in meters. orthogonal to direction
     length: float            = 4.90            # float representing length of car in meters. parallel to direction
     pivot_distance: float    = 1.25            # float representing distance from pivot to center.
+    angular_velocity: float  = 0               # float representing angular velocity. angular velocity is in counter-clockwise direction. unit delta radians / delta time
+
+    intent: str              = 'straight'
 
     image: Surface
 
