@@ -79,8 +79,7 @@ def render_vehicles(screen: Surface, vehicles: list):
 
 def update_vehicles(delta_time: float, vehicles: list):
     for vehicle in vehicles:
-        vehicle.position[0] = vehicle.position[0] + vehicle.velocity[0] * delta_time
-        vehicle.position[1] = vehicle.position[1] + vehicle.velocity[1] * delta_time
+        vehicle.update(delta_time)
 
 def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: list[Edge], routes: list[Route]): # requires initialization of lanes, manager, vehicles
     pygame.init()
