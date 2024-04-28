@@ -1,8 +1,8 @@
 import pygame
 from pygame import Surface
 import numpy as np
-from vehicle import Vehicle
-from route import Node, Edge, Route
+from classes import Vehicle
+from manager import Node, Edge, Route
 
 SCREEN_WIDTH = 900
 SCREEN_HEIGHT = 900

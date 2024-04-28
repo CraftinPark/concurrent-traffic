@@ -1,5 +1,5 @@
 import numpy as np
-from vehicle import Vehicle
+from classes import Vehicle
 
 class Manager:
     def __init__(self):

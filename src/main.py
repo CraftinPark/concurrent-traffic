@@ -1,9 +1,5 @@
-import sys
-sys.path.append(sys.path[0]+"/classes")
-sys.path.append(sys.path[0]+"/manager")
-sys.path.append(sys.path[0]+"/simulator")
-from vehicle import Vehicle
-from route import Node, Edge, Route
+from classes import Vehicle
+from manager import Node, Edge, Route
 from simulator import run_simulation
 
 def main():
