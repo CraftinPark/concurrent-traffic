@@ -25,7 +25,6 @@ class Edge():
         self.start = start
         self.end = end
         self.curved = curved
-        print(center)
         if self.curved == True and center.shape == None: # if shape is None, this means center has not been initialized
             raise ValueError("center point must be provided if edge is not straight")
         self.center = center

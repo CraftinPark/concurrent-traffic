@@ -4,7 +4,7 @@ from classes.vehicle import Vehicle
 class Manager:
     def __init__(self):
         # initialize
-        print("manager created")
+        print("manager initialized")
 
     # def distance_between(vehicle: Vehicle, line) -> float:
     #     return np.abs(vehicle.pos[0]*line[0]+vehicle.pos[1]*line[1]+line[2])/np.sqrt(np.square(line[0])+np.square(line[1]))
