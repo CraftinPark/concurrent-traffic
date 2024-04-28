@@ -1,6 +1,7 @@
-from classes import Vehicle
-from manager import Node, Edge, Route
-from simulator import run_simulation
+import numpy as np
+from classes.vehicle import Vehicle
+from manager.route import Node, Edge, Route
+from simulator.simulator import run_simulation
 
 def main():
     # evenutually, we will load a preset as an argument and supply it to run_simulation
@@ -14,24 +15,24 @@ def main():
     vehicles = []
 
     # before intersection
-    nodes.append(Node([-1.5,   50])) # south
-    nodes.append(Node([ 1.5,   50]))
-    nodes.append(Node([  50,  1.5])) # east
-    nodes.append(Node([  50, -1.5]))
-    nodes.append(Node([ 1.5,  -50])) # north
-    nodes.append(Node([-1.5,  -50]))
-    nodes.append(Node([ -50, -1.5])) # west
-    nodes.append(Node([ -50,  1.5]))
+    nodes.append(Node(np.array([-1.5,   50]))) # south
+    nodes.append(Node(np.array([ 1.5,   50])))
+    nodes.append(Node(np.array([  50,  1.5]))) # east
+    nodes.append(Node(np.array([  50, -1.5])))
+    nodes.append(Node(np.array([ 1.5,  -50]))) # north
+    nodes.append(Node(np.array([-1.5,  -50])))
+    nodes.append(Node(np.array([ -50, -1.5]))) # west
+    nodes.append(Node(np.array([ -50,  1.5])))
 
     # at intersection
-    nodes.append(Node([-1.5,    6])) # south
-    nodes.append(Node([ 1.5,    6]))
-    nodes.append(Node([   6,  1.5])) # east
-    nodes.append(Node([   6, -1.5]))
-    nodes.append(Node([ 1.5,   -6])) # north
-    nodes.append(Node([-1.5,   -6]))
-    nodes.append(Node([  -6, -1.5])) # west
-    nodes.append(Node([  -6,  1.5]))
+    nodes.append(Node(np.array([-1.5,    6]))) # south
+    nodes.append(Node(np.array([ 1.5,    6])))
+    nodes.append(Node(np.array([   6,  1.5]))) # east
+    nodes.append(Node(np.array([   6, -1.5])))
+    nodes.append(Node(np.array([ 1.5,   -6]))) # north
+    nodes.append(Node(np.array([-1.5,   -6])))
+    nodes.append(Node(np.array([  -6, -1.5]))) # west
+    nodes.append(Node(np.array([  -6,  1.5])))
 
     # edges before intersection
     edges.append(Edge(nodes[ 0], nodes[ 8]))
@@ -45,20 +46,20 @@ def main():
 
     # edges within intersection
     edges.append(Edge(nodes[ 9], nodes[12])) # straight from south
-    edges.append(Edge(nodes[ 9], nodes[10], curved=True, center=[ 6, 6])) # right from south
-    edges.append(Edge(nodes[ 9], nodes[14], curved=True, center=[-6, 6])) # left from south
+    edges.append(Edge(nodes[ 9], nodes[10], curved=True, center=np.array([ 6, 6]))) # right from south
+    edges.append(Edge(nodes[ 9], nodes[14], curved=True, center=np.array([-6, 6]))) # left from south
 
     edges.append(Edge(nodes[11], nodes[14])) # straight from east
-    edges.append(Edge(nodes[11], nodes[12], curved=True, center=[ 6,-6])) # right from east
-    edges.append(Edge(nodes[11], nodes[ 8], curved=True, center=[ 6, 6])) # left from east
+    edges.append(Edge(nodes[11], nodes[12], curved=True, center=np.array([ 6,-6]))) # right from east
+    edges.append(Edge(nodes[11], nodes[ 8], curved=True, center=np.array([ 6, 6]))) # left from east
 
     edges.append(Edge(nodes[13], nodes[ 8])) # straight from north
-    edges.append(Edge(nodes[13], nodes[14], curved=True, center=[-6,-6])) # right from north
-    edges.append(Edge(nodes[13], nodes[10], curved=True, center=[ 6,-6])) # left from north
+    edges.append(Edge(nodes[13], nodes[14], curved=True, center=np.array([-6,-6]))) # right from north
+    edges.append(Edge(nodes[13], nodes[10], curved=True, center=np.array([ 6,-6]))) # left from north
 
     edges.append(Edge(nodes[15], nodes[10])) # straight from west
-    edges.append(Edge(nodes[15], nodes[ 8], curved=True, center=[-6, 6])) # right from west
-    edges.append(Edge(nodes[15], nodes[12], curved=True, center=[-6,-6])) # left from west
+    edges.append(Edge(nodes[15], nodes[ 8], curved=True, center=np.array([-6, 6]))) # right from west
+    edges.append(Edge(nodes[15], nodes[12], curved=True, center=np.array([-6,-6]))) # left from west
 
     # routes
     routes.append(Route([edges[ 1], edges[ 8], edges[ 4]])) # straight from south

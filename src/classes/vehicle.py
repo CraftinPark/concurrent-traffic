@@ -43,3 +43,10 @@ class Vehicle:
         self.velocity[1] += self.acceleration[1] * delta_time
         self.position[0] += self.velocity[0] * delta_time
         self.position[1] += self.velocity[1] * delta_time
+
+# helpers
+
+def get_vehicle_center_point(vehicle: Vehicle):
+    vehicle_center_x = vehicle.position[0] + vehicle.direction[0] * vehicle.pivot_distance
+    vehicle_center_y = vehicle.position[1] + vehicle.direction[1] * vehicle.pivot_distance
+    return vehicle_center_x, vehicle_center_y

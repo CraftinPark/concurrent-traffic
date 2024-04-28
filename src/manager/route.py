@@ -2,7 +2,7 @@ from __future__ import annotations # this enables Node from using declarations o
 import numpy as np
 
 class Node():
-    position: list = None
+    position: np.ndarray = np.array([0,0])
     in_edges: list[Edge] = []
     out_edges: list[Edge] = []
 
@@ -19,13 +19,14 @@ class Edge():
     start: Node = None
     end: Node = None
     curved: bool = True
-    center: list = None # center is only required for curved edges
+    center: np.ndarray = None # center is only required for curved edges
 
     def __init__(self, start: Node, end: Node, curved:bool=False, center=None):
         self.start = start
         self.end = end
         self.curved = curved
-        if self.curved == True and center == None:
+        print(center)
+        if self.curved == True and center.shape == None: # if shape is None, this means center has not been initialized
             raise ValueError("center point must be provided if edge is not straight")
         self.center = center
 

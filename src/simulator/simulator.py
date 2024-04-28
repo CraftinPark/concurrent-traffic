@@ -1,8 +1,8 @@
 import pygame
 from pygame import Surface
 import numpy as np
-from classes import Vehicle
-from manager import Node, Edge, Route
+from classes.vehicle import Vehicle, get_vehicle_center_point
+from manager.route import Node, Edge, Route
 
 SCREEN_WIDTH = 900
 SCREEN_HEIGHT = 900
@@ -26,25 +26,27 @@ def render_paths(screen: Surface, nodes: list[Node], edges: list[Edge]):
     for node in nodes:
         node_position = world_to_screen_vector(node.position[0], node.position[1])
         pygame.draw.circle(screen, "red", node_position, 3)
-    for i, edge in enumerate(edges):
+    for edge in edges:
         if edge.curved == False:
             start_position = world_to_screen_vector(edge.start.position[0], edge.start.position[1])
             end_position   = world_to_screen_vector(edge.end.position[0], edge.end.position[1])
             pygame.draw.line(screen, "red", start_position, end_position)
         else:
             # define rect
-            radius = world_to_screen_scalar(distance(edge.center, edge.start.position))
+            radius = world_to_screen_scalar(np.linalg.norm(edge.start.position-edge.center)) # norm describes distance
             diameter = radius*2
-            arc_rect = pygame.Rect(0,0,diameter, diameter)
+            arc_rect = pygame.Rect(0,0,diameter,diameter)
             arc_rect.center = world_to_screen_vector(edge.center[0], edge.center[1])
 
             # find angle of start point
             vector_to_start = [edge.start.position[0]-edge.center[0],edge.start.position[1]-edge.center[1]]
             rad_angle_to_start = np.arctan2(-vector_to_start[1], vector_to_start[0]) # invert y to use rendering coords. Y is positive downward.
+
             # find angle of end point
             vector_to_end = [edge.end.position[0]-edge.center[0],edge.end.position[1]-edge.center[1]]
             rad_angle_to_end = np.arctan2(-vector_to_end[1], vector_to_end[0]) # invert y to use rendering coords. Y is positive downward.
 
+            # ensure arc drawn in correct direction by cross product
             cross_product = np.cross(np.array([vector_to_start[0],-vector_to_start[1]]), np.array([vector_to_end[0],-vector_to_end[1]]))
             if cross_product < 0:
                 rad_angle_to_start, rad_angle_to_end = rad_angle_to_end, rad_angle_to_start
@@ -53,12 +55,7 @@ def render_paths(screen: Surface, nodes: list[Node], edges: list[Edge]):
 
             pygame.draw.arc(screen, "red", arc_rect, rad_angle_to_start, rad_angle_to_end)
 
-def get_vehicle_center_point(vehicle: Vehicle):
-    vehicle_center_x = vehicle.position[0] + vehicle.direction[0] * vehicle.pivot_distance
-    vehicle_center_y = vehicle.position[1] + vehicle.direction[1] * vehicle.pivot_distance
-    return vehicle_center_x, vehicle_center_y
-
-def render_vehicles(screen: Surface, vehicles: list):
+def render_vehicles(screen: Surface, vehicles: list[Vehicle]):
     for vehicle in vehicles:
         vehicle_pivot_screen_pos = world_to_screen_vector(vehicle.position[0], vehicle.position[1])
         vehicle_screen_width = world_to_screen_scalar(vehicle.width)
@@ -77,9 +74,12 @@ def render_vehicles(screen: Surface, vehicles: list):
 
         pygame.draw.circle(screen, "red", vehicle_pivot_screen_pos, 3)
 
-def update_vehicles(delta_time: float, vehicles: list):
+def update_vehicles(delta_time: float, vehicles: list[Vehicle]):
     for vehicle in vehicles:
         vehicle.update(delta_time)
+
+def update_world(delta_time: float, vehicles: list[Vehicle]):
+    update_vehicles(delta_time, vehicles)
 
 def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: list[Edge], routes: list[Route]): # requires initialization of lanes, manager, vehicles
     pygame.init()
@@ -112,7 +112,7 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
         # we do not yet consider that Manager is a parallel computation. We can directly apply the adjustments that Manager makes to the vehicles.
         # manager adjust function call
 
-        update_vehicles(delta_time, vehicles)
+        update_world(delta_time, vehicles)
 
         # flip() the display to put your work on screen
         pygame.display.flip()

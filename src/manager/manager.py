@@ -1,13 +1,13 @@
 import numpy as np
-from classes import Vehicle
+from classes.vehicle import Vehicle
 
 class Manager:
     def __init__(self):
         # initialize
         print("manager created")
 
-    def distance_between(vehicle: Vehicle, line) -> float:
-        return np.abs(vehicle.pos[0]*line[0]+vehicle.pos[1]*line[1]+line[2])/np.sqrt(np.square(line[0])+np.square(line[1]))
+    # def distance_between(vehicle: Vehicle, line) -> float:
+    #     return np.abs(vehicle.pos[0]*line[0]+vehicle.pos[1]*line[1]+line[2])/np.sqrt(np.square(line[0])+np.square(line[1]))
 
     # def update_distance_to_intersection(vehicle: Vehicle):
     #     if   vehicle.dir == Direction.NORTH_BOUND:   
