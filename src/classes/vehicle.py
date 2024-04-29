@@ -3,6 +3,7 @@ import pygame
 from pygame import Surface
 
 class Vehicle:
+    id: int                  = None            # vehicle identifier
     position: np.ndarray     = np.array([0,0]) # numpy array[2] describing world coordinates. position refers to pivot point, located between back wheels
     velocity: np.ndarray     = np.array([0,0]) # numpy array[2] describing euclidean velocity vector
     acceleration: np.ndarray = np.array([0,0]) # numpy array[2] describing euclidean acceleration vector
@@ -16,6 +17,7 @@ class Vehicle:
     image: Surface
 
     def __init__(self,
+                 id: int,
                  position: np.ndarray,
                  velocity: np.ndarray,
                  acceleration: np.ndarray,
@@ -26,6 +28,7 @@ class Vehicle:
                  intent: str,
                  image_source: str,
                  ):
+        self.id = id
         self.position = position
         self.velocity = velocity
         self.acceleration = acceleration

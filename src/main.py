@@ -1,5 +1,6 @@
 import numpy as np
 from classes.vehicle import Vehicle
+from manager.manager import Manager
 from manager.route import Node, Edge, Route
 from simulator.simulator import run_simulation
 
@@ -15,14 +16,14 @@ def main():
     vehicles = []
 
     # before intersection
-    nodes.append(Node(np.array([-1.5,   50]))) # south
-    nodes.append(Node(np.array([ 1.5,   50])))
-    nodes.append(Node(np.array([  50,  1.5]))) # east
-    nodes.append(Node(np.array([  50, -1.5])))
-    nodes.append(Node(np.array([ 1.5,  -50]))) # north
-    nodes.append(Node(np.array([-1.5,  -50])))
-    nodes.append(Node(np.array([ -50, -1.5]))) # west
-    nodes.append(Node(np.array([ -50,  1.5])))
+    nodes.append(Node(np.array([-1.5,   80]))) # south
+    nodes.append(Node(np.array([ 1.5,   80])))
+    nodes.append(Node(np.array([  80,  1.5]))) # east
+    nodes.append(Node(np.array([  80, -1.5])))
+    nodes.append(Node(np.array([ 1.5,  -80]))) # north
+    nodes.append(Node(np.array([-1.5,  -80])))
+    nodes.append(Node(np.array([ -80, -1.5]))) # west
+    nodes.append(Node(np.array([ -80,  1.5])))
 
     # at intersection
     nodes.append(Node(np.array([-1.5,    6]))) # south
@@ -78,14 +79,16 @@ def main():
     routes.append(Route([edges[ 7], edges[18], edges[ 8]])) # right from west
     routes.append(Route([edges[ 7], edges[19], edges[12]])) # left from west
 
-    vehicles.append(Vehicle([-50,1.5],[8,0],[0,0],[1,0],2.23,4.90,1.25,'straight','assets/sedan.png'))  # west to east
-    vehicles.append(Vehicle([-1.5,-50],[0,8],[0,0],[0,1],2.23,4.90,1.25,'straight','assets/sedan.png')) # north to south
-    vehicles.append(Vehicle([1.5,50],[0,-8],[0,0],[0,-1],2.23,4.90,1.25,'straight','assets/sedan.png')) # south to north
+    vehicles.append(Vehicle(0,[ -60,1.5],[ 8, 0],[0,0],[1, 0],2.23,4.90,1.25,'straight','assets/sedan.png'))  # west to east
+    vehicles.append(Vehicle(1,[-1.5,-70],[ 0, 8],[0,0],[0, 1],2.23,4.90,1.25,'straight','assets/sedan.png')) # north to south
+    vehicles.append(Vehicle(2,[ 1.5, 80],[ 0,-8],[0,0],[0,-1],2.23,4.90,1.25,'straight','assets/sedan.png')) # south to north
+
+    manager = Manager(np.array([0,0]), 50)
 
     # scenery
     # 2 rects for road, 
 
-    run_simulation(vehicles, nodes, edges, routes)
+    run_simulation(vehicles, nodes, edges, routes, manager)
 
 if __name__ == "__main__":
     main()

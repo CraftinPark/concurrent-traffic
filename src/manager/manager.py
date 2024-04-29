@@ -2,8 +2,14 @@ import numpy as np
 from classes.vehicle import Vehicle
 
 class Manager:
-    def __init__(self):
+    position: np.ndarray = [0,0]
+    radius: float = 25
+    vehicles: list[Vehicle] = []
+
+    def __init__(self, position: np.ndarray, radius: float):
         # initialize
+        self.position = position
+        self.radius = radius
         print("manager initialized")
 
     # def distance_between(vehicle: Vehicle, line) -> float:
@@ -28,4 +34,19 @@ class Manager:
 
     def collision_preventing_adjustment():
         # adjustment must be a timed acceleration/deceleration
+        return
+
+    def update(self, vehicles: list[Vehicle]):
+        # update list of cars within radius
+        for vehicle in vehicles:
+            vehicle_in_list = any(manager_vehicle.id == vehicle.id for manager_vehicle in self.vehicles)
+            if vehicle_in_list: continue
+
+            # if distance is within, add to vehicle list of manager
+            distance_to_vehicle = np.linalg.norm(vehicle.position-self.position)
+            
+            if distance_to_vehicle > self.radius: continue
+
+            # vehicle is not in list and within radius, add to list
+            self.vehicles.append(vehicle)
         return
