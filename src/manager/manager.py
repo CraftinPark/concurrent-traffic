@@ -37,16 +37,14 @@ class Manager:
         return
 
     def update(self, vehicles: list[Vehicle]):
-        # update list of cars within radius
         for vehicle in vehicles:
+            # vehicle already in list?
             vehicle_in_list = any(manager_vehicle.id == vehicle.id for manager_vehicle in self.vehicles)
             if vehicle_in_list: continue
 
-            # if distance is within, add to vehicle list of manager
+            # vehicle within manager radius?
             distance_to_vehicle = np.linalg.norm(vehicle.position-self.position)
-            
             if distance_to_vehicle > self.radius: continue
 
             # vehicle is not in list and within radius, add to list
             self.vehicles.append(vehicle)
-        return
