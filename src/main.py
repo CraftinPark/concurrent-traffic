@@ -86,7 +86,7 @@ def main():
     manager = Manager(np.array([0,0]), 50)
 
     # scenery
-    # 2 rects for road, 
+    # 2 rects for road,
 
     run_simulation(vehicles, nodes, edges, routes, manager)
 

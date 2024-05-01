@@ -48,3 +48,6 @@ class Manager:
 
             # vehicle is not in list and within radius, add to list
             self.vehicles.append(vehicle)
+    
+    def reset(self):
+        self.vehicles.clear()

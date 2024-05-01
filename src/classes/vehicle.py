@@ -29,15 +29,16 @@ class Vehicle:
                  image_source: str,
                  ):
         self.id = id
-        self.position = position
-        self.velocity = velocity
-        self.acceleration = acceleration
-        self.direction = direction
+        self.position = position.copy()
+        self.velocity = velocity.copy()
+        self.acceleration = acceleration.copy()
+        self.direction = direction.copy()
         self.width = width
         self.length = length
         self.pivot_distance = pivot_distance
         self.intent = intent
-        self.image = pygame.image.load(image_source)
+        self.image_source = image_source
+        self.image = pygame.image.load(self.image_source)
 
     def update(self, delta_time: float):
         # angular velocity work here
