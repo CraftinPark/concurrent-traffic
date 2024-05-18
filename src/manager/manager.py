@@ -37,7 +37,7 @@ def collision_preventing_adjustment():
     # adjustment must be a timed acceleration/deceleration
     return
     
-def update_manager_vehicle_list(self, manager: Manager, vehicles: list[Vehicle]):
+def update_manager_vehicle_list(manager: Manager, vehicles: list[Vehicle]):
     for vehicle in vehicles:
         # vehicle already in list?
         vehicle_in_list = any(manager_vehicle.id == vehicle.id for manager_vehicle in manager.vehicles)
