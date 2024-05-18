@@ -8,7 +8,7 @@ WORLD_HEIGHT = 160
 import pygame
 import numpy as np
 from classes.vehicle import Vehicle
-from manager.manager import Manager
+from manager.manager import Manager, update_manager_vehicle_list
 from manager.route import Node, Edge, Route
 from .render import render_world, render_manager
 from .update import update_world
@@ -33,7 +33,7 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
         screen.fill("grey")
 
         #update manager
-        manager.update(vehicles)
+        update_manager_vehicle_list(manager, vehicles)
 
         # optionally render nodes and edges. for now always on
         render_world(screen, vehicles, nodes, edges)

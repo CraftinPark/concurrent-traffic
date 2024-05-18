@@ -39,14 +39,6 @@ class Vehicle:
         self.intent = intent
         self.image = pygame.image.load(image_source)
 
-    def update(self, delta_time: float):
-        # angular velocity work here
-        # ...
-        self.velocity[0] += self.acceleration[0] * delta_time
-        self.velocity[1] += self.acceleration[1] * delta_time
-        self.position[0] += self.velocity[0] * delta_time
-        self.position[1] += self.velocity[1] * delta_time
-
 # helpers
 
 def get_vehicle_center_point(vehicle: Vehicle):
