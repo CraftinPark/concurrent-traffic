@@ -1,5 +1,6 @@
 import numpy as np
 from classes.vehicle import Vehicle
+from .command import Command
 
 class Manager:
     position: np.ndarray = [0,0]
@@ -15,29 +16,21 @@ class Manager:
     # def distance_between(vehicle: Vehicle, line) -> float:
     #     return np.abs(vehicle.pos[0]*line[0]+vehicle.pos[1]*line[1]+line[2])/np.sqrt(np.square(line[0])+np.square(line[1]))
 
-    # def update_distance_to_intersection(vehicle: Vehicle):
-    #     if   vehicle.dir == Direction.NORTH_BOUND:   
-    #         vehicle.distance_to_intersection = distance_between(vehicle, SOUTH_LINE)
-    #     elif vehicle.dir == Direction.EAST_BOUND:
-    #         vehicle.distance_to_intersection = distance_between(vehicle, WEST_LINE)
-    #     elif vehicle.dir == Direction.WEST_BOUND:   
-    #         vehicle.distance_to_intersection = distance_between(vehicle, EAST_LINE)
-    #     elif vehicle.dir == Direction.SOUTH_BOUND:   
-    #         vehicle.distance_to_intersection = distance_between(vehicle, NORTH_LINE)
-    #     else:
-    #         raise ValueError("car has no direction")
-
 # helpers
-def get_collisions():
-    # list of collisions
-    # maybe have car with priority first and other car second
-    return
+# def get_collisions():
+#     # list of collisions
+#     # maybe have car with priority first and other car second
+#     return
 
-def collision_preventing_adjustment():
-    # adjustment must be a timed acceleration/deceleration
-    return
+# def collision_preventing_adjustment():
+#     # adjustment must be a timed acceleration/deceleration
+#     return
+
+def manager_event_loop(manager: Manager, vehicles: list[Vehicle], time: float):
+    _update_manager_vehicle_list(manager, vehicles)
+    _compute_and_send_acceleration_commands(manager, vehicles)
     
-def update_manager_vehicle_list(manager: Manager, vehicles: list[Vehicle]):
+def _update_manager_vehicle_list(manager: Manager, vehicles: list[Vehicle]):
     for vehicle in vehicles:
         # vehicle already in list?
         vehicle_in_list = any(manager_vehicle.id == vehicle.id for manager_vehicle in manager.vehicles)
@@ -49,3 +42,14 @@ def update_manager_vehicle_list(manager: Manager, vehicles: list[Vehicle]):
 
         # vehicle is not in list and within radius, add to list
         manager.vehicles.append(vehicle)
+
+def _compute_and_send_acceleration_commands(manager: Manager, vehicles: list[Vehicle]):
+    for vehicle in manager.vehicles:
+        if vehicle.command == None:
+            command = _compute_command()
+            vehicle.command = command
+            pass
+
+def _compute_command() -> Command:
+    # TODO
+    return

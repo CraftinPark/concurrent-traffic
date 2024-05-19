@@ -7,10 +7,10 @@ WORLD_HEIGHT = 160
 
 import pygame
 import numpy as np
-from classes.vehicle import Vehicle
-from manager.manager import Manager, update_manager_vehicle_list
+from classes.vehicle import Vehicle, vehicle_event_loop
+from manager.manager import Manager, manager_event_loop
 from manager.route import Node, Edge, Route
-from .render import render_world, render_manager
+from .render import render_world, render_manager, render_vehicles
 from .update import update_world
 
 def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: list[Edge], routes: list[Route], manager: Manager): # requires initialization of lanes, manager, vehicles
@@ -32,15 +32,19 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
         # fill the screen with a color to wipe away anything from last frame
         screen.fill("grey")
 
-        #update manager
-        update_manager_vehicle_list(manager, vehicles)
-
         # optionally render nodes and edges. for now always on
-        render_world(screen, vehicles, nodes, edges)
+        render_world(screen, nodes, edges)
         render_manager(screen, manager)
+        render_vehicles(screen, vehicles)
 
-        # we do not yet consider that Manager is a parallel computation. We can directly apply the adjustments that Manager makes to the vehicles.
-        # manager adjust function call
+        # manager 'cpu'
+        manager_event_loop(manager, vehicles, delta_time)
+
+        # vehicles 'cpu'
+        for vehicle in vehicles:
+            vehicle_event_loop(vehicle, delta_time)
+
+        # physical changes to world (updating positions, velocity, etc.)
         update_world(delta_time, vehicles)
 
         # flip() the display to put your work on screen

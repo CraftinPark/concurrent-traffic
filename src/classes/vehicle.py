@@ -1,6 +1,7 @@
 import numpy as np
 import pygame
 from pygame import Surface
+from manager.command import Command
 
 class Vehicle:
     id: int                  = None            # vehicle identifier
@@ -13,6 +14,7 @@ class Vehicle:
     pivot_distance: float    = 1.25            # float representing distance from pivot to center.
 
     intent: str              = 'straight'
+    command: Command         = None            # Command
 
     image: Surface
 
@@ -45,3 +47,9 @@ def get_vehicle_center_point(vehicle: Vehicle):
     vehicle_center_x = vehicle.position[0] + vehicle.direction[0] * vehicle.pivot_distance
     vehicle_center_y = vehicle.position[1] + vehicle.direction[1] * vehicle.pivot_distance
     return vehicle_center_x, vehicle_center_y
+
+def vehicle_event_loop(vehicle: Vehicle, delta_time: float):
+    if vehicle.command is not None:
+        # set acceleration to what the command is telling us...
+        # TODO
+        pass
