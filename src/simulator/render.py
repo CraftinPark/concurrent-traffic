@@ -63,8 +63,7 @@ def render_vehicles(screen: Surface, vehicles: list[Vehicle]):
 
         pygame.draw.circle(screen, "red", vehicle_pivot_screen_pos, 3)
 
-def render_world(screen: Surface, vehicles: list[Vehicle], nodes: list[Node], edges: list[Edge]):
-    render_vehicles(screen, vehicles)
+def render_world(screen: Surface, nodes: list[Node], edges: list[Edge]):
     render_nodes(screen, nodes)
     render_edges(screen, edges)
     # render_scenery()
