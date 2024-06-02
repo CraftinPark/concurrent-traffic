@@ -4,6 +4,7 @@ from pygame import Surface
 from classes.vehicle import Vehicle, get_vehicle_center_point
 from manager.route import Node, Edge, Route
 from manager.manager import Manager
+from classes.button import Button
 from .helper import world_to_screen_vector, world_to_screen_scalar
 
 pygame.font.init()
@@ -62,6 +63,14 @@ def render_vehicles(screen: Surface, vehicles: list[Vehicle]):
         screen.blit(img, car_rect)
 
         pygame.draw.circle(screen, "red", vehicle_pivot_screen_pos, 3)
+
+def render_buttons(screen: Surface, buttons: list[Button]) -> None:
+    for b in buttons:
+        pygame.draw.rect(screen, b.hover_color if b.is_selected() else b.color, [b.x , b.y, b.width, b.height])
+        if b.text != '':
+            font = pygame.font.SysFont('corbel', 30)
+            text = font.render(b.text, 1, (255, 255, 255))
+            screen.blit(text, (b.x + (b.width/2 - text.get_width()/2), b.y + (b.height/2 - text.get_height()/2)))
 
 def render_world(screen: Surface, vehicles: list[Vehicle], nodes: list[Node], edges: list[Edge]):
     render_vehicles(screen, vehicles)

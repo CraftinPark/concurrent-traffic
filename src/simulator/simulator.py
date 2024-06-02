@@ -12,7 +12,7 @@ from classes.vehicle import Vehicle
 from classes.button import Button
 from manager.manager import Manager
 from manager.route import Node, Edge, Route
-from .render import render_world, render_manager
+from .render import render_world, render_manager, render_buttons
 from .update import update_world
 
 def vehicle_copy(vehicles: list[Vehicle]) -> list[Vehicle]:
@@ -43,10 +43,10 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
         delta_time = 0
         manager.reset()
     
-    toggle_button = Button(screen, (0, 0, 0), (255, 50, 50), (SCREEN_WIDTH/2 - 300, SCREEN_HEIGHT - 100), (300, 50), 'toggle update', toggle_update, ())
-    restart_button = Button(screen, (0, 0, 0), (255, 50, 50), (SCREEN_WIDTH/2 + 100, SCREEN_HEIGHT - 100), (200, 50), 'restart', restart_func, ())
+    toggle_button = Button((0, 0, 0), (255, 50, 50), (SCREEN_WIDTH/2 - 300, SCREEN_HEIGHT - 100), (300, 50), 'toggle update', toggle_update, ())
+    restart_button = Button((0, 0, 0), (255, 50, 50), (SCREEN_WIDTH/2 + 100, SCREEN_HEIGHT - 100), (200, 50), 'restart', restart_func, ())
 
-    btn_lst = [toggle_button, restart_button]
+    buttons = [toggle_button, restart_button]
 
     while running:
         # poll for events
@@ -56,13 +56,13 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
                 running = False
             
             if event.type == pygame.MOUSEBUTTONDOWN:
-                [b.click() for b in btn_lst]
+                [b.click() for b in buttons]
 
 
         # fill the screen with a color to wipe away anything from last frame
         screen.fill("grey")
 
-        [b.draw() for b in btn_lst]
+        render_buttons(screen, buttons)
 
         if to_update:
             #update manager
