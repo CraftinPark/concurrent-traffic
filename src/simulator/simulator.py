@@ -10,6 +10,7 @@ from copy import deepcopy
 import numpy as np
 
 from classes.vehicle import Vehicle, vehicle_event_loop, vehicle_copy
+from classes.button import Button
 from manager.manager import Manager, manager_event_loop
 from manager.route import Node, Edge, Route
 from .render import render_world, render_manager, render_vehicles, render_buttons
@@ -23,11 +24,11 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
     delta_time = 0
 
     vehicles = vehicle_copy(initial_vehicles)
-    is_pause = True
+    is_run = True
 
     def toggle_update() -> None:
-        nonlocal is_pause
-        is_pause = not is_pause
+        nonlocal is_run
+        is_run = not is_run
 
     def restart_func() -> None:
         nonlocal vehicles
@@ -61,14 +62,6 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
 
         render_buttons(screen, buttons)
 
-        if is_pause:
-            #update manager
-            manager.update(vehicles)
-
-            # we do not yet consider that Manager is a parallel computation. We can directly apply the adjustments that Manager makes to the vehicles.
-            # manager adjust function call
-            update_world(delta_time, vehicles)
-
         # optionally render nodes and edges. for now always on
         render_world(screen, nodes, edges)
         render_manager(screen, manager)
@@ -80,7 +73,11 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
         # vehicles 'cpu'
         for vehicle in vehicles:
             vehicle_event_loop(vehicle, delta_time)
-            
+
+        if is_run:
+            # physical changes to world (updating positions, velocity, etc.)
+            update_world(delta_time, vehicles)
+
         # updates the screen
         pygame.display.update()
         delta_time = clock.tick(60) / 1000
