@@ -8,11 +8,11 @@ WORLD_HEIGHT = 160
 import pygame
 from copy import deepcopy
 import numpy as np
-from classes.vehicle import Vehicle, vehicle_copy
-from classes.button import Button
-from manager.manager import Manager
+
+from classes.vehicle import Vehicle, vehicle_event_loop, vehicle_copy
+from manager.manager import Manager, manager_event_loop
 from manager.route import Node, Edge, Route
-from .render import render_world, render_manager, render_buttons
+from .render import render_world, render_manager, render_vehicles, render_buttons
 from .update import update_world
 
 def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: list[Edge], routes: list[Route], manager: Manager): # requires initialization of lanes, manager, vehicles
@@ -70,9 +70,18 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
             update_world(delta_time, vehicles)
 
         # optionally render nodes and edges. for now always on
-        render_world(screen, vehicles, nodes, edges)
+        render_world(screen, nodes, edges)
         render_manager(screen, manager)
+        render_vehicles(screen, vehicles)
 
+        # manager 'cpu'
+        manager_event_loop(manager, vehicles, delta_time)
+
+        # vehicles 'cpu'
+        for vehicle in vehicles:
+            vehicle_event_loop(vehicle, delta_time)
+            
         # updates the screen
         pygame.display.update()
         delta_time = clock.tick(60) / 1000
+    pygame.quit()

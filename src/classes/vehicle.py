@@ -1,6 +1,7 @@
 import numpy as np
 import pygame
 from pygame import Surface
+from manager.command import Command
 
 class Vehicle:
     id: int                  = None            # vehicle identifier
@@ -13,6 +14,7 @@ class Vehicle:
     pivot_distance: float    = 1.25            # float representing distance from pivot to center.
 
     intent: str              = 'straight'
+    command: Command         = None            # Command
 
     image: Surface
 
@@ -40,14 +42,6 @@ class Vehicle:
         self.image_source = image_source
         self.image = pygame.image.load(self.image_source)
 
-    def update(self, delta_time: float):
-        # angular velocity work here
-        # ...
-        self.velocity[0] += self.acceleration[0] * delta_time
-        self.velocity[1] += self.acceleration[1] * delta_time
-        self.position[0] += self.velocity[0] * delta_time
-        self.position[1] += self.velocity[1] * delta_time
-
 # helpers
 
 def get_vehicle_center_point(vehicle: Vehicle):
@@ -57,3 +51,9 @@ def get_vehicle_center_point(vehicle: Vehicle):
 
 def vehicle_copy(vehicles: list[Vehicle]) -> list[Vehicle]:
     return [Vehicle(v.id, v.position, v.velocity, v.acceleration, v.direction, v.width, v.length, v.pivot_distance, v.intent, v.image_source) for v in vehicles]
+  
+def vehicle_event_loop(vehicle: Vehicle, delta_time: float):
+    if vehicle.command is not None:
+        # set acceleration to what the command is telling us...
+        # TODO
+        pass
