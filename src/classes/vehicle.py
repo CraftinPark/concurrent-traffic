@@ -54,3 +54,6 @@ def get_vehicle_center_point(vehicle: Vehicle):
     vehicle_center_x = vehicle.position[0] + vehicle.direction[0] * vehicle.pivot_distance
     vehicle_center_y = vehicle.position[1] + vehicle.direction[1] * vehicle.pivot_distance
     return vehicle_center_x, vehicle_center_y
+
+def vehicle_copy(vehicles: list[Vehicle]) -> list[Vehicle]:
+    return [Vehicle(v.id, v.position, v.velocity, v.acceleration, v.direction, v.width, v.length, v.pivot_distance, v.intent, v.image_source) for v in vehicles]

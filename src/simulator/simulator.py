@@ -8,15 +8,12 @@ WORLD_HEIGHT = 160
 import pygame
 from copy import deepcopy
 import numpy as np
-from classes.vehicle import Vehicle
+from classes.vehicle import Vehicle, vehicle_copy
 from classes.button import Button
 from manager.manager import Manager
 from manager.route import Node, Edge, Route
 from .render import render_world, render_manager, render_buttons
 from .update import update_world
-
-def vehicle_copy(vehicles: list[Vehicle]) -> list[Vehicle]:
-    return [Vehicle(v.id, v.position, v.velocity, v.acceleration, v.direction, v.width, v.length, v.pivot_distance, v.intent, v.image_source) for v in vehicles]
 
 def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: list[Edge], routes: list[Route], manager: Manager): # requires initialization of lanes, manager, vehicles
     pygame.init()
@@ -26,11 +23,11 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
     delta_time = 0
 
     vehicles = vehicle_copy(initial_vehicles)
-    to_update = True
+    is_pause = True
 
     def toggle_update() -> None:
-        nonlocal to_update
-        to_update = not to_update
+        nonlocal is_pause
+        is_pause = not is_pause
 
     def restart_func() -> None:
         nonlocal vehicles
@@ -64,7 +61,7 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
 
         render_buttons(screen, buttons)
 
-        if to_update:
+        if is_pause:
             #update manager
             manager.update(vehicles)
 
