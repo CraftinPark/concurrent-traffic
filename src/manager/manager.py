@@ -13,6 +13,9 @@ class Manager:
         self.radius = radius
         print("manager initialized")
 
+    def reset(self):
+        self.vehicles.clear()
+
     # def distance_between(vehicle: Vehicle, line) -> float:
     #     return np.abs(vehicle.pos[0]*line[0]+vehicle.pos[1]*line[1]+line[2])/np.sqrt(np.square(line[0])+np.square(line[1]))
 

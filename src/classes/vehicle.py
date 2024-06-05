@@ -31,15 +31,16 @@ class Vehicle:
                  image_source: str,
                  ):
         self.id = id
-        self.position = position
-        self.velocity = velocity
-        self.acceleration = acceleration
-        self.direction = direction
+        self.position = position.copy()
+        self.velocity = velocity.copy()
+        self.acceleration = acceleration.copy()
+        self.direction = direction.copy()
         self.width = width
         self.length = length
         self.pivot_distance = pivot_distance
         self.intent = intent
-        self.image = pygame.image.load(image_source)
+        self.image_source = image_source
+        self.image = pygame.image.load(self.image_source)
 
 # helpers
 
@@ -48,6 +49,9 @@ def get_vehicle_center_point(vehicle: Vehicle):
     vehicle_center_y = vehicle.position[1] + vehicle.direction[1] * vehicle.pivot_distance
     return vehicle_center_x, vehicle_center_y
 
+def vehicle_copy(vehicles: list[Vehicle]) -> list[Vehicle]:
+    return [Vehicle(v.id, v.position, v.velocity, v.acceleration, v.direction, v.width, v.length, v.pivot_distance, v.intent, v.image_source) for v in vehicles]
+  
 def vehicle_event_loop(vehicle: Vehicle, delta_time: float):
     if vehicle.command is not None:
         # set acceleration to what the command is telling us...
