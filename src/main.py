@@ -79,9 +79,13 @@ def main():
     routes.append(Route([edges[ 7], edges[18], edges[ 8]])) # right from west
     routes.append(Route([edges[ 7], edges[19], edges[12]])) # left from west
 
-    vehicles.append(Vehicle(0,[ -60,1.5],[ 8, 0],[0,0],[1, 0],2.23,4.90,1.25,'straight','assets/sedan.png'))  # west to east
-    vehicles.append(Vehicle(1,[-1.5,-70],[ 0, 8],[0,0],[0, 1],2.23,4.90,1.25,'straight','assets/sedan.png')) # north to south
-    vehicles.append(Vehicle(2,[ 1.5, 80],[ 0,-8],[0,0],[0,-1],2.23,4.90,1.25,'straight','assets/sedan.png')) # south to north
+    # vehicles.append(Vehicle(0,[ -60,1.5],[ 8, 0],[0,0],[1, 0],2.23,4.90,1.25,'straight','assets/sedan.png'))  # west to east
+    # vehicles.append(Vehicle(1,[-1.5,-70],[ 0, 8],[0,0],[0, 1],2.23,4.90,1.25,'straight','assets/sedan.png')) # north to south
+    # vehicles.append(Vehicle(2,[ 1.5, 80],[ 0,-8],[0,0],[0,-1],2.23,4.90,1.25,'straight','assets/sedan.png')) # south to north
+
+    vehicles.append(Vehicle(0,routes[9],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # west to east
+    vehicles.append(Vehicle(1,routes[6],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # north to south
+    vehicles.append(Vehicle(2,routes[0],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # south to north
 
     manager = Manager(np.array([0,0]), 50)
 

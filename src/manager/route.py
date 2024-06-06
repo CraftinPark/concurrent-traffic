@@ -33,3 +33,6 @@ class Route():
     edges: list[Edge] = []
     def __init__(self, edges: list[Edge]):
         self.edges = edges
+
+def route_position_to_world_position(route: Route, position: float):
+    return [0,0]
