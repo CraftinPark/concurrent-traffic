@@ -1,25 +1,18 @@
-day 1
-APPROACH 1:
-Collisions array. Tree problem
+### World Position vs Screen Position
+world position is our own coordinate system. (0,0) represents the middle of the intersection. depending on the constants `WORLD_WIDTH` and `WORLD_HEIGHT` the bounds will change.\
+screen position is the describing pixels. (0,0) represents the top left of the window, and depending on `SCREEN_WIDTH` and `SCREEN_HEIGHT` the size of the window will change.
 
-the root of the tree is the current trajectories. The number of collisions represents the number of the node.
-Each leaf of the tree is an adjustment that reduces the number of collisions.
+### Route Position
+vehicles do not have an cartesian x,y position. Instead they have a route position. Route position is a value in meters from 0 - t, where t is the total length of a route.
 
-notes:
-The idea has flaws, for example, it will miss the optimal solution where carA slows down a little and carB speeds up a little. When adjusting carA's speed, it will move it to totally avoid carB.
+benefits:
+- single parameter of displacement (arclength)
+- manager will be working with routes rather than predicting vehicle pos/vel/direction
 
-can this be turned into a bipartite graph? where one side is cars on the X line and other side is cars on the Y line?
+Routes have multiple segments of edges. For example it can be composed of a straight edge, a curved edge, and a straight edge. The route class has a function called `route_position_to_world_position` that is responsible for determining the x,y position.
 
-will have to try this approach to see it's effectiveness.
-
-day 2
-APPROACH 2:
-Priority to closest to intersection
-
-To simplify the problem and as a proof of concept, we will start by a simple approach, where the priority goes to the car that is closest to the intersection.
-If car1 is closer to the intersection than car2, and car1 and car2 are in a collision course, then car2 must yield and slow down it's speed.
-If the resulting speed change of car2 results in a new collision course with car3, and car2 is closer to the intersection, then car3 will have to slow down.
-if in the collision course between car2 and car3, car3 was closer to the intersection, then car2 will have to yield yet again and slow down it's speed.
-
-cautionary notes:
-if car1 is closer to the intersection than car2, but car2 had a faster velocity, it may be the case that after the calculation, car2 is closer to the intersection. Perhaps the distance to the intersection should be based on the future? metric of: "who will get to the intersection first?"
+### Command
+A command is instructions that the Manager will send to a vehicle to make adjustments to its speed. The Manager only has control over the acceleration (gas pedal) and decceleration (brake pedal) and in theory the wheel of the vehicle. A command will be a piecewise function of time and acceleration. For example, the command can say:\
+from 0-10 seconds, apply X acceleration.\
+from 10-15 seconds, apply Y acceleration.\
+The vehicle will keep this command and step through in it's time, and apply the acceleration.
