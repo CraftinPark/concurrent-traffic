@@ -2,7 +2,9 @@ import pygame
 import numpy as np
 from pygame import Surface
 from classes.vehicle import Vehicle
-from manager.route import Node, Edge, Route, route_position_to_world_position
+from manager.node import Node
+from manager.edge import Edge
+from manager.route import Route, route_position_to_world_position
 from manager.manager import Manager
 from classes.button import Button
 from .helper import world_to_screen_vector, world_to_screen_scalar
@@ -50,10 +52,7 @@ def render_vehicles(screen: Surface, vehicles: list[Vehicle]):
         vehicle_screen_width = world_to_screen_scalar(vehicle.width)
         vehicle_screen_length = world_to_screen_scalar(vehicle.length)
 
-        # vehicle_center_point = get_vehicle_center_point(vehicle)
-
         vehicle_center_point = route_position_to_world_position(vehicle.route, vehicle.route_position)
-
         vehicle_center_screen_pos = world_to_screen_vector(vehicle_center_point)
 
         img = pygame.transform.smoothscale(vehicle.image, (vehicle_screen_length, vehicle_screen_width))
