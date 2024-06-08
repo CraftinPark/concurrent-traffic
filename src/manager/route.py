@@ -57,6 +57,9 @@ def get_length(edge: Edge) -> float:
     # Angle in radians
     theta = np.arccos(cos_theta)
 
+    if not edge.clockwise:
+        theta = 2*np.pi - theta
+
     return theta * radius
 
 
@@ -110,7 +113,7 @@ def route_position_to_world_position(route: Route, position: float):
         theta_end   = np.arctan2(edge_of_position.end.position[1] - edge_of_position.center[1], edge_of_position.end.position[0] - edge_of_position.center[0])
 
         if edge_of_position.clockwise:
-            theta_of_pos = theta_start + percentage_on_edge * (theta_start - theta_end)
+            theta_of_pos = theta_start + percentage_on_edge * (theta_end - theta_start)
         else:
             theta_of_pos = theta_start + percentage_on_edge * (theta_end - theta_start)
 
