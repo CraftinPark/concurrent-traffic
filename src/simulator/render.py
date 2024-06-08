@@ -2,9 +2,9 @@ import pygame
 import numpy as np
 from pygame import Surface
 from classes.vehicle import Vehicle
-from manager.node import Node
-from manager.edge import Edge
-from manager.route import Route, route_position_to_world_position
+from classes.node import Node
+from classes.edge import Edge
+from classes.route import Route, route_position_to_world_position
 from manager.manager import Manager
 from classes.button import Button
 from .helper import world_to_screen_vector, world_to_screen_scalar

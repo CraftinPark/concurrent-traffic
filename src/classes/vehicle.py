@@ -2,7 +2,7 @@ import numpy as np
 import pygame
 from pygame import Surface
 from manager.command import Command
-from manager.route import Route
+from classes.route import Route
 
 class Vehicle:
     id: int                  = None            # vehicle identifier

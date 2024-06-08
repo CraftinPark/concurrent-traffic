@@ -1,9 +1,9 @@
 import numpy as np
 from classes.vehicle import Vehicle
 from manager.manager import Manager
-from manager.node import Node
-from manager.edge import Edge
-from manager.route import Route
+from classes.node import Node
+from classes.edge import Edge
+from classes.route import Route
 from simulator.simulator import run_simulation
 
 def main():
