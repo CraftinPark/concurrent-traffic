@@ -56,9 +56,12 @@ def get_length(edge: Edge) -> float:
 
     # Angle in radians
     theta = np.arccos(cos_theta)
+    
+    
+    theta_start = np.arctan2(edge.start.position[1] - edge.center[1], edge.start.position[0] - edge.center[0])
+    theta_end   = np.arctan2(edge.end.position[1] - edge.center[1], edge.end.position[0] - edge.center[0])
 
-    if not edge.clockwise:
-        theta = 2*np.pi - theta
+
 
     return theta * radius
 
@@ -94,7 +97,6 @@ def route_position_to_world_position(route: Route, position: float):
     percentage_on_edge = None
     for r in route.pos_to_edge_map:
         if position < r[1] and position >= r[0]:
-            print(r)
             edge_of_position = route.pos_to_edge_map[r]
             percentage_on_edge = (position - r[0]) / (r[1] - r[0])
             break
@@ -113,13 +115,20 @@ def route_position_to_world_position(route: Route, position: float):
         theta_end   = np.arctan2(edge_of_position.end.position[1] - edge_of_position.center[1], edge_of_position.end.position[0] - edge_of_position.center[0])
 
         if edge_of_position.clockwise:
-            theta_of_pos = theta_start + percentage_on_edge * (theta_end - theta_start)
+            if theta_end < theta_start:
+                theta_end += 2*np.pi
         else:
-            theta_of_pos = theta_start + percentage_on_edge * (theta_end - theta_start)
+            if theta_start < theta_end:
+                theta_start += 2*np.pi
+
+        theta_of_pos = theta_start + percentage_on_edge * (theta_end - theta_start)
 
         world_x = edge_of_position.center[0] + edge_of_position.radius * np.cos(theta_of_pos)
         world_y = edge_of_position.center[1] + edge_of_position.radius * np.sin(theta_of_pos)
         print(f"radius: {edge_of_position.radius}")
+        print(f"theta_start: {np.rad2deg(theta_start)}")
+        print(f"theta_end: {np.rad2deg(theta_end)}")
+        print(f"theta: {np.rad2deg(theta_of_pos)}")
         print(f"world_x: {world_x}")
         print(f"world_y: {world_y}")
     
