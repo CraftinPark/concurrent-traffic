@@ -35,32 +35,32 @@ def main():
     nodes.append(Node(np.array([  -6, -1.5]))) # west
     nodes.append(Node(np.array([  -6,  1.5])))
 
-    # edges before intersection
-    edges.append(Edge(nodes[ 0], nodes[ 8]))
+    # edges outside intersection
+    edges.append(Edge(nodes[ 8], nodes[ 0]))
     edges.append(Edge(nodes[ 1], nodes[ 9]))
-    edges.append(Edge(nodes[ 2], nodes[10]))
+    edges.append(Edge(nodes[10], nodes[ 2]))
     edges.append(Edge(nodes[ 3], nodes[11]))
-    edges.append(Edge(nodes[ 4], nodes[12]))
+    edges.append(Edge(nodes[12], nodes[ 4]))
     edges.append(Edge(nodes[ 5], nodes[13]))
-    edges.append(Edge(nodes[ 6], nodes[14]))
-    edges.append(Edge(nodes[ 7], nodes[15]))
+    edges.append(Edge(nodes[14], nodes[ 6]))
+    edges.append(Edge(nodes[ 7], nodes[15])) # far left to left of intersection
 
     # edges within intersection
     edges.append(Edge(nodes[ 9], nodes[12])) # straight from south
-    edges.append(Edge(nodes[ 9], nodes[10], curved=True, center=np.array([ 6, 6]))) # right from south
-    edges.append(Edge(nodes[ 9], nodes[14], curved=True, center=np.array([-6, 6]))) # left from south
+    edges.append(Edge(nodes[ 9], nodes[10], curved=True, center=np.array([ 6, 6]), clockwise=True)) # right from south
+    edges.append(Edge(nodes[ 9], nodes[14], curved=True, center=np.array([-6, 6]), clockwise=False)) # left from south
 
     edges.append(Edge(nodes[11], nodes[14])) # straight from east
-    edges.append(Edge(nodes[11], nodes[12], curved=True, center=np.array([ 6,-6]))) # right from east
-    edges.append(Edge(nodes[11], nodes[ 8], curved=True, center=np.array([ 6, 6]))) # left from east
+    edges.append(Edge(nodes[11], nodes[12], curved=True, center=np.array([ 6,-6]), clockwise=True)) # right from east
+    edges.append(Edge(nodes[11], nodes[ 8], curved=True, center=np.array([ 6, 6]), clockwise=False)) # left from east
 
     edges.append(Edge(nodes[13], nodes[ 8])) # straight from north
-    edges.append(Edge(nodes[13], nodes[14], curved=True, center=np.array([-6,-6]))) # right from north
-    edges.append(Edge(nodes[13], nodes[10], curved=True, center=np.array([ 6,-6]))) # left from north
+    edges.append(Edge(nodes[13], nodes[14], curved=True, center=np.array([-6,-6]), clockwise=True)) # right from north
+    edges.append(Edge(nodes[13], nodes[10], curved=True, center=np.array([ 6,-6]), clockwise=False)) # left from north
 
     edges.append(Edge(nodes[15], nodes[10])) # straight from west
-    edges.append(Edge(nodes[15], nodes[ 8], curved=True, center=np.array([-6, 6]))) # right from west
-    edges.append(Edge(nodes[15], nodes[12], curved=True, center=np.array([-6,-6]))) # left from west
+    edges.append(Edge(nodes[15], nodes[ 8], curved=True, center=np.array([-6, 6]), clockwise=True)) # right from west
+    edges.append(Edge(nodes[15], nodes[12], curved=True, center=np.array([-6,-6]), clockwise=False)) # left from west
 
     # routes
     routes.append(Route([edges[ 1], edges[ 8], edges[ 4]])) # straight from south
@@ -75,17 +75,23 @@ def main():
     routes.append(Route([edges[ 5], edges[15], edges[ 6]])) # right from north
     routes.append(Route([edges[ 5], edges[16], edges[10]])) # left from north
 
-    routes.append(Route([edges[ 7], edges[17], edges[10]])) # straight from west
-    routes.append(Route([edges[ 7], edges[18], edges[ 8]])) # right from west
+    routes.append(Route([edges[ 7], edges[17], edges[ 2]])) # straight from west
+    routes.append(Route([edges[ 7], edges[18], edges[ 0]])) # right from west
     routes.append(Route([edges[ 7], edges[19], edges[12]])) # left from west
 
     # vehicles.append(Vehicle(0,[ -60,1.5],[ 8, 0],[0,0],[1, 0],2.23,4.90,1.25,'straight','assets/sedan.png'))  # west to east
     # vehicles.append(Vehicle(1,[-1.5,-70],[ 0, 8],[0,0],[0, 1],2.23,4.90,1.25,'straight','assets/sedan.png')) # north to south
     # vehicles.append(Vehicle(2,[ 1.5, 80],[ 0,-8],[0,0],[0,-1],2.23,4.90,1.25,'straight','assets/sedan.png')) # south to north
 
-    vehicles.append(Vehicle(0,routes[9],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # west to east
-    vehicles.append(Vehicle(1,routes[6],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # north to south
-    vehicles.append(Vehicle(2,routes[0],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # south to north
+
+    vehicles.append(Vehicle(1,routes[1],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # north to south
+    # vehicles.append(Vehicle(2,routes[2],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # south to north
+    # vehicles.append(Vehicle(4,routes[4],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # north to south
+    # vehicles.append(Vehicle(5,routes[5],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # south to north
+    # vehicles.append(Vehicle(7,routes[7],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # north to south
+    # vehicles.append(Vehicle(8,routes[8],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # south to north
+    # vehicles.append(Vehicle(10,routes[10],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # north to south
+    # vehicles.append(Vehicle(11,routes[11],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # south to north
 
     manager = Manager(np.array([0,0]), 50)
 

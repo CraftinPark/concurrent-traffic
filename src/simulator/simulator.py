@@ -1,7 +1,7 @@
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 1000
 
-# world describes 100mx100m space
+# world describes 160mx160m space
 WORLD_WIDTH = 160
 WORLD_HEIGHT = 160
 
