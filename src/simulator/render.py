@@ -65,7 +65,7 @@ def render_vehicles(screen: Surface, vehicles: list[Vehicle]):
         car_rect.center = vehicle_center_screen_pos
         screen.blit(img, car_rect)
 
-        pygame.draw.circle(screen, "red", vehicle_center_point, 3)
+        pygame.draw.circle(screen, "red", vehicle_center_screen_pos, 3)
 
 def render_buttons(screen: Surface, buttons: list[Button]) -> None:
     for b in buttons:
