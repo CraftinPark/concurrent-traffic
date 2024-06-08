@@ -1,7 +1,7 @@
 import numpy as np
 from classes.vehicle import Vehicle
 from .command import Command
-from ..classes.route import route_position_to_world_position
+from classes.route import route_position_to_world_position
 
 class Manager:
     position: np.ndarray = [0,0]
