@@ -1,6 +1,7 @@
 import numpy as np
 from classes.vehicle import Vehicle
 from .command import Command
+from classes.route import route_position_to_world_position
 
 class Manager:
     position: np.ndarray = [0,0]
@@ -40,7 +41,7 @@ def _update_manager_vehicle_list(manager: Manager, vehicles: list[Vehicle]):
         if vehicle_in_list: continue
 
         # vehicle within manager radius?
-        distance_to_vehicle = np.linalg.norm(vehicle.position-manager.position)
+        distance_to_vehicle = np.linalg.norm(route_position_to_world_position(vehicle.route, vehicle.route_position)-manager.position)
         if distance_to_vehicle > manager.radius: continue
 
         # vehicle is not in list and within radius, add to list
