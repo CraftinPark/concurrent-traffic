@@ -8,7 +8,7 @@ from simulator.simulator import run_simulation
 
 def main():
     # evenutually, we will load a preset as an argument and supply it to run_simulation
-    # intialize_world()?
+    # intialize_world()? 
 
     # for now, supply a preset here
 
