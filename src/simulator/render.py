@@ -95,3 +95,8 @@ def render_manager(screen, manager):
     for i, vehicle in enumerate(manager.vehicles):
         text_surface = FONT.render(f"id: {vehicle.id}, pos: {vehicle.route_position:.2f}", False, (0, 0, 0))
         screen.blit(text_surface, (5,i*20 + 5))
+
+def render_time(screen, time, width): 
+    # draw time
+    text_surface = FONT.render(f"Time: {time:.3f}", False, (0, 0, 0))
+    screen.blit(text_surface, (width - 170,5))
