@@ -46,12 +46,10 @@ def _update_manager_vehicle_list(manager: Manager, vehicles: list[Vehicle]):
         # append if not in list and inside radius
         if not vehicle_in_list and distance_to_vehicle <= manager.radius: 
             manager.vehicles.append(vehicle)
-            continue
 
         # remove if in list and outside radius
-        if vehicle_in_list and distance_to_vehicle > manager.radius: 
+        elif vehicle_in_list and distance_to_vehicle > manager.radius: 
             manager.vehicles.remove(vehicle)
-            continue
 
 def _compute_and_send_acceleration_commands(manager: Manager, vehicles: list[Vehicle]):
     for vehicle in manager.vehicles:
