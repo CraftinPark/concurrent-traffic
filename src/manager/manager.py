@@ -33,6 +33,7 @@ class Manager:
 def manager_event_loop(manager: Manager, vehicles: list[Vehicle], time: float):
     _update_manager_vehicle_list(manager, vehicles)
     _compute_and_send_acceleration_commands(manager, vehicles)
+    _remove_vehicle_(manager, vehicles)
     
 def _update_manager_vehicle_list(manager: Manager, vehicles: list[Vehicle]):
     for vehicle in vehicles:
@@ -53,6 +54,13 @@ def _compute_and_send_acceleration_commands(manager: Manager, vehicles: list[Veh
             command = _compute_command()
             vehicle.command = command
             pass
+
+def _remove_vehicle_(manager: Manager, vehicle: Vehicle):
+        # vehicle within manager radius?
+        for vehicle in manager.vehicles:
+            distance_to_vehicle = np.linalg.norm(route_position_to_world_position(vehicle.route, vehicle.route_position)-manager.position)
+            if distance_to_vehicle > manager.radius: 
+                manager.vehicles.remove(vehicle)
 
 def _compute_command() -> Command:
     # TODO

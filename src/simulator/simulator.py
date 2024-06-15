@@ -11,7 +11,7 @@ import numpy as np
 
 from classes.vehicle import Vehicle, vehicle_event_loop, vehicle_copy
 from classes.button import Button
-from manager.manager import Manager, manager_event_loop
+from manager.manager import Manager, manager_event_loop 
 from classes.node import Node
 from classes.edge import Edge
 from classes.route import Route
@@ -75,6 +75,13 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
         # vehicles 'cpu'
         for vehicle in vehicles:
             vehicle_event_loop(vehicle, delta_time)
+
+        # vehicle removal 
+        for vehicle in vehicles:
+            if vehicle.route_position > vehicle.route.total_length:
+                vehicles.remove(vehicle)
+                
+     
 
         if is_run:
             # physical changes to world (updating positions, velocity, etc.)
