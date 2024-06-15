@@ -1,7 +1,7 @@
 SCREEN_WIDTH = 1000
 SCREEN_HEIGHT = 1000
 
-# world describes 100mx100m space
+# world describes 160mx160m space
 WORLD_WIDTH = 160
 WORLD_HEIGHT = 160
 
@@ -12,7 +12,9 @@ import numpy as np
 from classes.vehicle import Vehicle, vehicle_event_loop, vehicle_copy
 from classes.button import Button
 from manager.manager import Manager, manager_event_loop
-from manager.route import Node, Edge, Route
+from classes.node import Node
+from classes.edge import Edge
+from classes.route import Route
 from .render import render_world, render_manager, render_vehicles, render_buttons
 from .update import update_world
 
