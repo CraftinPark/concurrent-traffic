@@ -80,8 +80,6 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
         for vehicle in vehicles:
             if vehicle.route_position > vehicle.route.total_length:
                 vehicles.remove(vehicle)
-                
-     
 
         if is_run:
             # physical changes to world (updating positions, velocity, etc.)
