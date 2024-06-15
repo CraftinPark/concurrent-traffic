@@ -40,20 +40,18 @@ def _update_manager_vehicle_list(manager: Manager, vehicles: list[Vehicle]):
         # vehicle within manager radius? 
         distance_to_vehicle = np.linalg.norm(route_position_to_world_position(vehicle.route, vehicle.route_position)-manager.position)
 
-        # vehicle already in list?
+        # vehicle already in list and within manager radius?
         vehicle_in_list = any(manager_vehicle.id == vehicle.id for manager_vehicle in manager.vehicles)
-        if vehicle_in_list: 
-            # check to see if vehicle is outside radius when it EXISTS in list
-            if distance_to_vehicle > manager.radius: 
-                manager.vehicles.remove(vehicle)
-            continue
-        
-        # vehicle within manager radius?
-        if distance_to_vehicle > manager.radius: 
+
+        # append if not in list and inside radius
+        if not vehicle_in_list and distance_to_vehicle <= manager.radius: 
+            manager.vehicles.append(vehicle)
             continue
 
-        # vehicle is not in list and within radius, add to list
-        manager.vehicles.append(vehicle)
+        # remove if in list and outside radius
+        if vehicle_in_list and distance_to_vehicle > manager.radius: 
+            manager.vehicles.remove(vehicle)
+            continue
 
 def _compute_and_send_acceleration_commands(manager: Manager, vehicles: list[Vehicle]):
     for vehicle in manager.vehicles:
