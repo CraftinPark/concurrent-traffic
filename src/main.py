@@ -8,7 +8,7 @@ from simulator.simulator import run_simulation
 
 def main():
     # evenutually, we will load a preset as an argument and supply it to run_simulation
-    # intialize_world()? 
+    # intialize_world()?
 
     # for now, supply a preset here
 
@@ -81,11 +81,11 @@ def main():
     routes.append(Route([edges[ 7], edges[18], edges[ 0]])) # right from west
     routes.append(Route([edges[ 7], edges[19], edges[ 4]])) # left from west
 
-    vehicles.append(Vehicle(0,routes[0],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # south to north
+    # vehicles.append(Vehicle(0,routes[0],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # south to north
     # vehicles.append(Vehicle(1,routes[1],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # south to east
-    # vehicles.append(Vehicle(2,routes[2],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # south to west
+    vehicles.append(Vehicle(2,routes[2],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # south to west
 
-    vehicles.append(Vehicle(3,routes[3],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # east to west
+    # vehicles.append(Vehicle(3,routes[3],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # east to west
     # vehicles.append(Vehicle(4,routes[4],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # east to north
     # vehicles.append(Vehicle(5,routes[5],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # east to south
 
