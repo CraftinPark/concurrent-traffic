@@ -63,7 +63,6 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
             if event.type == pygame.MOUSEBUTTONDOWN:
                 [b.click() for b in buttons]
 
-
         # fill the screen with a color to wipe away anything from last frame
         screen.fill("grey")
 
