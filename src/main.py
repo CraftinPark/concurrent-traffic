@@ -1,10 +1,13 @@
 import numpy as np
+import json
 from classes.vehicle import Vehicle
 from manager.manager import Manager
 from classes.node import Node
 from classes.edge import Edge
 from classes.route import Route
 from simulator.simulator import run_simulation
+
+
 
 def main():
     # evenutually, we will load a preset as an argument and supply it to run_simulation
@@ -81,22 +84,23 @@ def main():
     routes.append(Route([edges[ 7], edges[18], edges[ 0]])) # right from west
     routes.append(Route([edges[ 7], edges[19], edges[ 4]])) # left from west
 
-    # vehicles.append(Vehicle(0,routes[0],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # south to north
-    # vehicles.append(Vehicle(1,routes[1],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # south to east
-    vehicles.append(Vehicle(2,routes[2],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # south to west
+    # # vehicles.append(Vehicle(0,routes[0],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # south to north
+    # # vehicles.append(Vehicle(1,routes[1],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # south to east
+    # vehicles.append(Vehicle(2,routes[2],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # south to west
 
-    # vehicles.append(Vehicle(3,routes[3],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # east to west
-    # vehicles.append(Vehicle(4,routes[4],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # east to north
-    # vehicles.append(Vehicle(5,routes[5],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # east to south
+    # # vehicles.append(Vehicle(3,routes[3],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # east to west
+    # # vehicles.append(Vehicle(4,routes[4],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # east to north
+    # # vehicles.append(Vehicle(5,routes[5],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # east to south
 
-    vehicles.append(Vehicle(6,routes[6],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # north to south
-    # vehicles.append(Vehicle(7,routes[7],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # north to east
-    # vehicles.append(Vehicle(8,routes[8],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # north to west
+    # vehicles.append(Vehicle(6,routes[6],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # north to south
+    # # vehicles.append(Vehicle(7,routes[7],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # north to east
+    # # vehicles.append(Vehicle(8,routes[8],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # north to west
 
-    vehicles.append(Vehicle(9,routes[9],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # west to east
-    # vehicles.append(Vehicle(10,routes[10],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # west to south
-    # vehicles.append(Vehicle(11,routes[11],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # west to north
-
+    # vehicles.append(Vehicle(9,routes[9],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # west to east
+    # # vehicles.append(Vehicle(10,routes[10],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # west to south
+    # # vehicles.append(Vehicle(11,routes[11],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # west to north
+    load_preset("presets/presets.json", "preset2", vehicles, routes)
+ 
     manager = Manager(np.array([0,0]), 50)
 
     # scenery
@@ -104,5 +108,28 @@ def main():
 
     run_simulation(vehicles, nodes, edges, routes, manager)
 
+
+def load_preset(file_path, preset_name, vehicles, routes):
+    with open(file_path, 'r') as file:
+        presets = json.load(file)
+    
+    if preset_name not in presets:
+        raise ValueError(f"Preset '{preset_name}' not found in the file.")
+    
+    loaded_vehicles = presets[preset_name]["stored_vehicles"]
+    for i, v in enumerate(loaded_vehicles):
+        vehicles.append(Vehicle(v["id"],routes[i + 3],v["route_position"],8,0,2.23,4.90,1.25,'assets/sedan.png'))
+
+
 if __name__ == "__main__":
     main()
+
+
+
+
+    
+    ### Questions:  
+    # does it have to be in each file?
+    # what do you mean by start commang?
+    # do you only want the attribute of route_position stored in the preset file? what about all the other attributes?
+    # 
