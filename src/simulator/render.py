@@ -47,6 +47,11 @@ def render_edges(screen: Surface, edges: list[Edge]):
 
             pygame.draw.arc(screen, "red", arc_rect, rad_angle_to_start, rad_angle_to_end)
 
+def render_intersections(screen: Surface, intersection_points):
+    for intersection in intersection_points:
+        node_position = world_to_screen_vector(intersection[2].position)
+        pygame.draw.circle(screen, "blue", node_position, 3)
+
 def render_vehicles(screen: Surface, vehicles: list[Vehicle]):
     for vehicle in vehicles:
         vehicle_screen_width = world_to_screen_scalar(vehicle.width)
@@ -74,11 +79,11 @@ def render_buttons(screen: Surface, buttons: list[Button]) -> None:
             text = font.render(b.text, 1, (255, 255, 255))
             screen.blit(text, (b.x + (b.width/2 - text.get_width()/2), b.y + (b.height/2 - text.get_height()/2)))
 
-def render_world(screen: Surface, nodes: list[Node], edges: list[Edge]):
+def render_world(screen: Surface, nodes: list[Node], edges: list[Edge], intersection_points):
     render_nodes(screen, nodes)
     render_edges(screen, edges)
+    render_intersections(screen, intersection_points)
     # render_scenery()
-    # render_intersection()
 
 def render_manager(screen, manager):
     # draw position
@@ -95,9 +100,3 @@ def render_manager(screen, manager):
     for i, vehicle in enumerate(manager.vehicles):
         text_surface = FONT.render(f"id: {vehicle.id}, pos: {vehicle.route_position:.2f}", False, (0, 0, 0))
         screen.blit(text_surface, (5,i*20 + 5))
-
-    for intersection_point in manager.intersecting_points:
-        for i2 in intersection_point[2]:
-            node = Node([(float)(i2.x),(float)(i2.y)])
-            node_position = world_to_screen_vector(node.position)
-            pygame.draw.circle(screen, "blue", node_position, 3)

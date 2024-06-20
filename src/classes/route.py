@@ -45,3 +45,24 @@ def route_position_to_world_position(route: Route, position: float):
         world_y = edge_of_position.center[1] + edge_of_position.radius * np.sin(theta_of_pos)
     
     return [world_x, world_y]
+
+# currently assumes position will be on the edge. Must be robustized though.
+def world_position_to_route_position(route: Route, edge: Edge, position: np.ndarray):
+    route_position = 0
+    if isinstance(edge, StraightEdge):
+        arclength = np.sqrt((position[0] - edge.start.position[0])**2 + (position[1] - edge.start.position[1])**2)
+        
+    elif isinstance(edge, CircularEdge):
+        theta_of_start = np.arctan2(edge.start.position[1] - edge.center[1], edge.start.position[0] - edge.center[0])
+        theta_of_pos = np.arctan2(position[1] - edge.center[1], position[0] - edge.center[0])
+        delta_theta = theta_of_pos - theta_of_start
+        # adjust angle to be positive and within 2pi
+        if delta_theta < 0:
+            delta_theta += 2*np.pi
+        arclength = edge.radius * delta_theta
+
+    index_of_edge = route.edges.index(edge)
+    for edge_index in range(index_of_edge):
+        route_position += get_length(route.edges[edge_index])
+    route_position += arclength
+    return route_position

@@ -5,6 +5,7 @@ from classes.node import Node
 from classes.edge import StraightEdge, CircularEdge
 from classes.route import Route
 from simulator.simulator import run_simulation
+from helper import get_intersections
 
 def main():
     # evenutually, we will load a preset as an argument and supply it to run_simulation
@@ -101,8 +102,8 @@ def main():
 
     # scenery
     # 2 rects for road,
-
-    run_simulation(vehicles, nodes, edges, routes, manager)
+    intersection_points = get_intersections(routes)
+    run_simulation(vehicles, nodes, edges, routes, intersection_points, manager)
 
 if __name__ == "__main__":
     main()
