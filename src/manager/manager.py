@@ -1,18 +1,20 @@
 import numpy as np
 from classes.vehicle import Vehicle
 from .command import Command
-from classes.route import route_position_to_world_position
+from classes.route import Route, route_position_to_world_position
+from classes.edge import Edge, StraightEdge, CircularEdge
+from sympy import Point, intersection
 
 class Manager:
-    position: np.ndarray = [0,0]
+    position: Point = (0,0)
     radius: float = 25
     vehicles: list[Vehicle] = []
 
-    def __init__(self, position: np.ndarray, radius: float):
+    def __init__(self, position: Point, radius: float, routes: list[Route]):
         # initialize
         self.position = position
         self.radius = radius
-        print("manager initialized")
+        calculate_intersecting_points(routes)
 
     def reset(self):
         self.vehicles.clear()
@@ -30,10 +32,33 @@ class Manager:
 #     # adjustment must be a timed acceleration/deceleration
 #     return
 
+# 1. print pretty and see routes of intersection
+# 2. filter out the intersections that aren't in the right range
+# 3. correct return with route_position?
+#
+
+
+def get_intersections(route1: Route, route2: Route, edge1: Edge, edge2: Edge) -> tuple[float, float]: # route_position on r1, route_position on r2
+    result = intersection(edge1.sympy_obj, edge2.sympy_obj)
+    return result
+
+def calculate_intersecting_points(routes: list[Route]):
+    routes_set = set(routes)
+    lst = []
+    for r1 in routes_set:
+        for e1 in r1.edges:
+            for r2 in (routes_set - set([r1])):
+                for e2 in (set(r2.edges) - set([e1])):
+                    intersections = get_intersections(r1,r2,e1,e2)
+                    if intersections:
+                        lst.append(intersections)
+    print(intersections)
+    return lst
+
 def manager_event_loop(manager: Manager, vehicles: list[Vehicle], time: float):
     _update_manager_vehicle_list(manager, vehicles)
     _compute_and_send_acceleration_commands(manager, vehicles)
-    
+
 def _update_manager_vehicle_list(manager: Manager, vehicles: list[Vehicle]):
     for vehicle in vehicles:
         # vehicle already in list?

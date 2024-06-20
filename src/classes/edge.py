@@ -5,19 +5,18 @@ from sympy import Segment, Circle, Point
 class Edge():
     start: Node = None
     end: Node = None
+    sympy_obj: Segment | Circle = None
 
     def __init__(self, start: Node, end: Node):
         self.start = start
         self.end = end
 
 class StraightEdge(Edge):
-    segment_object: Segment
     def __init__(self, start: Node, end: Node):
         Edge.__init__(self, start, end)
-        self.segment_object = Segment(Point(start.position[0], start.position[1]), Point(end.position[0], end.position[1]))
+        self.sympy_obj = Segment(Point(start.position[0], start.position[1]), Point(end.position[0], end.position[1]))
         
 class CircularEdge(Edge):
-    circle_object: Circle
     center: Node
     radius: float
     clockwise: bool
@@ -27,7 +26,7 @@ class CircularEdge(Edge):
         self.radius = np.linalg.norm(start.position - center)
         self.center = center
         self.clockwise = clockwise
-        self.circle_object = Circle(Point(center[0], center[1]), self.radius)
+        self.sympy_obj = Circle(Point(center[0], center[1]), self.radius)
 
 def get_length(edge: Edge) -> float:
     if isinstance(edge, StraightEdge):

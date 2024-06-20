@@ -97,7 +97,7 @@ def main():
     # vehicles.append(Vehicle(10,routes[10],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # west to south
     # vehicles.append(Vehicle(11,routes[11],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # west to north
 
-    manager = Manager(np.array([0,0]), 50)
+    manager = Manager(np.array([0,0]), 50, routes)
 
     # scenery
     # 2 rects for road,
