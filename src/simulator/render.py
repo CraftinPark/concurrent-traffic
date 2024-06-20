@@ -95,3 +95,9 @@ def render_manager(screen, manager):
     for i, vehicle in enumerate(manager.vehicles):
         text_surface = FONT.render(f"id: {vehicle.id}, pos: {vehicle.route_position:.2f}", False, (0, 0, 0))
         screen.blit(text_surface, (5,i*20 + 5))
+
+    for intersection_point in manager.intersecting_points:
+        for i2 in intersection_point[2]:
+            node = Node([(float)(i2.x),(float)(i2.y)])
+            node_position = world_to_screen_vector(node.position)
+            pygame.draw.circle(screen, "blue", node_position, 3)

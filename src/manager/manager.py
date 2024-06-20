@@ -6,15 +6,16 @@ from classes.edge import Edge, StraightEdge, CircularEdge
 from sympy import Point, intersection
 
 class Manager:
-    position: Point = (0,0)
+    position: np.ndarray
     radius: float = 25
     vehicles: list[Vehicle] = []
+    intersecting_points = None
 
-    def __init__(self, position: Point, radius: float, routes: list[Route]):
+    def __init__(self, position: np.ndarray, radius: float, routes: list[Route]):
         # initialize
         self.position = position
         self.radius = radius
-        calculate_intersecting_points(routes)
+        self.intersecting_points = calculate_intersecting_points(routes)
 
     def reset(self):
         self.vehicles.clear()
@@ -38,21 +39,28 @@ class Manager:
 #
 
 
-def get_intersections(route1: Route, route2: Route, edge1: Edge, edge2: Edge) -> tuple[float, float]: # route_position on r1, route_position on r2
+def get_intersections(route1: Route, route2: Route, edge1: Edge, edge2: Edge): # route_position on r1, route_position on r2
     result = intersection(edge1.sympy_obj, edge2.sympy_obj)
-    return result
+    first = max(route1.current_id, route2.current_id)
+    second = min(route1.current_id, route2.current_id)
+
+    return (first, second, tuple(result))
 
 def calculate_intersecting_points(routes: list[Route]):
     routes_set = set(routes)
-    lst = []
+    lst = set()
     for r1 in routes_set:
         for e1 in r1.edges:
             for r2 in (routes_set - set([r1])):
                 for e2 in (set(r2.edges) - set([e1])):
                     intersections = get_intersections(r1,r2,e1,e2)
-                    if intersections:
-                        lst.append(intersections)
-    print(intersections)
+                    if intersections[2]:
+                        lst.add(intersections)
+    count = 0
+    for i in lst:
+        count += 1
+        print(f"r1:{i[0]} r2:{i[1]} points:{i[2]}")
+    print(count)
     return lst
 
 def manager_event_loop(manager: Manager, vehicles: list[Vehicle], time: float):

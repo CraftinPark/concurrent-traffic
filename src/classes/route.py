@@ -2,14 +2,13 @@ import numpy as np
 from .edge import Edge, StraightEdge, CircularEdge, get_length  
 
 class Route():
-    current_id: int = 1 # route id  
+    current_id: int
     edges: list[Edge]
     total_length: float = 0 # float representing total length of the route in meters
     pos_to_edge_map: dict[tuple, Edge]
 
-    def __init__(self, edges: list[Edge]):
-        self.current_id = Route.current_id
-        Route.current_id += 1
+    def __init__(self, id: int, edges: list[Edge]):
+        self.current_id = id
         self.edges = edges
         self.pos_to_edge_map = {}
         for e in self.edges:
