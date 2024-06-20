@@ -1,5 +1,5 @@
 import numpy as np
-from .edge import Edge, get_length  
+from .edge import Edge, StraightEdge, CircularEdge, get_length  
 
 class Route():
     edges: list[Edge]
@@ -23,10 +23,10 @@ def route_position_to_world_position(route: Route, position: float):
             break
     if edge_of_position is None:
         return [-100, -100]
-    if not edge_of_position.curved:
+    if isinstance(edge_of_position, StraightEdge):
         world_x = (1-percentage_on_edge)*edge_of_position.start.position[0] + percentage_on_edge*edge_of_position.end.position[0]
         world_y = (1-percentage_on_edge)*edge_of_position.start.position[1] + percentage_on_edge*edge_of_position.end.position[1]
-    else:
+    elif isinstance(edge_of_position, CircularEdge):
         theta_start = np.arctan2(edge_of_position.start.position[1] - edge_of_position.center[1], edge_of_position.start.position[0] - edge_of_position.center[0])
         theta_end   = np.arctan2(edge_of_position.end.position[1] - edge_of_position.center[1], edge_of_position.end.position[0] - edge_of_position.center[0])
 

@@ -2,7 +2,7 @@ import numpy as np
 from classes.vehicle import Vehicle
 from manager.manager import Manager
 from classes.node import Node
-from classes.edge import Edge
+from classes.edge import StraightEdge, CircularEdge
 from classes.route import Route
 from simulator.simulator import run_simulation
 
@@ -38,31 +38,31 @@ def main():
     nodes.append(Node(np.array([  -6,  1.5])))
 
     # edges outside intersection
-    edges.append(Edge(nodes[ 8], nodes[ 0]))
-    edges.append(Edge(nodes[ 1], nodes[ 9]))
-    edges.append(Edge(nodes[10], nodes[ 2]))
-    edges.append(Edge(nodes[ 3], nodes[11]))
-    edges.append(Edge(nodes[12], nodes[ 4]))
-    edges.append(Edge(nodes[ 5], nodes[13]))
-    edges.append(Edge(nodes[14], nodes[ 6]))
-    edges.append(Edge(nodes[ 7], nodes[15])) # far left to left of intersection
+    edges.append(StraightEdge(nodes[ 8], nodes[ 0]))
+    edges.append(StraightEdge(nodes[ 1], nodes[ 9]))
+    edges.append(StraightEdge(nodes[10], nodes[ 2]))
+    edges.append(StraightEdge(nodes[ 3], nodes[11]))
+    edges.append(StraightEdge(nodes[12], nodes[ 4]))
+    edges.append(StraightEdge(nodes[ 5], nodes[13]))
+    edges.append(StraightEdge(nodes[14], nodes[ 6]))
+    edges.append(StraightEdge(nodes[ 7], nodes[15])) # far left to left of intersection
 
     # edges within intersection
-    edges.append(Edge(nodes[ 9], nodes[12])) # straight from south
-    edges.append(Edge(nodes[ 9], nodes[10], curved=True, center=np.array([ 6, 6]), clockwise=True)) # right from south
-    edges.append(Edge(nodes[ 9], nodes[14], curved=True, center=np.array([-6, 6]), clockwise=False)) # left from south
+    edges.append(StraightEdge(nodes[ 9], nodes[12])) # straight from south
+    edges.append(CircularEdge(nodes[ 9], nodes[10], center=np.array([ 6, 6]), clockwise=True)) # right from south
+    edges.append(CircularEdge(nodes[ 9], nodes[14], center=np.array([-6, 6]), clockwise=False)) # left from south
 
-    edges.append(Edge(nodes[11], nodes[14])) # straight from east
-    edges.append(Edge(nodes[11], nodes[12], curved=True, center=np.array([ 6,-6]), clockwise=True)) # right from east
-    edges.append(Edge(nodes[11], nodes[ 8], curved=True, center=np.array([ 6, 6]), clockwise=False)) # left from east
+    edges.append(StraightEdge(nodes[11], nodes[14])) # straight from east
+    edges.append(CircularEdge(nodes[11], nodes[12], center=np.array([ 6,-6]), clockwise=True)) # right from east
+    edges.append(CircularEdge(nodes[11], nodes[ 8], center=np.array([ 6, 6]), clockwise=False)) # left from east
 
-    edges.append(Edge(nodes[13], nodes[ 8])) # straight from north
-    edges.append(Edge(nodes[13], nodes[14], curved=True, center=np.array([-6,-6]), clockwise=True)) # right from north
-    edges.append(Edge(nodes[13], nodes[10], curved=True, center=np.array([ 6,-6]), clockwise=False)) # left from north
-
-    edges.append(Edge(nodes[15], nodes[10])) # straight from west
-    edges.append(Edge(nodes[15], nodes[ 8], curved=True, center=np.array([-6, 6]), clockwise=True)) # right from west
-    edges.append(Edge(nodes[15], nodes[12], curved=True, center=np.array([-6,-6]), clockwise=False)) # left from west
+    edges.append(StraightEdge(nodes[13], nodes[ 8])) # straight from north
+    edges.append(CircularEdge(nodes[13], nodes[14], center=np.array([-6,-6]), clockwise=True)) # right from north
+    edges.append(CircularEdge(nodes[13], nodes[10], center=np.array([ 6,-6]), clockwise=False)) # left from north
+    
+    edges.append(StraightEdge(nodes[15], nodes[10])) # straight from west
+    edges.append(CircularEdge(nodes[15], nodes[ 8], center=np.array([-6, 6]), clockwise=True)) # right from west
+    edges.append(CircularEdge(nodes[15], nodes[12], center=np.array([-6,-6]), clockwise=False)) # left from west
 
     # routes
     routes.append(Route([edges[ 1], edges[ 8], edges[ 4]])) # straight from south

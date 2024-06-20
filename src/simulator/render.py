@@ -3,7 +3,7 @@ import numpy as np
 from pygame import Surface
 from classes.vehicle import Vehicle
 from classes.node import Node
-from classes.edge import Edge
+from classes.edge import Edge, StraightEdge, CircularEdge
 from classes.route import Route, route_position_to_world_position
 from manager.manager import Manager
 from classes.button import Button
@@ -19,11 +19,11 @@ def render_nodes(screen: Surface, nodes: list[Node]):
 
 def render_edges(screen: Surface, edges: list[Edge]):
     for edge in edges:
-        if edge.curved == False:
+        if isinstance(edge, StraightEdge):
             start_position = world_to_screen_vector(edge.start.position)
             end_position   = world_to_screen_vector(edge.end.position)
             pygame.draw.line(screen, "red", start_position, end_position)
-        else:
+        elif isinstance(edge, CircularEdge):
             # define rect
             radius = world_to_screen_scalar(np.linalg.norm(edge.start.position-edge.center)) # norm describes distance
             diameter = radius*2
