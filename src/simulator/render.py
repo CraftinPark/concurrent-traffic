@@ -49,7 +49,7 @@ def render_edges(screen: Surface, edges: list[Edge]):
 
 def render_intersections(screen: Surface, intersection_points):
     for intersection in intersection_points:
-        node_position = world_to_screen_vector(intersection[2].position)
+        node_position = world_to_screen_vector(np.array(list(intersection[2])))
         pygame.draw.circle(screen, "blue", node_position, 3)
 
 def render_vehicles(screen: Surface, vehicles: list[Vehicle]):

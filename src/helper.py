@@ -7,23 +7,22 @@ from classes.node import Node
 import sympy
 from sympy import Point2D
 
-def get_edge_intersections(route1: Route, route2: Route, edge1: Edge, edge2: Edge) -> set[int, int, tuple[Point2D]]: # route_position on r1, route_position on r2
+def get_edge_intersections(route1: Route, route2: Route, edge1: Edge, edge2: Edge) -> set[int, int, tuple[float, float]]: # route_position on r1, route_position on r2
     intersections = set(sympy.intersection(edge1.sympy_obj, edge2.sympy_obj))
     first, second = sorted([route1.current_id, route2.current_id])
     if isinstance(edge1, CircularEdge):
-        intersections.intersection_update(check_circle(edge1, intersections, route1, route2, edge2))
+        intersections.intersection_update(check_circle(edge1, intersections))
     if isinstance(edge2, CircularEdge):
-        intersections.intersection_update(check_circle(edge2, intersections, route2, route1, edge1))
+        intersections.intersection_update(check_circle(edge2, intersections))
 
     result = set()
     for i in intersections:
-        intersect_node = Node(np.array([float(i.x), float(i.y)]))
-        intersection = (first, second, intersect_node)
+        intersection = (first, second, (float(i.x), float(i.y)))
         result.add(intersection)
 
     return result
 
-def check_circle(edge: CircularEdge, intersections: list[Point2D],route, other, other_edge):
+def check_circle(edge: CircularEdge, intersections: list[Point2D]):
     start_angle = normalize_angle(np.arctan2((edge.start.position[1] - edge.center[1]), edge.start.position[0] - edge.center[0]))
     end_angle = normalize_angle(np.arctan2((edge.end.position[1] - edge.center[1]), edge.end.position[0] - edge.center[0]))
 
