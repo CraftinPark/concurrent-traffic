@@ -27,5 +27,10 @@
   "routes": [
     {"id": "route_0", "source": "edge_3", "intermediate": "edge_5", "target": "edge_0"},
     {"id": "route_1", "source": "edge_1", "intermediate": "edge_4", "target": "edge_2"}
-  ]
+  ],
+
+  "manager": {
+    "position": [0, 0],
+    "radius": 50
+  }
 }

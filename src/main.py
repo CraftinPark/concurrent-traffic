@@ -13,15 +13,17 @@ def main():
         print('Usage: python3 src/main.py <preset_file_name>')
         return
     
-    preset_name = sys.argv[1]
-    load_preset("presets/" + preset_name)
-
-def load_preset(file_path):
     nodes = []
     edges = []
     routes = []
     vehicles = []
+    
+    preset_name = sys.argv[1]
+    manager = load_preset("presets/" + preset_name, nodes, edges, routes, vehicles)
+    run_simulation(vehicles, nodes, edges, routes, manager)
 
+# appends nodes, edges, routes, and vehicles and returns manager with the given position and radius 
+def load_preset(file_path, nodes, edges, routes, vehicles):
     with open(file_path, 'r') as file:
         presets = json.load(file)
         
@@ -54,9 +56,10 @@ def load_preset(file_path):
     for v in loaded_vehicles:
         vehicles.append(Vehicle(v["id"],route_dict[v["route"]],v["route_position"],8,0,2.23,4.90,1.25,'assets/sedan.png'))
 
-    manager = Manager(np.array([0,0]), 50)
+    manager_data = presets["manager"]
+    manager = Manager(np.array([manager_data["position"][0],manager_data["position"][1]]), manager_data["radius"])
 
-    run_simulation(vehicles, nodes, edges, routes, manager)
+    return manager
 
 if __name__ == "__main__":
     main()

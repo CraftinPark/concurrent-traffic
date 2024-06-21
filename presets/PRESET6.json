@@ -73,5 +73,10 @@
     {"id": "route_5", "source": "edge_3", "intermediate": "edge_12", "target": "edge_4", "comment": "right from east"},
     {"id": "route_6", "source": "edge_5", "intermediate": "edge_15", "target": "edge_6", "comment": "right from north"},
     {"id": "route_7", "source": "edge_1", "intermediate": "edge_9",  "target": "edge_2", "comment": "right from south"}
-  ]
+  ],
+
+  "manager": {
+    "position": [0, 0],
+    "radius": 50
+  }
 }
