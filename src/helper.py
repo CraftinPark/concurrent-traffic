@@ -11,9 +11,9 @@ def get_edge_intersections(route1: Route, route2: Route, edge1: Edge, edge2: Edg
     intersections = set(sympy.intersection(edge1.sympy_obj, edge2.sympy_obj))
     first, second = sorted([route1.current_id, route2.current_id])
     if isinstance(edge1, CircularEdge):
-        intersections.intersection_update(check_circle(edge1, intersections))
+        intersections.intersection_update(check_circle(edge1, intersections, route1, route2, edge2))
     if isinstance(edge2, CircularEdge):
-        intersections.intersection_update(check_circle(edge2, intersections))
+        intersections.intersection_update(check_circle(edge2, intersections, route2, route1, edge1))
 
     result = set()
     for i in intersections:
@@ -23,12 +23,20 @@ def get_edge_intersections(route1: Route, route2: Route, edge1: Edge, edge2: Edg
 
     return result
 
-def check_circle(edge: CircularEdge, intersections: list[Point2D]):
-    start_angle = np.arctan2(edge.start.position[1] - edge.center[1], edge.start.position[0] - edge.center[0]) + np.pi
-    end_angle = np.arctan2(edge.end.position[1] - edge.center[1], edge.end.position[0] - edge.center[0]) + np.pi
+def check_circle(edge: CircularEdge, intersections: list[Point2D],route, other, other_edge):
+    start_angle = normalize_angle(np.arctan2((edge.start.position[1] - edge.center[1]), edge.start.position[0] - edge.center[0]))
+    end_angle = normalize_angle(np.arctan2((edge.end.position[1] - edge.center[1]), edge.end.position[0] - edge.center[0]))
+
+    if edge.clockwise:
+        if end_angle < start_angle:
+            end_angle += 2*np.pi
+    else:
+        if start_angle < end_angle:
+            start_angle += 2*np.pi
+
     true_intersects = set()
     for i in intersections:
-        i_angle = np.arctan2(float(i.y) - edge.center[1], float(i.x) - edge.center[0]) + np.pi
+        i_angle = normalize_angle(np.arctan2((float(i.y) - edge.center[1]), (float(i.x) - edge.center[0])))
         if is_angle_between(start_angle, end_angle, i_angle, edge.clockwise):
             true_intersects.add(i)
     return true_intersects
@@ -40,15 +48,14 @@ def normalize_angle(angle):
         angle += 2 * np.pi
     return angle
 
-def is_angle_between(theta_1, theta_2, theta_3, clockwise):
-    theta_1 = normalize_angle(theta_1)
-    theta_2 = normalize_angle(theta_2)
-    theta_3 = normalize_angle(theta_3)
+def is_angle_between(start_angle, end_angle, i_angle, clockwise):
 
-    if (theta_1 <= theta_2 and not clockwise) or (theta_1 >= theta_2 and clockwise):
-        return theta_1 <= theta_3 <= theta_2
-    else:
-        return theta_3 >= theta_1 or theta_3 <= theta_2
+    theta_1, theta_2 = sorted([start_angle, end_angle])
+
+    if (start_angle <= end_angle and not clockwise) or (start_angle >= end_angle and not clockwise):
+        return theta_1 <= i_angle <= theta_2
+    elif (start_angle >= end_angle and clockwise) or (start_angle <= end_angle and clockwise):
+        return i_angle >= theta_1 or i_angle <= theta_2
 
 def get_intersections(routes: list[Route]):
     routes_set = set(routes)
