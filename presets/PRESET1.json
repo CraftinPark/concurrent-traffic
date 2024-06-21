@@ -1,0 +1,31 @@
+{
+  "stored_vehicles": [
+    {"id": "vehicle_0", "route": "route_0", "route_position": 0},
+    {"id": "vehicle_1", "route": "route_1", "route_position": 0} 
+  ],
+
+  "nodes": [
+    {"id": "node_0", "position": [   6,  1.5]},
+    {"id": "node_1", "position": [  80,  1.5]},
+    {"id": "node_2", "position": [  80, -1.5]},
+    {"id": "node_3", "position": [   6, -1.5]},
+    {"id": "node_4", "position": [  -6, -1.5]},
+    {"id": "node_5", "position": [ -80, -1.5]},
+    {"id": "node_6", "position": [ -80,  1.5]},
+    {"id": "node_7", "position": [  -6,  1.5]}
+  ],
+
+  "edges": [
+    {"id": "edge_0", "source": "node_0", "target": "node_1"},
+    {"id": "edge_1", "source": "node_2", "target": "node_3"},
+    {"id": "edge_2", "source": "node_4", "target": "node_5"},
+    {"id": "edge_3", "source": "node_6", "target": "node_7"},
+    {"id": "edge_4", "source": "node_3", "target": "node_4"},
+    {"id": "edge_5", "source": "node_7", "target": "node_0"}
+  ],
+
+  "routes": [
+    {"id": "route_0", "source": "edge_3", "intermediate": "edge_5", "target": "edge_0"},
+    {"id": "route_1", "source": "edge_1", "intermediate": "edge_4", "target": "edge_2"}
+  ]
+}
