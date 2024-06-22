@@ -10,7 +10,7 @@ from simulator.simulator import run_simulation
 
 def main():
     if len(sys.argv) != 2:
-        print('Usage: python3 src/main.py <preset_file_name>')
+        print('Usage: python3 src/main.py <absolute_path_to_preset>')
         return
     
     nodes = []
@@ -19,7 +19,7 @@ def main():
     vehicles = []
     
     preset_name = sys.argv[1]
-    manager = load_preset("presets/" + preset_name, nodes, edges, routes, vehicles)
+    manager = load_preset(preset_name, nodes, edges, routes, vehicles)
     run_simulation(vehicles, nodes, edges, routes, manager)
 
 # appends nodes, edges, routes, and vehicles and returns manager with the given position and radius 
