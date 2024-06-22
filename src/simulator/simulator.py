@@ -18,7 +18,7 @@ from classes.route import Route
 from .render import render_world, render_manager, render_vehicles, render_buttons
 from .update import update_world
 
-def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: list[Edge], routes: list[Route], manager: Manager): # requires initialization of lanes, manager, vehicles
+def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: list[Edge], routes: list[Route], intersection_points, manager: Manager): # requires initialization of lanes, manager, vehicles
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     clock = pygame.time.Clock()
@@ -65,7 +65,7 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
         render_buttons(screen, buttons)
 
         # optionally render nodes and edges. for now always on
-        render_world(screen, nodes, edges)
+        render_world(screen, nodes, edges, intersection_points)
         render_manager(screen, manager)
         render_vehicles(screen, vehicles)
 
