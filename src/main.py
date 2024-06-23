@@ -4,9 +4,10 @@ import json
 from classes.vehicle import Vehicle
 from manager.manager import Manager
 from classes.node import Node
-from classes.edge import Edge
+from classes.edge import StraightEdge, CircularEdge
 from classes.route import Route
 from simulator.simulator import run_simulation
+from helper import get_intersections
 
 def main():
     if len(sys.argv) != 2:
