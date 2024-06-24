@@ -18,7 +18,7 @@ def main():
     nodes, edges, routes, vehicles = [], [], [], []
     
     manager = load_preset(preset_name, nodes, edges, routes, vehicles)
-    run_simulation(vehicles, nodes, edges, routes, manager)
+    run_simulation(vehicles, nodes, edges, routes, get_intersections(routes), manager)
 
 def load_preset(file_path, nodes, edges, routes, vehicles):
     with open(file_path, 'r') as file:
@@ -30,7 +30,7 @@ def load_preset(file_path, nodes, edges, routes, vehicles):
     load_vehicles(presets["stored_vehicles"], vehicles, route_dict)
     
     manager_data = presets["manager"]
-    manager = Manager(np.array(manager_data["position"]), manager_data["radius"])
+    manager = Manager(np.array(manager_data["position"]), manager_data["radius"], route_dict.values())
 
     return manager
 
@@ -50,9 +50,9 @@ def load_edges(loaded_edges, edges, node_dict):
         if edge["id"] in edge_dict:
             raise ValueError(f"Duplicate edge ID found: {edge['id']}")
         if edge.get("curved"):
-            new_edge = Edge(node_dict[edge["source"]], node_dict[edge["target"]], edge["curved"], np.array(edge["center"]), edge["clockwise"])
+            new_edge = CircularEdge(node_dict[edge["source"]], node_dict[edge["target"]], np.array(edge["center"]), edge["clockwise"])
         else:
-            new_edge = Edge(node_dict[edge["source"]], node_dict[edge["target"]])
+            new_edge = StraightEdge(node_dict[edge["source"]], node_dict[edge["target"]])
         edge_dict[edge["id"]] = new_edge
         edges.append(new_edge)
     return edge_dict
@@ -70,7 +70,7 @@ def load_routes(loaded_routes, routes, edge_dict):
         if source_edge.end != intermediate_edge.start or intermediate_edge.end != target_edge.start:
             raise ValueError("Invalid Route")
 
-        new_route = Route([source_edge, intermediate_edge, target_edge])
+        new_route = Route(route["id"], [source_edge, intermediate_edge, target_edge])
         route_dict[route["id"]] = new_route
         routes.append(new_route)
     return route_dict
