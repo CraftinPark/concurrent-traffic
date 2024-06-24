@@ -5,7 +5,7 @@ import sympy
 from sympy import Point2D
 from itertools import combinations
 
-def get_intersections(routes: list[Route]):
+def get_intersections(routes: list[Route]) -> set[int, int, tuple[float, float]]:
     intersections = set()
     for r1, r2 in combinations(routes, 2):
         for e1 in r1.edges:
@@ -34,14 +34,14 @@ def remove_false_circle_intersects(edge: CircularEdge, intersections: list[Point
     start_angle = np.arctan2(-(edge.start.position[1] - edge.center[1]), edge.start.position[0] - edge.center[0])
     end_angle = np.arctan2(-(edge.end.position[1] - edge.center[1]), edge.end.position[0] - edge.center[0])
 
-    intersetions_to_remove = set()
+    intersections_to_remove = set()
 
     for i in intersections:
         i_angle = np.arctan2(-(float(i.y) - edge.center[1]), float(i.x) - edge.center[0])
         if not is_angle_between(start_angle, end_angle, i_angle, edge.clockwise):
-           intersetions_to_remove.add(i)
+           intersections_to_remove.add(i)
 
-    intersections.difference_update(intersetions_to_remove)
+    intersections.difference_update(intersections_to_remove)
 
 def is_angle_between(start_angle: float, end_angle: float, i_angle: float, clockwise: bool) -> bool:
     if start_angle <= end_angle and not clockwise:
