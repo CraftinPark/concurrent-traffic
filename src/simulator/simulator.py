@@ -69,8 +69,7 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
         render_buttons(screen, buttons)
 
         # optionally render nodes and edges. for now always on
-        if route_visible:
-            render_world(screen, nodes, edges)
+        render_world(screen, nodes, edges, route_visible)
         render_manager(screen, manager)
         render_vehicles(screen, vehicles)
 

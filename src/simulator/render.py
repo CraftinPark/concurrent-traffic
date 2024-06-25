@@ -74,9 +74,10 @@ def render_buttons(screen: Surface, buttons: list[Button]) -> None:
             text = font.render(b.text, 1, (255, 255, 255))
             screen.blit(text, (b.x + (b.width/2 - text.get_width()/2), b.y + (b.height/2 - text.get_height()/2)))
 
-def render_world(screen: Surface, nodes: list[Node], edges: list[Edge]):
-    render_nodes(screen, nodes)
-    render_edges(screen, edges)
+def render_world(screen: Surface, nodes: list[Node], edges: list[Edge], route_visible):
+    if route_visible:
+        render_nodes(screen, nodes)
+        render_edges(screen, edges)
     # render_scenery()
     # render_intersection()
 
