@@ -16,3 +16,6 @@ A command is an instruction that the Manager will send to a vehicle to make adju
 from 0-10 seconds, apply X acceleration.\
 from 10-15 seconds, apply Y acceleration.\
 The vehicle will keep this command and step through in it's time, and apply the acceleration.
+
+### Intersections
+Before we start the our simulation and manager, we calculate the intersections of routes. These can either be points or lines. Points would be where two edges cross, and lines are where two routes share a line/edge for a certain distance.

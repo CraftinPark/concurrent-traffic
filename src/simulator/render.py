@@ -3,7 +3,7 @@ import numpy as np
 from pygame import Surface
 from classes.vehicle import Vehicle
 from classes.node import Node
-from classes.edge import Edge
+from classes.edge import Edge, StraightEdge, CircularEdge
 from classes.route import Route, route_position_to_world_position
 from manager.manager import Manager
 from classes.button import Button
@@ -19,11 +19,11 @@ def render_nodes(screen: Surface, nodes: list[Node]):
 
 def render_edges(screen: Surface, edges: list[Edge]):
     for edge in edges:
-        if edge.curved == False:
+        if isinstance(edge, StraightEdge):
             start_position = world_to_screen_vector(edge.start.position)
             end_position   = world_to_screen_vector(edge.end.position)
             pygame.draw.line(screen, "red", start_position, end_position)
-        else:
+        elif isinstance(edge, CircularEdge):
             # define rect
             radius = world_to_screen_scalar(np.linalg.norm(edge.start.position-edge.center)) # norm describes distance
             diameter = radius*2
@@ -46,6 +46,11 @@ def render_edges(screen: Surface, edges: list[Edge]):
                 raise ValueError("cross product of curved edge vectors is 0. This implies a U-turn...")
 
             pygame.draw.arc(screen, "red", arc_rect, rad_angle_to_start, rad_angle_to_end)
+
+def render_intersections(screen: Surface, intersection_points):
+    for intersection in intersection_points:
+        node_position = world_to_screen_vector(np.array(list(intersection[2])))
+        pygame.draw.circle(screen, "blue", node_position, 3)
 
 def render_vehicles(screen: Surface, vehicles: list[Vehicle]):
     for vehicle in vehicles:
@@ -74,12 +79,12 @@ def render_buttons(screen: Surface, buttons: list[Button]) -> None:
             text = font.render(b.text, 1, (255, 255, 255))
             screen.blit(text, (b.x + (b.width/2 - text.get_width()/2), b.y + (b.height/2 - text.get_height()/2)))
 
-def render_world(screen: Surface, nodes: list[Node], edges: list[Edge], route_visible):
+def render_world(screen: Surface, nodes: list[Node], edges: list[Edge], route_visible: bool, intersection_points):
     if route_visible:
         render_nodes(screen, nodes)
         render_edges(screen, edges)
+    render_intersections(screen, intersection_points)
     # render_scenery()
-    # render_intersection()
 
 def render_manager(screen, manager):
     # draw position
@@ -96,3 +101,8 @@ def render_manager(screen, manager):
     for i, vehicle in enumerate(manager.vehicles):
         text_surface = FONT.render(f"id: {vehicle.id}, pos: {vehicle.route_position:.2f}", False, (0, 0, 0))
         screen.blit(text_surface, (5,i*20 + 5))
+
+def render_time(screen, time, width): 
+    # draw time
+    text_surface = FONT.render(f"Time: {time:.3f}", False, (0, 0, 0))
+    screen.blit(text_surface, (width - 170,5))

@@ -15,15 +15,16 @@ from manager.manager import Manager, manager_event_loop
 from classes.node import Node
 from classes.edge import Edge
 from classes.route import Route
-from .render import render_world, render_manager, render_vehicles, render_buttons
+from .render import render_world, render_manager, render_vehicles, render_buttons, render_time
 from .update import update_world
 
-def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: list[Edge], routes: list[Route], manager: Manager): # requires initialization of lanes, manager, vehicles
+def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: list[Edge], routes: list[Route], intersection_points, manager: Manager): # requires initialization of lanes, manager, vehicles
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     clock = pygame.time.Clock()
     running = True
     delta_time = 0
+    time_elapsed = 0
 
     vehicles = vehicle_copy(initial_vehicles)
     is_run = True
@@ -38,10 +39,12 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
         nonlocal clock
         nonlocal delta_time
         nonlocal manager
+        nonlocal time_elapsed
 
         vehicles = vehicle_copy(initial_vehicles)
         clock = pygame.time.Clock()
         delta_time = 0
+        time_elapsed = 0
         manager.reset()
     
     def toggle_route_visibility() -> None:
@@ -69,9 +72,10 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
         render_buttons(screen, buttons)
 
         # optionally render nodes and edges. for now always on
-        render_world(screen, nodes, edges, route_visible)
+        render_world(screen, nodes, edges, route_visible, intersection_points)
         render_manager(screen, manager)
         render_vehicles(screen, vehicles)
+        render_time(screen, time_elapsed, SCREEN_WIDTH)
 
         # manager 'cpu'
         manager_event_loop(manager, vehicles, delta_time)
@@ -88,8 +92,10 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
         if is_run:
             # physical changes to world (updating positions, velocity, etc.)
             update_world(delta_time, vehicles)
+            time_elapsed += delta_time
 
         # updates the screen
         pygame.display.update()
         delta_time = clock.tick(60) / 1000
+        
     pygame.quit()

@@ -1,108 +1,110 @@
+import sys
 import numpy as np
+import json
 from classes.vehicle import Vehicle
 from manager.manager import Manager
 from classes.node import Node
-from classes.edge import Edge
+from classes.edge import Edge, StraightEdge, CircularEdge
 from classes.route import Route
 from simulator.simulator import run_simulation
+from helper import get_intersections
 
 def main():
-    # evenutually, we will load a preset as an argument and supply it to run_simulation
-    # intialize_world()?
+    if len(sys.argv) != 2:
+        print('Usage: python3 src/main.py <absolute_path_to_preset>')
+        return
+    
+    preset_name = sys.argv[1]
+    nodes, curr_edges, routes, vehicles = [], [], [], []
+    
+    manager = load_preset(preset_name, nodes, curr_edges, routes, vehicles)
+    intersection_points = get_intersections(routes)
+    run_simulation(vehicles, nodes, curr_edges, routes, intersection_points, manager)
 
-    # for now, supply a preset here
+def load_preset(file_path, nodes, curr_edges, routes, vehicles):
+    with open(file_path, 'r') as file:
+        presets = json.load(file)
+        
+    node_dict = load_nodes(presets["nodes"], nodes)
+    edge_dict = load_edges(presets['edges'], curr_edges, node_dict)
+    route_dict = load_routes(presets['routes'], routes, edge_dict)
+    load_vehicles(presets["stored_vehicles"], vehicles, route_dict)
+    
+    manager_data = presets["manager"]
+    manager = Manager(np.array(manager_data["position"]), manager_data["radius"], routes)
 
-    nodes = []
-    edges = []
-    routes = []
-    vehicles = []
+    return manager
 
-    # before intersection
-    nodes.append(Node(np.array([-1.5,   80]))) # south
-    nodes.append(Node(np.array([ 1.5,   80])))
-    nodes.append(Node(np.array([  80,  1.5]))) # east
-    nodes.append(Node(np.array([  80, -1.5])))
-    nodes.append(Node(np.array([ 1.5,  -80]))) # north
-    nodes.append(Node(np.array([-1.5,  -80])))
-    nodes.append(Node(np.array([ -80, -1.5]))) # west
-    nodes.append(Node(np.array([ -80,  1.5])))
+def load_nodes(loaded_nodes, nodes):
+    node_dict = {}
+    for node in loaded_nodes:
+        if node["id"] in node_dict:
+            raise ValueError(f"Duplicate node ID found: {node['id']}")
+        new_node = Node(np.array(node["position"]))
+        node_dict[node["id"]] = new_node
+        nodes.append(new_node)
+    return node_dict
 
-    # at intersection
-    nodes.append(Node(np.array([-1.5,    6]))) # south
-    nodes.append(Node(np.array([ 1.5,    6])))
-    nodes.append(Node(np.array([   6,  1.5]))) # east
-    nodes.append(Node(np.array([   6, -1.5])))
-    nodes.append(Node(np.array([ 1.5,   -6]))) # north
-    nodes.append(Node(np.array([-1.5,   -6])))
-    nodes.append(Node(np.array([  -6, -1.5]))) # west
-    nodes.append(Node(np.array([  -6,  1.5])))
+def load_edges(loaded_edges, curr_edges, node_dict):
+    edge_dict = {}
+    for edge in loaded_edges:
+        if edge["id"] in edge_dict:
+            raise ValueError(f"Duplicate edge ID found: {edge['id']}")
+        if edge.get("center"):
+            new_edge = CircularEdge(edge["id"], node_dict[edge["source"]], node_dict[edge["target"]], np.array(edge["center"]), edge["clockwise"])
+        else:
+            new_edge = StraightEdge(edge["id"], node_dict[edge["source"]], node_dict[edge["target"]])
+        edge_dict[edge["id"]] = new_edge
+        curr_edges.append(new_edge)
+    return edge_dict
 
-    # edges outside intersection
-    edges.append(Edge(nodes[ 8], nodes[ 0]))
-    edges.append(Edge(nodes[ 1], nodes[ 9]))
-    edges.append(Edge(nodes[10], nodes[ 2]))
-    edges.append(Edge(nodes[ 3], nodes[11]))
-    edges.append(Edge(nodes[12], nodes[ 4]))
-    edges.append(Edge(nodes[ 5], nodes[13]))
-    edges.append(Edge(nodes[14], nodes[ 6]))
-    edges.append(Edge(nodes[ 7], nodes[15])) # far left to left of intersection
+def load_routes(loaded_routes, routes, edge_dict: dict[str, Edge]):
+    route_dict = {}
 
-    # edges within intersection
-    edges.append(Edge(nodes[ 9], nodes[12])) # straight from south
-    edges.append(Edge(nodes[ 9], nodes[10], curved=True, center=np.array([ 6, 6]), clockwise=True)) # right from south
-    edges.append(Edge(nodes[ 9], nodes[14], curved=True, center=np.array([-6, 6]), clockwise=False)) # left from south
+    for route in loaded_routes:
+        if route["id"] in route_dict:
+            raise ValueError(f"Duplicate route ID found: {route['id']}")
+        
+        source_edge = edge_dict[route["source"]]
+        target_edge = edge_dict[route["target"]]
+        intermediate_edges = []
+        for i, e in enumerate(route["intermediate"]):
+            if route["intermediate"][i] is route["intermediate"][0]:
+                if source_edge.end != edge_dict[e].start:
+                    raise ValueError(f"Invalid Route: {route['d']} end of source edge ({source_edge.edge_id}) does not match start of {edge_dict[e].edge_id}")
+                
+            elif route["intermediate"][i] is route["intermediate"][-1]:
+                if edge_dict[e].end != target_edge.start:
+                    raise ValueError(f"Invalid Route: {route['id']} end of {edge_dict[e].edge_id} does not match start of target edge ({target_edge.edge_id})")
+                
+            else:
+                if edge_dict[route["intermediate"][i - 1]].end != edge_dict[e].start:
+                    raise ValueError(f"Invalid Route: {route['id']} end of {edge_dict[route['intermediate'][i - 1]].end} does not match start of ({edge_dict[e].edge_id})")
+                
+                elif edge_dict[e].end != edge_dict[route["intermediate"][i + 1]].start:
+                    raise ValueError(f"Invalid Route: {route['id']} end of {edge_dict[route['intermediate'][e]].end} does not match start of ({edge_dict[i + 1].edge_id})")
 
-    edges.append(Edge(nodes[11], nodes[14])) # straight from east
-    edges.append(Edge(nodes[11], nodes[12], curved=True, center=np.array([ 6,-6]), clockwise=True)) # right from east
-    edges.append(Edge(nodes[11], nodes[ 8], curved=True, center=np.array([ 6, 6]), clockwise=False)) # left from east
+            intermediate_edges.append(edge_dict[e])
 
-    edges.append(Edge(nodes[13], nodes[ 8])) # straight from north
-    edges.append(Edge(nodes[13], nodes[14], curved=True, center=np.array([-6,-6]), clockwise=True)) # right from north
-    edges.append(Edge(nodes[13], nodes[10], curved=True, center=np.array([ 6,-6]), clockwise=False)) # left from north
+        curr_edges = []
+        curr_edges.append(source_edge)
+        curr_edges.extend(intermediate_edges)
+        curr_edges.append(target_edge)
 
-    edges.append(Edge(nodes[15], nodes[10])) # straight from west
-    edges.append(Edge(nodes[15], nodes[ 8], curved=True, center=np.array([-6, 6]), clockwise=True)) # right from west
-    edges.append(Edge(nodes[15], nodes[12], curved=True, center=np.array([-6,-6]), clockwise=False)) # left from west
+        new_route = Route(route["id"], curr_edges)
+        route_dict[route["id"]] = new_route
+        routes.append(new_route)
 
-    # routes
-    routes.append(Route([edges[ 1], edges[ 8], edges[ 4]])) # straight from south
-    routes.append(Route([edges[ 1], edges[ 9], edges[ 2]])) # right from south
-    routes.append(Route([edges[ 1], edges[10], edges[ 6]])) # left from south
+    return route_dict
 
-    routes.append(Route([edges[ 3], edges[11], edges[ 6]])) # straight from east
-    routes.append(Route([edges[ 3], edges[12], edges[ 4]])) # right from east
-    routes.append(Route([edges[ 3], edges[13], edges[ 0]])) # left from east
-
-    routes.append(Route([edges[ 5], edges[14], edges[ 0]])) # straight from north
-    routes.append(Route([edges[ 5], edges[15], edges[ 6]])) # right from north
-    routes.append(Route([edges[ 5], edges[16], edges[ 2]])) # left from north
-
-    routes.append(Route([edges[ 7], edges[17], edges[ 2]])) # straight from west
-    routes.append(Route([edges[ 7], edges[18], edges[ 0]])) # right from west
-    routes.append(Route([edges[ 7], edges[19], edges[ 4]])) # left from west
-
-    # vehicles.append(Vehicle(0,routes[0],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # south to north
-    # vehicles.append(Vehicle(1,routes[1],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # south to east
-    vehicles.append(Vehicle(2,routes[2],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # south to west
-
-    # vehicles.append(Vehicle(3,routes[3],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # east to west
-    # vehicles.append(Vehicle(4,routes[4],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # east to north
-    # vehicles.append(Vehicle(5,routes[5],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # east to south
-
-    vehicles.append(Vehicle(6,routes[6],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # north to south
-    # vehicles.append(Vehicle(7,routes[7],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # north to east
-    # vehicles.append(Vehicle(8,routes[8],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # north to west
-
-    vehicles.append(Vehicle(9,routes[9],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # west to east
-    # vehicles.append(Vehicle(10,routes[10],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # west to south
-    # vehicles.append(Vehicle(11,routes[11],0,8,0,2.23,4.90,1.25,'assets/sedan.png')) # west to north
-
-    manager = Manager(np.array([0,0]), 50)
-
-    # scenery
-    # 2 rects for road,
-
-    run_simulation(vehicles, nodes, edges, routes, manager)
+def load_vehicles(loaded_vehicles, vehicles, route_dict):
+    vehicle_dict = {}
+    for v in loaded_vehicles:
+        if v["id"] in vehicle_dict:
+            raise ValueError(f"Duplicate vehicle ID found: {v['id']}")
+        new_vehicle = Vehicle(v["id"], route_dict[v["route"]], v["route_position"], 8, 0, 2.23, 4.90, 1.25, 'assets/sedan.png')
+        vehicle_dict[v["id"]] = new_vehicle
+        vehicles.append(new_vehicle)
 
 if __name__ == "__main__":
     main()
