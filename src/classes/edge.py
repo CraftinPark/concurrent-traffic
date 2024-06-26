@@ -6,7 +6,7 @@ class Edge():
     start: Node = None
     end: Node = None
     edge_id: str
-    # sympy_obj: Segment | Circle = None
+    sympy_obj: Segment | Circle = None
 
     def __init__(self, edge_id: str, start: Node, end: Node):
         self.start = start

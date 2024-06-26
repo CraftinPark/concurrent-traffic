@@ -24,7 +24,7 @@ def main():
 def load_preset(file_path, nodes, curr_edges, routes, vehicles):
     with open(file_path, 'r') as file:
         presets = json.load(file)
-        
+
     node_dict = load_nodes(presets["nodes"], nodes)
     edge_dict = load_edges(presets['edges'], curr_edges, node_dict)
     route_dict = load_routes(presets['routes'], routes, edge_dict)
@@ -103,8 +103,11 @@ def load_vehicles(loaded_vehicles, vehicles, route_dict):
         if v["id"] in vehicle_dict:
             raise ValueError(f"Duplicate vehicle ID found: {v['id']}")
         new_vehicle = Vehicle(v["id"], route_dict[v["route"]], v["route_position"], 8, 0, 2.23, 4.90, 1.25, 'assets/sedan.png')
+        if new_vehicle.route_position > new_vehicle.route.total_length:
+            raise ValueError(f"Vehicle {v['id']} (that has been added to the system) initial route position exceeds route length")
         vehicle_dict[v["id"]] = new_vehicle
         vehicles.append(new_vehicle)
+    
 
 if __name__ == "__main__":
     main()
