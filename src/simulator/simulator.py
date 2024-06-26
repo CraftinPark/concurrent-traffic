@@ -28,6 +28,7 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
 
     vehicles = vehicle_copy(initial_vehicles)
     is_run = True
+    route_visible = True
 
     def toggle_update() -> None:
         nonlocal is_run
@@ -46,11 +47,15 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
         time_elapsed = 0
         manager.reset()
     
-    toggle_button = Button((0, 0, 0), (255, 50, 50), (SCREEN_WIDTH/2 - 300, SCREEN_HEIGHT - 100), (300, 50), 'toggle update', toggle_update, ())
-    restart_button = Button((0, 0, 0), (255, 50, 50), (SCREEN_WIDTH/2 + 100, SCREEN_HEIGHT - 100), (200, 50), 'restart', restart_func, ())
+    def toggle_route_visibility() -> None:
+        nonlocal route_visible
+        route_visible = not route_visible
+    
+    toggle_button = Button((0, 0, 0), (255, 50, 50), (SCREEN_WIDTH/6 -100, SCREEN_HEIGHT - 100), (200, 50), 'toggle update', toggle_update, ())
+    restart_button = Button((0, 0, 0), (255, 50, 50), (SCREEN_WIDTH/2 -125, SCREEN_HEIGHT - 100), (200, 50), 'restart', restart_func, ())
+    routes_visibility_button = Button((0, 0, 0), (255, 50, 50), (SCREEN_WIDTH/1.5, SCREEN_HEIGHT - 100), (250, 50), 'toggle route visibility', toggle_route_visibility, ())
 
-    buttons = [toggle_button, restart_button]
-
+    buttons = [toggle_button, restart_button, routes_visibility_button]
     while running:
         # poll for events
         # pygame.QUIT event means the user clicked X to close your window
@@ -61,14 +66,13 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
             if event.type == pygame.MOUSEBUTTONDOWN:
                 [b.click() for b in buttons]
 
-
         # fill the screen with a color to wipe away anything from last frame
         screen.fill("grey")
 
         render_buttons(screen, buttons)
 
         # optionally render nodes and edges. for now always on
-        render_world(screen, nodes, edges, intersection_points)
+        render_world(screen, nodes, edges, route_visible, intersection_points)
         render_manager(screen, manager)
         render_vehicles(screen, vehicles)
         render_time(screen, time_elapsed, SCREEN_WIDTH)
