@@ -12,15 +12,16 @@ def main():
         return
     
     preset_name = sys.argv[1]
-    nodes, curr_edges, routes, vehicles = [], [], [], []
     
-    manager, nodes, curr_edges, routes, vehicles = load_preset(preset_name, nodes, curr_edges, routes, vehicles)
+    manager, nodes, curr_edges, routes, vehicles = load_preset(preset_name)
     intersection_points = get_intersections(routes)
     run_simulation(vehicles, nodes, curr_edges, routes, intersection_points, manager)
 
-def load_preset(file_path, nodes, curr_edges, routes, vehicles):
+def load_preset(file_path):
     with open(file_path, 'r') as file:
         presets = json.load(file)
+
+    nodes, curr_edges, routes, vehicles = [], [], [], []
         
     node_dict = load_nodes(presets["nodes"], nodes)
     edge_dict = load_edges(presets['edges'], curr_edges, node_dict)
