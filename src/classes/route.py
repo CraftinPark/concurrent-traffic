@@ -46,6 +46,45 @@ def route_position_to_world_position(route: Route, position: float):
     
     return [world_x, world_y]
 
+def direction_at_route_position(route, position):
+    edge_of_position = None
+    percentage_on_edge = None
+
+    for r in route.pos_to_edge_map:
+        if position < r[1] and position >= r[0]:
+            edge_of_position = route.pos_to_edge_map[r]
+            percentage_on_edge = (position - r[0]) / (r[1] - r[0])
+            break
+
+    if edge_of_position is None:
+        raise ValueError("Edge Not Found " + str(route.id))
+    
+    if isinstance(edge_of_position, StraightEdge):
+        direction_x = edge_of_position.end.position[0] - edge_of_position.start.position[0]
+        direction_y = - (edge_of_position.end.position[1] - edge_of_position.start.position[1])
+        vehicle_angle =  np.arctan2(direction_y, direction_x) * (180 / np.pi)
+    
+    elif isinstance(edge_of_position, CircularEdge):
+        theta_start = np.arctan2(edge_of_position.start.position[1] - edge_of_position.center[1], edge_of_position.start.position[0] - edge_of_position.center[0])
+        theta_end   = np.arctan2(edge_of_position.end.position[1] - edge_of_position.center[1], edge_of_position.end.position[0] - edge_of_position.center[0])
+        perpendicular_rotation = 0
+
+        if edge_of_position.clockwise:
+            perpendicular_rotation = np.pi/2
+            if theta_end < theta_start:
+                theta_end += 2*np.pi
+        else:
+            perpendicular_rotation = - np.pi/2
+            if theta_start < theta_end:
+                theta_start += 2*np.pi
+
+        theta_of_pos = theta_start + percentage_on_edge * (theta_end - theta_start) 
+        direction_x = np.cos(theta_of_pos + perpendicular_rotation)
+        direction_y = - np.sin(theta_of_pos + perpendicular_rotation)
+        vehicle_angle =  np.arctan2(direction_y, direction_x) * (180 / np.pi) 
+
+    return vehicle_angle
+
 # currently assumes position will be on the edge. Must be robustized though.
 def world_position_to_route_position(route: Route, edge: Edge, position: np.ndarray):
     route_position = 0

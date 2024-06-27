@@ -4,7 +4,7 @@ from pygame import Surface
 from classes.vehicle import Vehicle
 from classes.node import Node
 from classes.edge import Edge, StraightEdge, CircularEdge
-from classes.route import Route, route_position_to_world_position
+from classes.route import Route, route_position_to_world_position, direction_at_route_position
 from manager.manager import Manager
 from classes.button import Button
 from .helper import world_to_screen_vector, world_to_screen_scalar
@@ -61,8 +61,7 @@ def render_vehicles(screen: Surface, vehicles: list[Vehicle]):
         vehicle_center_screen_pos = world_to_screen_vector(vehicle_center_point)
 
         img = pygame.transform.smoothscale(vehicle.image, (vehicle_screen_length, vehicle_screen_width))
-        # vehicle_angle = np.rad2deg(np.arctan2(-vehicle.direction[1], vehicle.direction[0]))
-        vehicle_angle = 0
+        vehicle_angle = direction_at_route_position(vehicle.route, vehicle.route_position)
         img = pygame.transform.rotate(img, vehicle_angle)
 
         car_rect = img.get_rect()
