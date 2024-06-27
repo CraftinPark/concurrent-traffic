@@ -79,9 +79,10 @@ def render_buttons(screen: Surface, buttons: list[Button]) -> None:
             text = font.render(b.text, 1, (255, 255, 255))
             screen.blit(text, (b.x + (b.width/2 - text.get_width()/2), b.y + (b.height/2 - text.get_height()/2)))
 
-def render_world(screen: Surface, nodes: list[Node], edges: list[Edge], intersection_points):
-    render_nodes(screen, nodes)
-    render_edges(screen, edges)
+def render_world(screen: Surface, nodes: list[Node], edges: list[Edge], route_visible: bool, intersection_points):
+    if route_visible:
+        render_nodes(screen, nodes)
+        render_edges(screen, edges)
     render_intersections(screen, intersection_points)
     # render_scenery()
 
@@ -100,3 +101,8 @@ def render_manager(screen, manager):
     for i, vehicle in enumerate(manager.vehicles):
         text_surface = FONT.render(f"id: {vehicle.id}, pos: {vehicle.route_position:.2f}", False, (0, 0, 0))
         screen.blit(text_surface, (5,i*20 + 5))
+
+def render_time(screen, time, width): 
+    # draw time
+    text_surface = FONT.render(f"Time: {time:.3f}", False, (0, 0, 0))
+    screen.blit(text_surface, (width - 170,5))
