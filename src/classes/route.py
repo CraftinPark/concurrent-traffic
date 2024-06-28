@@ -46,7 +46,7 @@ def route_position_to_world_position(route: Route, position: float):
     
     return [world_x, world_y]
 
-def direction_at_route_position(route, position):
+def direction_at_route_position(route: Route, position: float):
     edge_of_position = None
     percentage_on_edge = None
 
