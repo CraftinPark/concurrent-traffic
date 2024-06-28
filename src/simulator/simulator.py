@@ -71,6 +71,12 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
 
         render_buttons(screen, buttons)
 
+        # optionally render nodes and edges. for now always on
+        render_world(screen, nodes, edges, route_visible, intersection_points)
+        render_manager(screen, manager)
+        render_vehicles(screen, vehicles)
+        render_time(screen, time_elapsed, SCREEN_WIDTH)
+
         # manager 'cpu'
         manager_event_loop(manager, vehicles, delta_time)
 
@@ -82,12 +88,6 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
         for vehicle in vehicles:
             if vehicle.route_position > vehicle.route.total_length:
                 vehicles.remove(vehicle)
-
-        # optionally render nodes and edges. for now always on
-        render_world(screen, nodes, edges, route_visible, intersection_points)
-        render_manager(screen, manager)
-        render_vehicles(screen, vehicles)
-        render_time(screen, time_elapsed, SCREEN_WIDTH)
 
         if is_run:
             # physical changes to world (updating positions, velocity, etc.)

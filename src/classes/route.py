@@ -57,7 +57,7 @@ def direction_at_route_position(route, position):
             break
 
     if edge_of_position is None:
-        raise ValueError("Edge Not Found " + str(route.id))
+        return -1
     
     if isinstance(edge_of_position, StraightEdge):
         direction_x = edge_of_position.end.position[0] - edge_of_position.start.position[0]
