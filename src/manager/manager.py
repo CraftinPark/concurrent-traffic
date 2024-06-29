@@ -7,6 +7,7 @@ from classes.node import Node
 import sympy
 from sympy import Point2D
 from itertools import combinations
+from scipy.optimize import minimize_scalar
 
 class Manager:
     position: np.ndarray
@@ -30,7 +31,7 @@ def get_collisions(manager: Manager, vehicles: list[Vehicle]):
     collisions = []
 
     vehicle_pairs = combinations(vehicles, 2)
-    threshold_distance = 5 # will be replaced by Alex's defined safety radius
+    threshold_distance = 2.5 # will be replaced by Alex's defined safety radius
     
     for vehicle_pair in vehicle_pairs:
         vehicle_out_of_bounds_time = int(min(time_until_end_of_route(vehicle_pair[0]), time_until_end_of_route(vehicle_pair[1])))
@@ -43,18 +44,14 @@ def get_collisions(manager: Manager, vehicles: list[Vehicle]):
             wp0 = world_pos_0(t)
             wp1 = world_pos_1(t)
             return np.linalg.norm(wp1-wp0)
+        def objective(t):
+            return distance(t) - threshold_distance
         
-        found_time = None
-        found_distance = None
-        for t in time_range:
-            dist = distance(t)
-            if dist <= threshold_distance:
-                found_time = t
-                found_distance = dist
-                break
-        if found_time is not None:
-            collisions.append({"vehicle0": vehicle_pair[0], "vehicle1": vehicle_pair[1], "time": found_time, "distance": found_distance})
+        result = minimize_scalar(objective, bounds=(0,vehicle_out_of_bounds_time), method='bounded')
 
+        if result.success and distance(result.x) <= threshold_distance:
+            # print(f"The objects come within 2.5 meters of each other at t = {result.x:.2f}")
+            collisions.append({"vehicle0": vehicle_pair[0], "vehicle1": vehicle_pair[1], "time": result.x})
     return collisions
 
 def route_position_at_time(vehicle: Vehicle, time: float):
