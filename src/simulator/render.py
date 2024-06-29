@@ -30,22 +30,18 @@ def render_edges(screen: Surface, edges: list[Edge]):
             arc_rect = pygame.Rect(0,0,diameter,diameter)
             arc_rect.center = world_to_screen_vector(edge.center)
 
-            # find angle of start point
-            vector_to_start = [edge.start.position[0]-edge.center[0],edge.start.position[1]-edge.center[1]]
-            rad_angle_to_start = np.arctan2(-vector_to_start[1], vector_to_start[0]) # invert y to use rendering coords. Y is positive downward.
+            theta_start = np.arctan2(-(edge.start.position[1] - edge.center[1]), edge.start.position[0] - edge.center[0])
+            theta_end = np.arctan2(-(edge.end.position[1] - edge.center[1]), edge.end.position[0] - edge.center[0])
 
-            # find angle of end point
-            vector_to_end = [edge.end.position[0]-edge.center[0],edge.end.position[1]-edge.center[1]]
-            rad_angle_to_end = np.arctan2(-vector_to_end[1], vector_to_end[0]) # invert y to use rendering coords. Y is positive downward.
+            if edge.clockwise:
+                if theta_end < theta_start:
+                    theta_end += 2*np.pi
+                theta_end, theta_start = theta_start, theta_end
+            else:
+                if theta_start < theta_end:
+                    theta_start += 2*np.pi
 
-            # ensure arc drawn in correct direction by cross product
-            cross_product = np.cross(np.array([vector_to_start[0],-vector_to_start[1]]), np.array([vector_to_end[0],-vector_to_end[1]]))
-            if cross_product < 0:
-                rad_angle_to_start, rad_angle_to_end = rad_angle_to_end, rad_angle_to_start
-            elif cross_product == 0:
-                raise ValueError("cross product of curved edge vectors is 0. This implies a U-turn...")
-
-            pygame.draw.arc(screen, "red", arc_rect, rad_angle_to_start, rad_angle_to_end)
+            pygame.draw.arc(screen, "red", arc_rect, theta_start, theta_end)
 
 def render_intersections(screen: Surface, intersection_points):
     for intersection in intersection_points:
