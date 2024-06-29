@@ -80,8 +80,33 @@ def render_buttons(screen: Surface, buttons: list[Button]) -> None:
 
 def render_world(screen: Surface, nodes: list[Node], edges: list[Edge], route_visible: bool, intersection_points, zoomed_in):
     if route_visible:
-        render_nodes(screen, nodes)
-        render_edges(screen, edges)
+        if zoomed_in:
+            zoom_factor = 4
+            zoomed_nodes = []
+            for node in nodes:
+                zoomed_position = [node.position[0] * zoom_factor, node.position[1] * zoom_factor]
+                zoomed_nodes.append(Node(zoomed_position) )
+
+            zoomed_edges = []
+            for edge in edges:
+                zoomed_start_node_position = [edge.start.position[0] * zoom_factor, edge.start.position[1] * zoom_factor]
+                zoomed_start_node = Node(zoomed_start_node_position)
+
+                zoomed_end_node_position = [edge.end.position[0] * zoom_factor, edge.end.position[1] * zoom_factor]
+                zoomed_end_node = Node(zoomed_end_node_position)
+
+                if isinstance(edge, StraightEdge):
+                    zoomed_edges.append(StraightEdge(edge.edge_id, zoomed_start_node, zoomed_end_node))
+                elif isinstance(edge, CircularEdge):
+                    zoomed_center_position = np.array([edge.center[0] * zoom_factor, edge.center[1] * zoom_factor])
+                    zoomed_edges.append(CircularEdge(edge.edge_id, zoomed_start_node, zoomed_end_node, zoomed_center_position))
+
+            render_nodes(screen, zoomed_nodes)
+            render_edges(screen, zoomed_edges)
+        else:
+            render_nodes(screen, nodes)
+            render_edges(screen, edges)
+            
     render_intersections(screen, intersection_points)
     # render_scenery()
 

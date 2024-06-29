@@ -25,6 +25,8 @@ class CircularEdge(Edge):
 
     def __init__(self, edge_id: str, start: Node, end: Node, center: np.ndarray, clockwise: bool=False):
         Edge.__init__(self, edge_id, start, end)
+        print(type(start.position))
+        print(center)
         self.radius = np.linalg.norm(start.position - center)
         self.center = center
         self.clockwise = clockwise
