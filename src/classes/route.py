@@ -25,7 +25,7 @@ def route_position_to_world_position(route: Route, position: float):
             percentage_on_edge = (position - r[0]) / (r[1] - r[0])
             break
     if edge_of_position is None:
-        return [-100, -100]
+        return np.array([-100, -100])
     if isinstance(edge_of_position, StraightEdge):
         world_x = (1-percentage_on_edge)*edge_of_position.start.position[0] + percentage_on_edge*edge_of_position.end.position[0]
         world_y = (1-percentage_on_edge)*edge_of_position.start.position[1] + percentage_on_edge*edge_of_position.end.position[1]
@@ -44,7 +44,7 @@ def route_position_to_world_position(route: Route, position: float):
         world_x = edge_of_position.center[0] + edge_of_position.radius * np.cos(theta_of_pos)
         world_y = edge_of_position.center[1] + edge_of_position.radius * np.sin(theta_of_pos)
     
-    return [world_x, world_y]
+    return np.array([world_x, world_y])
 
 # currently assumes position will be on the edge. Must be robustized though.
 def world_position_to_route_position(route: Route, edge: Edge, position: np.ndarray):
