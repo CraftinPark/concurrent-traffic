@@ -3,6 +3,8 @@ ORIGINAL_SCREEN_HEIGHT = 720
 
 TOOLBAR_HEIGHT = 100
 
+ZOOM_FACTOR = 8
+
 # world describes 160mx160m space
 WORLD_WIDTH = 160
 WORLD_HEIGHT = 160
@@ -31,6 +33,7 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
     vehicles = vehicle_copy(initial_vehicles)
     is_run = True
     route_visible = True
+    zoomed = False
 
     def toggle_update() -> None:
         nonlocal is_run
@@ -52,12 +55,18 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
     def toggle_route_visibility() -> None:
         nonlocal route_visible
         route_visible = not route_visible
+
+    def toggle_zoom() -> None:
+        nonlocal zoomed
+        zoomed = not zoomed
     
     toggle_button = Button((40, 40, 40), (255, 50, 50), (5, screen.get_height()-TOOLBAR_HEIGHT+50), (100, 30), 'toggle update', toggle_update, ())
     restart_button = Button((40, 40, 40), (255, 50, 50), (110, screen.get_height()-TOOLBAR_HEIGHT+50), (100, 30), 'restart', restart_func, ())
     routes_visibility_button = Button((40, 40, 40), (255, 50, 50), (215, screen.get_height()-TOOLBAR_HEIGHT+50), (150, 30), 'toggle route visibility', toggle_route_visibility, ())
+    zoom_button = Button((40, 40, 40), (255, 50, 50), (370, screen.get_height()-TOOLBAR_HEIGHT+50), (70, 30), 'zoom', toggle_zoom, ())
 
-    buttons = [toggle_button, restart_button, routes_visibility_button]
+
+    buttons = [toggle_button, restart_button, routes_visibility_button, zoom_button]
     while running:
         # poll for events
         # pygame.QUIT event means the user clicked X to close your window
@@ -72,9 +81,9 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
         screen.fill(pygame.Color(150,150,150))
 
         # optionally render nodes and edges. for now always on
-        render_world(screen, nodes, edges, route_visible, intersection_points)
+        render_world(screen, nodes, edges, route_visible, intersection_points, zoomed)
         render_manager(screen, manager)
-        render_vehicles(screen, vehicles)
+        render_vehicles(screen, vehicles, zoomed)
         render_toolbar(screen, time_elapsed, buttons)
 
         # manager 'cpu'
