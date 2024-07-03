@@ -106,3 +106,8 @@ def render_time(screen, time, width):
     # draw time
     text_surface = FONT.render(f"Time: {time:.3f}", False, (0, 0, 0))
     screen.blit(text_surface, (width - 170,5))
+
+def render_title(screen): 
+    # draw title and version
+    text_surface = FONT.render(f"Concurent Traffic. Version s.1.0.", False, (0, 0, 0))
+    screen.blit(text_surface, (120,0))
