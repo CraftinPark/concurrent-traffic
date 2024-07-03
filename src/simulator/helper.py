@@ -11,7 +11,10 @@ def get_x_y_shift(screen: Surface):
         x_shift = difference / 2
     return x_shift, y_shift
 
-def world_to_screen_vector(screen: Surface, pos: np.ndarray) -> np.ndarray:
+def world_to_screen_vector(screen: Surface, pos: np.ndarray, zoomed: bool) -> np.ndarray:
+    if zoomed:
+        pos = zoom_and_adjust_positions_within_bounds(pos)
+
     render_width = min(screen.get_width(), screen.get_height()-TOOLBAR_HEIGHT)
     render_height = min(screen.get_width(), screen.get_height()-TOOLBAR_HEIGHT)
     x_shift, y_shift = get_x_y_shift(screen)
@@ -37,22 +40,3 @@ def zoom_and_adjust_positions_within_bounds(position: np.ndarray) -> np.ndarray:
 
     return zoomed_position
 
-def render_CircularEdge(screen: Surface, center_position: np.ndarray, start_position: np.ndarray, end_position: np.ndarray, clockwise: bool) -> None:
-    # define rect
-    radius = world_to_screen_scalar(screen, np.linalg.norm(start_position-center_position)) # norm describes distance
-    diameter = radius*2
-    arc_rect = pygame.Rect(0,0,diameter,diameter)
-    arc_rect.center = world_to_screen_vector(screen, center_position)
-
-    theta_start = np.arctan2(-(start_position[1] - center_position[1]), start_position[0] - center_position[0])
-    theta_end = np.arctan2(-(end_position[1] - center_position[1]), end_position[0] - center_position[0])
-
-    if clockwise:
-        if theta_end < theta_start:
-            theta_end += 2*np.pi
-        theta_end, theta_start = theta_start, theta_end
-    else:
-        if theta_start < theta_end:
-            theta_start += 2*np.pi
-
-    pygame.draw.arc(screen, "red", arc_rect, theta_start, theta_end)
