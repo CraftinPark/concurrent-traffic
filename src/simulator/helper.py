@@ -22,7 +22,7 @@ def world_to_screen_scalar(screen: Surface, x: float) -> float:
     return x*render_width/WORLD_WIDTH
 
 def zoom_and_adjust_positions_within_bounds(position: np.ndarray) -> np.ndarray:
-    # when x >= 0 (right side) and y >= 0 (below y-axis), take min(x, right border) and min(y, bottom border)
+    # check if position is out of screen, if so, keep it in screen right on the border
     if position[0] * ZOOM_FACTOR >= 0 and position[1] * ZOOM_FACTOR >= 0:
         zoomed_position = np.array([min(position[0] * ZOOM_FACTOR, WORLD_WIDTH/2), min(position[1] * ZOOM_FACTOR, WORLD_HEIGHT/2)])
     

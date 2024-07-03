@@ -110,7 +110,7 @@ def render_manager(screen, manager, zoomed: bool):
         pygame.draw.circle(screen, "green", manager_screen_pos, 5)
         radius = world_to_screen_scalar(screen, manager.radius)
 
-        # draw radius circle
+        # draw radius circle ONLY when zoomed out
         diameter = radius*2
         arc_rect = pygame.Rect(0,0,diameter,diameter)
         arc_rect.center = world_to_screen_vector(screen, manager.position)
