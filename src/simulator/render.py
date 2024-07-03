@@ -45,42 +45,32 @@ def render_edges(screen: Surface, edges: list[Edge], zoomed: bool):
             else:
                 render_CircularEdge(screen, edge.center, edge.start.position, edge.end.position, edge.clockwise)
 
-def render_intersections(screen: Surface, intersection_points):
+def render_intersections(screen: Surface, intersection_points, zoomed: bool):
     for intersection in intersection_points:
-        node_position = world_to_screen_vector(screen, np.array(list(intersection[2])))
+        if zoomed:
+            zoomed_intersection_position = zoom_and_adjust_positions_within_bounds(np.array(list(intersection[2])))
+            node_position = world_to_screen_vector(screen, zoomed_intersection_position)
+        else:
+            node_position = world_to_screen_vector(screen, np.array(list(intersection[2])))
+        
         pygame.draw.circle(screen, "blue", node_position, 3)
 
 def render_vehicles(screen: Surface, vehicles: list[Vehicle], zoomed: bool):
     for vehicle in vehicles:
+        vehicle_screen_width = world_to_screen_scalar(screen, vehicle.width)
+        vehicle_screen_length = world_to_screen_scalar(screen, vehicle.length)
+
         if zoomed:
-            vehicle_screen_width = world_to_screen_scalar(screen, vehicle.width)
-            vehicle_screen_length = world_to_screen_scalar(screen, vehicle.length)
-
             vehicle_center_point = zoom_and_adjust_positions_within_bounds(route_position_to_world_position(vehicle.route, vehicle.route_position))
-            vehicle_center_screen_pos = (world_to_screen_vector(screen, vehicle_center_point))
-
-            img = pygame.transform.smoothscale(vehicle.image, (vehicle_screen_length, vehicle_screen_width))
-
-            vehicle_angle = direction_at_route_position(vehicle.route, vehicle.route_position)
-
-            img = pygame.transform.rotate(img, vehicle_angle)
-
-            car_rect = img.get_rect()
-            car_rect.center = vehicle_center_screen_pos
-            screen.blit(img, car_rect)
-
-            pygame.draw.circle(screen, "red", vehicle_center_screen_pos, 3)
         else:
-            vehicle_screen_width = world_to_screen_scalar(screen, vehicle.width)
-            vehicle_screen_length = world_to_screen_scalar(screen, vehicle.length)
-
             vehicle_center_point = route_position_to_world_position(vehicle.route, vehicle.route_position)
-            vehicle_center_screen_pos = world_to_screen_vector(screen, vehicle_center_point)
 
+        # only render vechicle if within 
+        if abs(vehicle_center_point[0]) != WORLD_WIDTH/2 and abs(vehicle_center_point[1]) != WORLD_HEIGHT/2:
+            vehicle_center_screen_pos = (world_to_screen_vector(screen, vehicle_center_point))
             img = pygame.transform.smoothscale(vehicle.image, (vehicle_screen_length, vehicle_screen_width))
             vehicle_angle = direction_at_route_position(vehicle.route, vehicle.route_position)
             img = pygame.transform.rotate(img, vehicle_angle)
-
             car_rect = img.get_rect()
             car_rect.center = vehicle_center_screen_pos
             screen.blit(img, car_rect)
@@ -102,51 +92,29 @@ def render_border(screen: Surface):
 def render_world(screen: Surface, nodes: list[Node], edges: list[Edge], route_visible: bool, intersection_points, zoomed: bool):
     render_background(screen)
     if route_visible:
-        # if zoomed:
-        #     zoomed_nodes = []
-        #     for node in nodes:
-        #         zoomed_position = zoom_and_adjust_positions_within_bounds(node)
-        #         zoomed_nodes.append(Node(zoomed_position))
-
-        #     zoomed_edges = []
-        #     for edge in edges:
-        #         # have nodes within bounds of main screen to allow edges to render within main screen
-        #         zoomed_start_node_position = zoom_and_adjust_positions_within_bounds(edge.start)
-        #         zoomed_start_node = Node(zoomed_start_node_position)
-
-        #         zoomed_end_node_position = zoom_and_adjust_positions_within_bounds(edge.end)
-        #         zoomed_end_node = Node(zoomed_end_node_position)
-
-        #         if isinstance(edge, StraightEdge):
-        #             zoomed_edges.append(StraightEdge(edge.edge_id, zoomed_start_node, zoomed_end_node))
-        #         elif isinstance(edge, CircularEdge):
-        #             zoomed_center_position = np.array([edge.center[0] * ZOOM_FACTOR, edge.center[1] * ZOOM_FACTOR])
-        #             zoomed_edges.append(CircularEdge(edge.edge_id, zoomed_start_node, zoomed_end_node, zoomed_center_position, edge.clockwise))
-
-        #     render_nodes(screen, zoomed_nodes)
-        #     render_edges(screen, zoomed_edges)
-        #     render_border(screen)
-        # else:
-        #     render_nodes(screen, nodes)
-        #     render_edges(screen, edges)
         render_nodes(screen, nodes, zoomed)
         render_edges(screen, edges, zoomed)
 
-    render_intersections(screen, intersection_points)
+    render_intersections(screen, intersection_points, zoomed)
     render_border(screen)
     # render_scenery()
 
-def render_manager(screen, manager):
+def render_manager(screen, manager, zoomed: bool):
     # draw position
-    manager_screen_pos = world_to_screen_vector(screen, manager.position)
-    pygame.draw.circle(screen, "green", manager_screen_pos, 5)
+    if zoomed:
+        zoomed_manager_position = zoom_and_adjust_positions_within_bounds(manager.position)
+        manager_screen_pos = world_to_screen_vector(screen, zoomed_manager_position)
+        pygame.draw.circle(screen, "green", manager_screen_pos, 5*ZOOM_FACTOR)
+    else:
+        manager_screen_pos = world_to_screen_vector(screen, manager.position)
+        pygame.draw.circle(screen, "green", manager_screen_pos, 5)
+        radius = world_to_screen_scalar(screen, manager.radius)
 
-    # draw radius circle
-    radius = world_to_screen_scalar(screen, manager.radius)
-    diameter = radius*2
-    arc_rect = pygame.Rect(0,0,diameter,diameter)
-    arc_rect.center = world_to_screen_vector(screen, manager.position)
-    pygame.draw.arc(screen, "green", arc_rect, 0, 2*np.pi)
+        # draw radius circle
+        diameter = radius*2
+        arc_rect = pygame.Rect(0,0,diameter,diameter)
+        arc_rect.center = world_to_screen_vector(screen, manager.position)
+        pygame.draw.arc(screen, "green", arc_rect, 0, 2*np.pi)
 
     for i, vehicle in enumerate(manager.vehicles):
         font = pygame.font.SysFont('Segoe UI', 15)

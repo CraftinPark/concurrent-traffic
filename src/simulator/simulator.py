@@ -82,7 +82,7 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
 
         # optionally render nodes and edges. for now always on
         render_world(screen, nodes, edges, route_visible, intersection_points, zoomed)
-        render_manager(screen, manager)
+        render_manager(screen, manager, zoomed)
         render_vehicles(screen, vehicles, zoomed)
         render_toolbar(screen, time_elapsed, buttons)
 
