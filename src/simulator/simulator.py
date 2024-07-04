@@ -3,7 +3,8 @@ ORIGINAL_SCREEN_HEIGHT = 720
 
 TOOLBAR_HEIGHT = 100
 
-ZOOM_FACTOR = 8
+MAX_ZOOM_FACTOR = 8
+zoom_factor = 1
 
 # world describes 160mx160m space
 WORLD_WIDTH = 160
@@ -19,8 +20,9 @@ from manager.manager import Manager, manager_event_loop
 from classes.node import Node
 from classes.edge import Edge
 from classes.route import Route
-from .render import render_world, render_manager, render_vehicles, render_buttons, render_time, render_toolbar
+from .render import render_world, render_manager, render_vehicles, render_buttons, render_time, render_toolbar, get_zoomed_render
 from .update import update_world
+from .helper import get_zoomed_helper
 
 def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: list[Edge], routes: list[Route], intersection_points, manager: Manager): # requires initialization of lanes, manager, vehicles
     pygame.init()
@@ -33,7 +35,6 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
     vehicles = vehicle_copy(initial_vehicles)
     is_run = True
     route_visible = True
-    zoomed = False
 
     def toggle_update() -> None:
         nonlocal is_run
@@ -56,9 +57,14 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
         nonlocal route_visible
         route_visible = not route_visible
 
-    def toggle_zoom() -> None:
-        nonlocal zoomed
-        zoomed = not zoomed
+    def toggle_zoom() -> None: 
+        global zoom_factor
+        if zoom_factor == 1:
+            zoom_factor = MAX_ZOOM_FACTOR
+        else:
+            zoom_factor = 1
+        get_zoomed_render(zoom_factor)
+        get_zoomed_helper(zoom_factor)
     
     toggle_button = Button((40, 40, 40), (255, 50, 50), (5, screen.get_height()-TOOLBAR_HEIGHT+50), (100, 30), 'toggle update', toggle_update, ())
     restart_button = Button((40, 40, 40), (255, 50, 50), (110, screen.get_height()-TOOLBAR_HEIGHT+50), (100, 30), 'restart', restart_func, ())
@@ -77,13 +83,25 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
             if event.type == pygame.MOUSEBUTTONDOWN:
                 [b.click() for b in buttons]
 
+            elif event.type == pygame.MOUSEWHEEL:
+                global zoom_factor
+                if event.y > 0:
+                    if zoom_factor < MAX_ZOOM_FACTOR:
+                        zoom_factor += 1
+                elif event.y < 0:
+                    if zoom_factor > 1:
+                        zoom_factor -= 1
+
+                get_zoomed_render(zoom_factor)
+                get_zoomed_helper(zoom_factor)
+
         # fill the screen with a color to wipe away anything from last frame
         screen.fill(pygame.Color(150,150,150))
 
         # optionally render nodes and edges. for now always on
-        render_world(screen, nodes, edges, route_visible, intersection_points, zoomed)
-        render_manager(screen, manager, zoomed)
-        render_vehicles(screen, vehicles, zoomed)
+        render_world(screen, nodes, edges, route_visible, intersection_points)
+        render_manager(screen, manager)
+        render_vehicles(screen, vehicles)
         render_toolbar(screen, time_elapsed, buttons)
 
         # manager 'cpu'
