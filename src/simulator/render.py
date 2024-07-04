@@ -130,5 +130,5 @@ def render_toolbar(screen, time_elapsed, buttons):
 def render_title(screen): 
     # draw title and version
     FONT = pygame.font.SysFont("Segoe UI", 15, bold=True, italic=False)
-    text_surface = FONT.render(f"Concurent Traffic. Version s.1.0.", True, (255, 255, 255))
+    text_surface = FONT.render(f"Concurent Traffic v0.0.2", True, (255, 255, 255))
     screen.blit(text_surface, (6,624))
