@@ -78,7 +78,7 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
         render_toolbar(screen, time_elapsed, buttons)
 
         # manager 'cpu'
-        manager_event_loop(manager, vehicles, delta_time)
+        manager_event_loop(manager, vehicles, time_elapsed)
 
         # vehicles 'cpu'
         for vehicle in vehicles:
