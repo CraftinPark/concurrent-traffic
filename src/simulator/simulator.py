@@ -82,7 +82,7 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
 
         # vehicles 'cpu'
         for vehicle in vehicles:
-            vehicle_event_loop(vehicle, delta_time)
+            vehicle_event_loop(vehicle, time_elapsed)
 
         # vehicle removal 
         for vehicle in vehicles:

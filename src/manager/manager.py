@@ -87,11 +87,14 @@ def time_until_end_of_route(vehicle: Vehicle) -> float:
 
 def _compute_and_send_acceleration_commands(manager: Manager, vehicles: list[Vehicle]):
     for vehicle in manager.vehicles:
-        if vehicle.command == None:
-            command = _compute_command()
-            vehicle.command = command
-            pass
+        command = _compute_command()
+        vehicle.command = command
 
 def _compute_command() -> Command:
-    # TODO
-    return
+    command = {
+        0: 0,
+        3: 20,
+        4: -20,
+        5: 0
+    }
+    return command
