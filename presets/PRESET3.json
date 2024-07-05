@@ -1,9 +1,9 @@
 {
   "stored_vehicles": [
-    {"id": "vehicle_0", "route": "route_0", "route_position": 0},
-    {"id": "vehicle_1", "route": "route_1", "route_position": 0}, 
-    {"id": "vehicle_2", "route": "route_2", "route_position": 0},
-    {"id": "vehicle_3", "route": "route_3", "route_position": 0} 
+    {"id": "vehicle_0", "route": "route_0", "route_position": 0, "velocity": 8},
+    {"id": "vehicle_1", "route": "route_1", "route_position": 0, "velocity": 8}, 
+    {"id": "vehicle_2", "route": "route_2", "route_position": 0, "velocity": 8},
+    {"id": "vehicle_3", "route": "route_3", "route_position": 0, "velocity": 8} 
   ],
 
   "nodes": [

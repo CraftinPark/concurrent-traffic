@@ -20,9 +20,9 @@ class Manager:
     def reset(self):
         self.vehicles.clear()
 
-def manager_event_loop(manager: Manager, vehicles: list[Vehicle], time: float):
+def manager_event_loop(manager: Manager, vehicles: list[Vehicle], cur_time: float):
     if _update_manager_vehicle_list(manager, vehicles):
-        manager.collisions = get_collisions(manager, vehicles)
+        manager.collisions = get_collisions(manager, cur_time)
     _compute_and_send_acceleration_commands(manager, vehicles)
 
 def _update_manager_vehicle_list(manager: Manager, vehicles: list[Vehicle]):
@@ -45,9 +45,9 @@ def _update_manager_vehicle_list(manager: Manager, vehicles: list[Vehicle]):
             manager.vehicles.remove(vehicle)
     return new_vehicle
 
-def get_collisions(manager: Manager, vehicles: list[Vehicle]):
+def get_collisions(manager: Manager, cur_time: float):
     collisions = []
-    vehicle_pairs = combinations(vehicles, 2)
+    vehicle_pairs = combinations(manager.vehicles, 2)
     threshold_distance = 2.5 # will be replaced by Alex's defined safety radius
     
     for vehicle_pair in vehicle_pairs:
@@ -65,8 +65,9 @@ def get_collisions(manager: Manager, vehicles: list[Vehicle]):
         
         result = minimize_scalar(objective, bounds=(0,vehicle_out_of_bounds_time), method='bounded')
         if result.success and distance(result.x) <= threshold_distance:
-            # print(f"The objects come within 2.5 meters of each other at t = {result.x:.2f}")
-            collisions.append({"vehicle0": vehicle_pair[0], "vehicle1": vehicle_pair[1], "time": result.x})
+            time_of_collision = result.x + cur_time
+            # print(f"The objects come within 2.5 meters of each other at t = {time_of_collision}")
+            collisions.append({"vehicle0": vehicle_pair[0], "vehicle1": vehicle_pair[1], "time": time_of_collision})
     return collisions
 
 def route_position_at_time(vehicle: Vehicle, time: float):

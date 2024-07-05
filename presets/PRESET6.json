@@ -1,13 +1,13 @@
 {
   "stored_vehicles": [
-    {"id": "vehicle_0", "route": "route_0", "route_position": 10},
-    {"id": "vehicle_1", "route": "route_1", "route_position": 20}, 
-    {"id": "vehicle_2", "route": "route_2", "route_position": 30},
-    {"id": "vehicle_3", "route": "route_3", "route_position": 40},
-    {"id": "vehicle_4", "route": "route_4", "route_position": 50}, 
-    {"id": "vehicle_5", "route": "route_5", "route_position": 60}, 
-    {"id": "vehicle_6", "route": "route_6", "route_position": 70}, 
-    {"id": "vehicle_7", "route": "route_7", "route_position": 80}  
+    {"id": "vehicle_0", "route": "route_0", "route_position": 10, "velocity": 8},
+    {"id": "vehicle_1", "route": "route_1", "route_position": 20, "velocity": 8}, 
+    {"id": "vehicle_2", "route": "route_2", "route_position": 30, "velocity": 8},
+    {"id": "vehicle_3", "route": "route_3", "route_position": 40, "velocity": 8},
+    {"id": "vehicle_4", "route": "route_4", "route_position": 50, "velocity": 8}, 
+    {"id": "vehicle_5", "route": "route_5", "route_position": 60, "velocity": 8}, 
+    {"id": "vehicle_6", "route": "route_6", "route_position": 70, "velocity": 8}, 
+    {"id": "vehicle_7", "route": "route_7", "route_position": 80, "velocity": 8}  
   ],
 
   "nodes": [
