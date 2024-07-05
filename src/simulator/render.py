@@ -117,3 +117,9 @@ def render_toolbar(screen: Surface, time_elapsed, buttons: list[Button]):
     pygame.draw.rect(screen, pygame.Color(80,80,80), toolbar_rect)
     render_time(screen, toolbar_rect, time_elapsed)
     render_buttons(screen, buttons)
+
+def render_title(screen): 
+    # draw title and version
+    FONT = pygame.font.SysFont("Segoe UI", 15, bold=True, italic=False)
+    text_surface = FONT.render(f"Concurent Traffic v0.0.2", True, (255, 255, 255))
+    screen.blit(text_surface, (6,624))

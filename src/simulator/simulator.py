@@ -3,6 +3,7 @@ ORIGINAL_SCREEN_HEIGHT = 720
 
 TOOLBAR_HEIGHT = 100
 
+MIN_ZOOM_FACTOR = 1
 MAX_ZOOM_FACTOR = 8
 zoom_factor = 1
 
@@ -20,7 +21,7 @@ from manager.manager import Manager, manager_event_loop
 from classes.node import Node
 from classes.edge import Edge
 from classes.route import Route
-from .render import render_world, render_manager, render_vehicles, render_buttons, render_time, render_toolbar
+from .render import render_world, render_manager, render_vehicles, render_buttons, render_time, render_toolbar, render_title
 from .update import update_world
 from .helper import set_zoomed_helper
 
@@ -85,11 +86,13 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
             elif event.type == pygame.MOUSEWHEEL:
                 global zoom_factor
                 if event.y > 0:
-                    if zoom_factor < MAX_ZOOM_FACTOR:
-                        zoom_factor += 1
+                    zoom_factor *= 1.1
+                    if zoom_factor > MAX_ZOOM_FACTOR:
+                        zoom_factor = MAX_ZOOM_FACTOR
                 elif event.y < 0:
-                    if zoom_factor > 1:
-                        zoom_factor -= 1
+                    zoom_factor *= 0.9
+                    if zoom_factor < MIN_ZOOM_FACTOR:
+                        zoom_factor = MIN_ZOOM_FACTOR
 
                 set_zoomed_helper(zoom_factor)
 
@@ -101,9 +104,10 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
         render_manager(screen, manager)
         render_vehicles(screen, vehicles)
         render_toolbar(screen, time_elapsed, buttons)
+        render_title(screen)
 
         # manager 'cpu'
-        manager_event_loop(manager, vehicles, delta_time)
+        manager_event_loop(manager, vehicles, time_elapsed)
 
         # vehicles 'cpu'
         for vehicle in vehicles:
