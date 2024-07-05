@@ -5,12 +5,24 @@ from classes.route import Route, route_position_to_world_position, world_positio
 from itertools import combinations
 from scipy.optimize import minimize_scalar
 
+CAR_COLLISION_DISTANCE = 4 # meters
+
+class Collision:
+    vehicle0: Vehicle
+    vehicle1: Vehicle
+    time: float
+
+    def __init__(self, vehicle0: Vehicle, vehicle1: Vehicle, time: float):
+        self.vehicle0 = vehicle0
+        self.vehicle1 = vehicle1
+        self.time = time
+
 class Manager:
     position: np.ndarray
     radius: float = 25
     vehicles: list[Vehicle] = []
     intersecting_points = None
-    collisions: list = []
+    collisions: list[Collision] = []
 
     def __init__(self, position: np.ndarray, radius: float, routes: list[Route]):
         # initialize
@@ -45,35 +57,28 @@ def _update_manager_vehicle_list(manager: Manager, vehicles: list[Vehicle]):
             manager.vehicles.remove(vehicle)
     return new_vehicle
 
-def get_collisions(manager: Manager, cur_time: float):
+def get_collisions(manager: Manager, cur_time: float) -> list[Collision]:
     collisions = []
     vehicle_pairs = combinations(manager.vehicles, 2)
-    threshold_distance = 2.5 # will be replaced by Alex's defined safety radius
     
     for vehicle_pair in vehicle_pairs:
         vehicle_out_of_bounds_time = int(min(time_until_end_of_route(vehicle_pair[0]), time_until_end_of_route(vehicle_pair[1])))
-        def world_pos_0(t):
-            return route_position_to_world_position(vehicle_pair[0].route, route_position_at_time(vehicle_pair[0], t))
-        def world_pos_1(t):
-            return route_position_to_world_position(vehicle_pair[1].route, route_position_at_time(vehicle_pair[1], t))
-        def distance(t):
-            wp0 = world_pos_0(t)
-            wp1 = world_pos_1(t)
-            return np.linalg.norm(wp1-wp0)
-        def objective(t):
-            return distance(t) - threshold_distance
+        def distance_objective(t):
+            wp0 = route_position_to_world_position(vehicle_pair[0].route, route_position_at_time(vehicle_pair[0], t))
+            wp1 = route_position_to_world_position(vehicle_pair[1].route, route_position_at_time(vehicle_pair[1], t))
+            return np.linalg.norm(wp1-wp0) - CAR_COLLISION_DISTANCE
         
-        result = minimize_scalar(objective, bounds=(0,vehicle_out_of_bounds_time), method='bounded')
-        if result.success and distance(result.x) <= threshold_distance:
+        result = minimize_scalar(distance_objective, bounds=(0, vehicle_out_of_bounds_time), method='bounded')
+        if result.success:
             time_of_collision = result.x + cur_time
-            # print(f"The objects come within 2.5 meters of each other at t = {time_of_collision}")
-            collisions.append({"vehicle0": vehicle_pair[0], "vehicle1": vehicle_pair[1], "time": time_of_collision})
+            print(f"The objects come within 2.5 meters of each other at t = {time_of_collision}")
+            collisions.append(Collision(vehicle_pair[0], vehicle_pair[1], time_of_collision))
     return collisions
 
-def route_position_at_time(vehicle: Vehicle, time: float):
+def route_position_at_time(vehicle: Vehicle, time: float) -> float:
     return vehicle.route_position + vehicle.velocity * time
 
-def time_until_end_of_route(vehicle: Vehicle):
+def time_until_end_of_route(vehicle: Vehicle) -> float:
     return (vehicle.route.total_length - vehicle.route_position) / vehicle.velocity
 
 # def collision_preventing_adjustment():
