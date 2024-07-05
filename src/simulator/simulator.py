@@ -23,7 +23,7 @@ from classes.edge import Edge
 from classes.route import Route
 from .render import render_world, render_manager, render_vehicles, render_buttons, render_time, render_toolbar, render_title
 from .update import update_world
-from .helper import set_zoomed_helper
+from .helper import set_zoomed_helper, scroll_handler
 
 def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: list[Edge], routes: list[Route], intersection_points, manager: Manager): # requires initialization of lanes, manager, vehicles
     pygame.init()
@@ -85,16 +85,7 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
 
             elif event.type == pygame.MOUSEWHEEL:
                 global zoom_factor
-                if event.y > 0:
-                    zoom_factor *= 1.1
-                    if zoom_factor > MAX_ZOOM_FACTOR:
-                        zoom_factor = MAX_ZOOM_FACTOR
-                elif event.y < 0:
-                    zoom_factor *= 0.9
-                    if zoom_factor < MIN_ZOOM_FACTOR:
-                        zoom_factor = MIN_ZOOM_FACTOR
-
-                set_zoomed_helper(zoom_factor)
+                zoom_factor = scroll_handler(event, zoom_factor)
 
         # fill the screen with a color to wipe away anything from last frame
         screen.fill(pygame.Color(150,150,150))

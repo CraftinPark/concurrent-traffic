@@ -1,12 +1,12 @@
 import numpy as np
 import pygame
-from .simulator import WORLD_WIDTH, WORLD_HEIGHT, TOOLBAR_HEIGHT
+from .simulator import WORLD_WIDTH, WORLD_HEIGHT, TOOLBAR_HEIGHT, MAX_ZOOM_FACTOR, MIN_ZOOM_FACTOR
 from manager.manager import Manager
 from pygame import Surface
 
 zoom_factor = 1
 
-def set_zoomed_helper(updated_zoomed):
+def set_zoomed_helper(updated_zoomed: float):
     global zoom_factor
     zoom_factor = updated_zoomed
 
@@ -83,3 +83,17 @@ def draw_radius_circle(screen: Surface, manager: Manager):
         pygame.draw.arc(screen, "green", arc_rect, 0, 2*np.pi)
 
     pygame.draw.circle(screen, "green", manager_screen_pos, circle_radius)
+
+def scroll_handler(event: pygame.event.Event, zoom_factor_simulator: float):
+
+    if event.y > 0:
+        zoom_factor_simulator *= 1.1
+        if zoom_factor_simulator > MAX_ZOOM_FACTOR:
+            zoom_factor_simulator = MAX_ZOOM_FACTOR
+    elif event.y < 0:
+        zoom_factor_simulator *= 0.9
+        if zoom_factor_simulator < MIN_ZOOM_FACTOR:
+            zoom_factor_simulator = MIN_ZOOM_FACTOR
+
+    set_zoomed_helper(zoom_factor_simulator)
+    return zoom_factor_simulator
