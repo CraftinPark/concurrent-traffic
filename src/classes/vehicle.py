@@ -3,6 +3,7 @@ import pygame
 from pygame import Surface
 from manager.command import Command
 from classes.route import Route
+from scipy.interpolate import interp1d
 
 class Vehicle:
     id: int                  = None            # vehicle identifier
@@ -17,7 +18,7 @@ class Vehicle:
     pivot_distance: float     = 1.25            # float representing distance from pivot to center.
     image: Surface
 
-    command: dict[float, float] = dict()           # Command
+    command: Command          = None             # Command
 
     def __init__(self,
                  id: int,
@@ -55,8 +56,5 @@ def vehicle_copy(vehicles: list[Vehicle]) -> list[Vehicle]:
     return [Vehicle(v.id, v.route, v.route_position, v.velocity, v.acceleration, v.width, v.length, v.pivot_distance, v.image_source) for v in vehicles]
   
 def vehicle_event_loop(vehicle: Vehicle, delta_time: float) -> None:
-    new_accel = vehicle.acceleration
-    for t in vehicle.command:
-        if t <= delta_time:
-            new_accel = vehicle.command.get(t, vehicle.acceleration)
-    vehicle.acceleration = new_accel
+    if vehicle.command:
+        vehicle.acceleration = vehicle.command.eval(delta_time)
