@@ -13,23 +13,29 @@ from .simulator import WORLD_WIDTH, WORLD_HEIGHT, TOOLBAR_HEIGHT
 pygame.font.init()
 FONT = pygame.font.SysFont('Consolas', 20)
 
+zoom_factor = 1
+
+def set_zoomed_render(updated_zoomed: float):
+    global zoom_factor
+    zoom_factor = updated_zoomed
+
 def render_nodes(screen: Surface, nodes: list[Node]):
     for node in nodes:
-        node_position = world_to_screen_vector(screen, node.position)
+        node_position = world_to_screen_vector(screen, node.position, zoom_factor)
         pygame.draw.circle(screen, "red", node_position, 3)
 
 def render_edges(screen: Surface, edges: list[Edge]):
     for edge in edges:
         if isinstance(edge, StraightEdge):
-            start_position = world_to_screen_vector(screen, edge.start.position)
-            end_position   = world_to_screen_vector(screen, edge.end.position)
+            start_position = world_to_screen_vector(screen, edge.start.position, zoom_factor)
+            end_position   = world_to_screen_vector(screen, edge.end.position, zoom_factor)
             pygame.draw.line(screen, "red", start_position, end_position)
         elif isinstance(edge, CircularEdge):
             # define rect
-            radius = world_to_screen_scalar(screen, np.linalg.norm(edge.start.position-edge.center)) # norm describes distance
+            radius = world_to_screen_scalar(screen, np.linalg.norm(edge.start.position-edge.center), zoom_factor) # norm describes distance
             diameter = radius*2
             arc_rect = pygame.Rect(0,0,diameter,diameter)
-            arc_rect.center = world_to_screen_vector(screen, edge.center)
+            arc_rect.center = world_to_screen_vector(screen, edge.center, zoom_factor)
 
             theta_start = np.arctan2(-(edge.start.position[1] - edge.center[1]), edge.start.position[0] - edge.center[0])
             theta_end = np.arctan2(-(edge.end.position[1] - edge.center[1]), edge.end.position[0] - edge.center[0])
@@ -46,16 +52,16 @@ def render_edges(screen: Surface, edges: list[Edge]):
 
 def render_intersections(screen: Surface, intersection_points):
     for intersection in intersection_points:
-        node_position = world_to_screen_vector(screen, np.array(list(intersection[2])))
+        node_position = world_to_screen_vector(screen, np.array(list(intersection[2])), zoom_factor)
         pygame.draw.circle(screen, "blue", node_position, 3)
 
 def render_vehicles(screen: Surface, vehicles: list[Vehicle]):
     for vehicle in vehicles:
-        vehicle_screen_width = world_to_screen_scalar(screen, vehicle.width)
-        vehicle_screen_length = world_to_screen_scalar(screen, vehicle.length)
+        vehicle_screen_width = world_to_screen_scalar(screen, vehicle.width, zoom_factor)
+        vehicle_screen_length = world_to_screen_scalar(screen, vehicle.length, zoom_factor)
         
         vehicle_center_point = route_position_to_world_position(vehicle.route, vehicle.route_position)
-        vehicle_center_screen_pos = world_to_screen_vector(screen, vehicle_center_point)
+        vehicle_center_screen_pos = world_to_screen_vector(screen, vehicle_center_point, zoom_factor)
         img = pygame.transform.smoothscale(vehicle.image, (vehicle_screen_length, vehicle_screen_width))
         vehicle_angle = direction_at_route_position(vehicle.route, vehicle.route_position)
         img = pygame.transform.rotate(img, vehicle_angle)
@@ -65,15 +71,15 @@ def render_vehicles(screen: Surface, vehicles: list[Vehicle]):
         pygame.draw.circle(screen, "red", vehicle_center_screen_pos, 3)
 
 def render_background(screen: Surface):
-    position = world_to_screen_vector(screen, [-WORLD_WIDTH/2,-WORLD_HEIGHT/2])
-    width = world_to_screen_scalar(screen, WORLD_WIDTH)
-    height = world_to_screen_scalar(screen, WORLD_HEIGHT)
+    position = world_to_screen_vector(screen, [-WORLD_WIDTH/2,-WORLD_HEIGHT/2], zoom_factor)
+    width = world_to_screen_scalar(screen, WORLD_WIDTH, zoom_factor)
+    height = world_to_screen_scalar(screen, WORLD_HEIGHT, zoom_factor)
     pygame.draw.rect(screen, "grey", pygame.Rect(position[0], position[1], width, height))
 
 def render_border(screen: Surface):
-    position = world_to_screen_vector(screen, [-WORLD_WIDTH/2,-WORLD_HEIGHT/2])
-    width = world_to_screen_scalar(screen, WORLD_WIDTH)
-    height = world_to_screen_scalar(screen, WORLD_HEIGHT)
+    position = world_to_screen_vector(screen, [-WORLD_WIDTH/2,-WORLD_HEIGHT/2], zoom_factor)
+    width = world_to_screen_scalar(screen, WORLD_WIDTH, zoom_factor)
+    height = world_to_screen_scalar(screen, WORLD_HEIGHT, zoom_factor)
     pygame.draw.rect(screen, "maroon", pygame.Rect(position[0]-3, position[1]-3, width+6, height+6),3)
 
 def render_world(screen: Surface, nodes: list[Node], edges: list[Edge], route_visible: bool, intersection_points):
@@ -87,13 +93,13 @@ def render_world(screen: Surface, nodes: list[Node], edges: list[Edge], route_vi
     # render_scenery()
 
 def render_manager(screen: Surface, manager: Manager):
-    radius = world_to_screen_scalar(screen, manager.radius)
-    manager_screen_pos = world_to_screen_vector(screen, manager.position)
+    radius = world_to_screen_scalar(screen, manager.radius, zoom_factor)
+    manager_screen_pos = world_to_screen_vector(screen, manager.position, zoom_factor)
 
     circle_radius = 5 # px
     diameter = radius*2
     arc_rect = pygame.Rect(0,0,diameter,diameter)
-    arc_rect.center = world_to_screen_vector(screen, manager.position)
+    arc_rect.center = world_to_screen_vector(screen, manager.position, zoom_factor)
     pygame.draw.arc(screen, "green", arc_rect, 0, 2*np.pi)
     pygame.draw.circle(screen, "green", manager_screen_pos, circle_radius)
     

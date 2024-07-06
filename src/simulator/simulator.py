@@ -20,9 +20,9 @@ from manager.manager import Manager, manager_event_loop
 from classes.node import Node
 from classes.edge import Edge
 from classes.route import Route
-from .render import render_world, render_manager, render_vehicles, render_buttons, render_time, render_toolbar, render_title
+from .render import render_world, render_manager, render_vehicles, render_buttons, render_time, render_toolbar, render_title, set_zoomed_render
 from .update import update_world
-from .helper import set_zoomed_helper, scroll_handler
+from .helper import scroll_handler
 
 def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: list[Edge], routes: list[Route], intersection_points, manager: Manager): # requires initialization of lanes, manager, vehicles
     pygame.init()
@@ -59,11 +59,12 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
         route_visible = not route_visible
 
     def toggle_zoom() -> None:
+        nonlocal zoom_factor
         if zoom_factor == 1:
             zoom_factor = MAX_ZOOM_FACTOR
         else:
             zoom_factor = MIN_ZOOM_FACTOR
-        set_zoomed_helper()
+        set_zoomed_render(zoom_factor)
         
     
     toggle_button = Button((40, 40, 40), (255, 50, 50), (5, screen.get_height()-TOOLBAR_HEIGHT+50), (100, 30), 'toggle update', toggle_update, ())
@@ -85,6 +86,7 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
 
             elif event.type == pygame.MOUSEWHEEL:
                 zoom_factor = scroll_handler(event, zoom_factor)
+                set_zoomed_render(zoom_factor)
 
         # fill the screen with a color to wipe away anything from last frame
         screen.fill(pygame.Color(150,150,150))
