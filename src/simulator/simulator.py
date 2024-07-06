@@ -5,7 +5,6 @@ TOOLBAR_HEIGHT = 100
 
 MIN_ZOOM_FACTOR = 1
 MAX_ZOOM_FACTOR = 8
-zoom_factor = 1
 
 # world describes 160mx160m space
 WORLD_WIDTH = 160
@@ -32,6 +31,7 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
     running = True
     delta_time = 0
     time_elapsed = 0
+    zoom_factor = 1
 
     vehicles = vehicle_copy(initial_vehicles)
     is_run = True
@@ -58,13 +58,13 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
         nonlocal route_visible
         route_visible = not route_visible
 
-    def toggle_zoom() -> None: 
-        global zoom_factor
+    def toggle_zoom() -> None:
         if zoom_factor == 1:
             zoom_factor = MAX_ZOOM_FACTOR
         else:
-            zoom_factor = 1
-        set_zoomed_helper(zoom_factor)
+            zoom_factor = MIN_ZOOM_FACTOR
+        set_zoomed_helper()
+        
     
     toggle_button = Button((40, 40, 40), (255, 50, 50), (5, screen.get_height()-TOOLBAR_HEIGHT+50), (100, 30), 'toggle update', toggle_update, ())
     restart_button = Button((40, 40, 40), (255, 50, 50), (110, screen.get_height()-TOOLBAR_HEIGHT+50), (100, 30), 'restart', restart_func, ())
@@ -84,7 +84,6 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
                 [b.click() for b in buttons]
 
             elif event.type == pygame.MOUSEWHEEL:
-                global zoom_factor
                 zoom_factor = scroll_handler(event, zoom_factor)
 
         # fill the screen with a color to wipe away anything from last frame
