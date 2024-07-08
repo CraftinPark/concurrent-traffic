@@ -5,7 +5,7 @@ from classes.route import Route, route_position_to_world_position, world_positio
 from itertools import combinations
 from scipy.optimize import minimize_scalar
 
-CAR_COLLISION_DISTANCE = 4 # meters
+CAR_COLLISION_DISTANCE = 2.5 # meters
 
 class Collision:
     vehicle0: Vehicle
