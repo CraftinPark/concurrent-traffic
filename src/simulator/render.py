@@ -102,7 +102,7 @@ def render_manager(screen, manager):
 
     for i, vehicle in enumerate(manager.vehicles):
         font = pygame.font.SysFont('Segoe UI', 15)
-        text_surface = font.render(f"id: {vehicle.id}, pos: {vehicle.route_position:.2f}", True, (0, 0, 0))
+        text_surface = font.render(f"id: {vehicle.id}, pos: {vehicle.route_position:.2f}, accel: {vehicle.acceleration:.2f}, stamps: {vehicle.command.accel_func.x}", True, (0, 0, 0))
         screen.blit(text_surface, (5,i*20 + 5))
 
 def render_time(screen, toolbar_rect, time_elapsed): 

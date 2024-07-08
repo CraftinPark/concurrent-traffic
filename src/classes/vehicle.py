@@ -18,7 +18,7 @@ class Vehicle:
     pivot_distance: float     = 1.25            # float representing distance from pivot to center.
     image: Surface
 
-    command: Command          = None             # Command
+    command: Command          = Command([0], [0])             # Command
 
     def __init__(self,
                  id: int,
@@ -56,5 +56,4 @@ def vehicle_copy(vehicles: list[Vehicle]) -> list[Vehicle]:
     return [Vehicle(v.id, v.route, v.route_position, v.velocity, v.acceleration, v.width, v.length, v.pivot_distance, v.image_source) for v in vehicles]
   
 def vehicle_event_loop(vehicle: Vehicle, delta_time: float) -> None:
-    if vehicle.command:
-        vehicle.acceleration = vehicle.command.eval(delta_time)
+    vehicle.acceleration = vehicle.command(delta_time)
