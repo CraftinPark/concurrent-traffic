@@ -6,6 +6,7 @@ from classes.route import Route
 
 class Vehicle:
     id: int                  = None            # vehicle identifier
+    name: str                = None            # vehicle name
     route: Route             = None            # Route
     route_position: float     = 0               # float representing position in meters along the route
 
@@ -20,6 +21,7 @@ class Vehicle:
     command: Command         = None            # Command
 
     def __init__(self,
+                 name: str,
                  id: int,
                  route: Route,
                  route_position: float,
@@ -31,6 +33,7 @@ class Vehicle:
                  image_source: str,
                  ):
         self.id = id
+        self.name = name
         self.route = route
         self.route_position = route_position
         self.velocity = velocity
@@ -52,7 +55,7 @@ class Vehicle:
 #     return vehicle_center_x, vehicle_center_y
 
 def vehicle_copy(vehicles: list[Vehicle]) -> list[Vehicle]:
-    return [Vehicle(v.id, v.route, v.route_position, v.velocity, v.acceleration, v.width, v.length, v.pivot_distance, v.image_source) for v in vehicles]
+    return [Vehicle(v.id, v.name, v.route, v.route_position, v.velocity, v.acceleration, v.width, v.length, v.pivot_distance, v.image_source) for v in vehicles]
   
 def vehicle_event_loop(vehicle: Vehicle, delta_time: float):
     if vehicle.command is not None:
