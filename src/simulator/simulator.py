@@ -92,7 +92,7 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
         if is_run:
             # physical changes to world (updating positions, velocity, etc.)
             update_world(delta_time, vehicles)
-            time_elapsed += delta_time
+            time_elapsed += delta_time * 2
 
         # updates the screen
         pygame.display.update()
