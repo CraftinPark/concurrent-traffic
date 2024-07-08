@@ -67,7 +67,7 @@ def render_vehicles(screen: Surface, vehicles: list[Vehicle]):
 
         pygame.draw.circle(screen, "red", vehicle_center_screen_pos, 3)
 
-        text_surface = FONT.render(vehicle.name, True, (255, 255, 255))  # try 139, 69, 19 later
+        text_surface = FONT.render(vehicle.name, True, (139, 69, 19))
         screen.blit(text_surface, (car_rect.center[0], car_rect.center[1] - 20))
 
 def render_background(screen: Surface):
