@@ -1,9 +1,10 @@
 import numpy as np
 from classes.vehicle import Vehicle
-from .command import Command
+from .command import update_cmd
 from classes.route import Route, route_position_to_world_position, world_position_to_route_position
 from itertools import combinations
 from scipy.optimize import minimize_scalar
+from random import randint
 
 CAR_COLLISION_DISTANCE = 4 # meters
 
@@ -12,7 +13,7 @@ class Collision:
     vehicle1: Vehicle
     time: float
 
-    def __init__(self, vehicle0: Vehicle, vehicle1: Vehicle, time: float):
+    def __init__(self, vehicle0: Vehicle, vehicle1: Vehicle, time: float) -> None:
         self.vehicle0 = vehicle0
         self.vehicle1 = vehicle1
         self.time = time
@@ -24,7 +25,7 @@ class Manager:
     intersecting_points = None
     collisions: list[Collision] = []
 
-    def __init__(self, position: np.ndarray, radius: float, routes: list[Route]):
+    def __init__(self, position: np.ndarray, radius: float, routes: list[Route]) -> None:
         # initialize
         self.position = position
         self.radius = radius
@@ -32,12 +33,12 @@ class Manager:
     def reset(self):
         self.vehicles.clear()
 
-def manager_event_loop(manager: Manager, vehicles: list[Vehicle], cur_time: float):
-    if _update_manager_vehicle_list(manager, vehicles):
+def manager_event_loop(manager: Manager, vehicles: list[Vehicle], cur_time: float) -> None:
+    if _update_manager_vehicle_list(manager, vehicles, cur_time):
         manager.collisions = get_collisions(manager, cur_time)
-    _compute_and_send_acceleration_commands(manager, vehicles)
+        _compute_and_send_acceleration_commands(manager, cur_time)
 
-def _update_manager_vehicle_list(manager: Manager, vehicles: list[Vehicle]):
+def _update_manager_vehicle_list(manager: Manager, vehicles: list[Vehicle], cur_time: float) -> list[Vehicle]:
     new_vehicle = False
     for vehicle in vehicles:
 
@@ -48,12 +49,12 @@ def _update_manager_vehicle_list(manager: Manager, vehicles: list[Vehicle]):
         vehicle_in_list = any(manager_vehicle.id == vehicle.id for manager_vehicle in manager.vehicles)
 
         # append if not in list and inside radius
-        if not vehicle_in_list and distance_to_vehicle <= manager.radius: 
+        if not vehicle_in_list and distance_to_vehicle <= manager.radius:
             manager.vehicles.append(vehicle)
             new_vehicle = True
 
         # remove if in list and outside radius
-        elif vehicle_in_list and distance_to_vehicle > manager.radius: 
+        elif vehicle_in_list and distance_to_vehicle > manager.radius:
             manager.vehicles.remove(vehicle)
     return new_vehicle
 
@@ -85,13 +86,13 @@ def time_until_end_of_route(vehicle: Vehicle) -> float:
 #     # adjustment must be a timed acceleration/deceleration
 #     return
 
-def _compute_and_send_acceleration_commands(manager: Manager, vehicles: list[Vehicle]):
-    for vehicle in manager.vehicles:
-        if vehicle.command == None:
-            command = _compute_command()
-            vehicle.command = command
-            pass
+def _compute_and_send_acceleration_commands(manager: Manager, elapsed_time: float) -> None:
 
-def _compute_command() -> Command:
-    # TODO
-    return
+    for v in manager.vehicles:
+        t, a = _compute_command(elapsed_time)
+        v.command = update_cmd(v.command, t, a, elapsed_time)
+
+def _compute_command(elapsed_time: float) -> tuple[list[float], list[float]]:
+    t = [elapsed_time, elapsed_time + randint(1, 3), elapsed_time + randint(3, 5)]
+    a = [randint(1, 3), randint(-3, 3), 3]
+    return t, a
