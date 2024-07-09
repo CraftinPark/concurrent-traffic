@@ -17,7 +17,7 @@ from manager.manager import Manager, manager_event_loop
 from classes.node import Node
 from classes.edge import Edge
 from classes.route import Route
-from .render import render_world, render_manager, render_vehicles, render_buttons, render_time, render_toolbar, render_title
+from .render import render_world, render_manager, render_vehicles, render_buttons, render_time, render_toolbar, render_title, render_arrows
 from .update import update_world
 
 def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: list[Edge], routes: list[Route], intersection_points, manager: Manager): # requires initialization of lanes, manager, vehicles
@@ -76,7 +76,6 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
         render_manager(screen, manager)
         render_vehicles(screen, vehicles)
         render_toolbar(screen, time_elapsed, buttons)
-        render_title(screen)
 
         # manager 'cpu'
         manager_event_loop(manager, vehicles, time_elapsed)

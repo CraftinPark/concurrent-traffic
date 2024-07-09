@@ -1,5 +1,6 @@
 import pygame
 import numpy as np
+import argparse as ap
 from pygame import Surface
 from classes.vehicle import Vehicle
 from classes.node import Node
@@ -84,6 +85,7 @@ def render_world(screen: Surface, nodes: list[Node], edges: list[Edge], route_vi
     if route_visible:
         render_nodes(screen, nodes)
         render_edges(screen, edges)
+        render_arrows(screen, edges)
     render_intersections(screen, intersection_points)
     render_border(screen)
     # render_scenery()
@@ -121,14 +123,54 @@ def render_buttons(screen: Surface, buttons: list[Button]) -> None:
             text = font.render(b.text, 1, (255, 255, 255))
             screen.blit(text, (b.x + (b.width/2 - text.get_width()/2), b.y + (b.height/2 - text.get_height()/2)))
 
+def render_title(screen): 
+    # draw title and version
+    FONT = pygame.font.SysFont("Segoe UI", 15, bold=True, italic=False)
+    text_surface = FONT.render(f"Concurent Traffic v0.0.2", True, (255, 255, 255))
+    text_rect = text_surface.get_rect()
+    text_rect.right = 150
+    screen.blit(text_surface, text_surface.get_rect(topright = (screen.get_width()-3, screen.get_height()-TOOLBAR_HEIGHT)))
+
 def render_toolbar(screen, time_elapsed, buttons):
     toolbar_rect = pygame.Rect(0, screen.get_height()-TOOLBAR_HEIGHT,screen.get_width(),TOOLBAR_HEIGHT)
     pygame.draw.rect(screen, pygame.Color(80,80,80), toolbar_rect)
     render_time(screen,toolbar_rect, time_elapsed)
     render_buttons(screen, buttons)
+    render_title(screen)
 
-def render_title(screen): 
-    # draw title and version
-    FONT = pygame.font.SysFont("Segoe UI", 15, bold=True, italic=False)
-    text_surface = FONT.render(f"Concurent Traffic v0.0.2", True, (255, 255, 255))
-    screen.blit(text_surface, (6,624))
+def render_arrows(screen: Surface, edges: list[Edge]):
+    for edge in edges:
+        if isinstance(edge, StraightEdge):
+
+            start_position = world_to_screen_vector(screen, edge.start.position)
+            end_position = world_to_screen_vector(screen, edge.end.position)
+            midpoint_position = (start_position + end_position) / 2
+
+            width = screen.get_width()   
+            height = screen.get_height()
+
+            pygame.draw.circle(screen, "green", midpoint_position, 3)
+
+        elif isinstance(edge, CircularEdge):
+            # define rect
+            radius = world_to_screen_scalar(screen, np.linalg.norm(edge.start.position-edge.center)) # norm describes distance
+            diameter = radius*2
+
+            theta_start = np.arctan2(-(edge.start.position[1] - edge.center[1]), edge.start.position[0] - edge.center[0])
+            theta_end = np.arctan2(-(edge.end.position[1] - edge.center[1]), edge.end.position[0] - edge.center[0])
+
+            if edge.clockwise:
+                if theta_end < theta_start:
+                    theta_end += 2*np.pi
+                theta_end, theta_start = theta_start, theta_end
+            else:
+                if theta_start < theta_end:
+                    theta_start += 2*np.pi
+            
+            theta_midpoint = (theta_start+theta_end)/2
+            center_point_world = (edge.center[0] + np.linalg.norm(edge.start.position-edge.center)*np.cos(theta_midpoint), edge.center[1] + np.linalg.norm(edge.start.position-edge.center)*np.sin(theta_midpoint))
+            center_point = world_to_screen_vector(screen, center_point_world)
+            pygame.draw.circle(screen, "green", center_point, 3)
+
+
+
