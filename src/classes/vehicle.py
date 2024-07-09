@@ -57,3 +57,16 @@ def vehicle_copy(vehicles: list[Vehicle]) -> list[Vehicle]:
   
 def vehicle_event_loop(vehicle: Vehicle, delta_time: float) -> None:
     vehicle.acceleration = vehicle.command(delta_time)
+
+def update_cmd(old_cmd: Command, t: np.array, a: np.array, elapsed_time: float=0) -> Command:
+    del_index = None
+    for i in range(len(old_cmd.accel_func.x)):
+        if old_cmd.accel_func.x[i] >= elapsed_time:
+            print(i, len(old_cmd.accel_func.x))
+            del_index = i
+            break
+
+    new_t = np.concatenate((old_cmd.accel_func.x[:del_index], t))
+    new_a = np.concatenate((old_cmd.accel_func.y[:del_index], a))
+
+    return Command(new_t, new_a)
