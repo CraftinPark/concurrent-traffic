@@ -112,6 +112,43 @@ def render_time(screen, toolbar_rect, time_elapsed):
     text_rect.right = 150
     screen.blit(text_surface, text_surface.get_rect(topright = (screen.get_width()-3, screen.get_height()-TOOLBAR_HEIGHT)))
 
+def create_buttons(screen: Surface, b_names_func: list[tuple], colors) -> list[Button]:
+        total_length = 5
+        rows = 0
+        order = [[[],[],[]],[[],[],[]],[[],[],[]]]  # name, func, (self.x, self.width)
+        buttons = []
+        for name, func in b_names_func:
+            if _count_letters(name) + total_length > WORLD_WIDTH - 5:
+                rows += 1
+                total_length = 20 # huh
+                if rows > len(order):
+                    print("Need more toolbar space")
+            else:
+                order[rows][0].append((name))
+                order[rows][1].append((func))
+                order[rows][2].append((total_length, _count_letters(name)))
+                total_length += _count_letters(name)
+        j = 0
+        while j < len(order):
+            length = 5
+            for i in range(len(order[j][0])):
+                buttons.append(Button(colors[0], colors[1], (order[j][2][i][0], (WORLD_HEIGHT-TOOLBAR_HEIGHT) + TOOLBAR_HEIGHT / rows * j), (order[j][2][i][1], 30), order[j][0][i], order[j][1][i], ()))
+        
+        return buttons
+
+def _count_letters(name: str) -> int:
+    if 1 <= len(name) <= 15:
+        return 100
+    elif 16 <= len(name) <= 25:
+        return 150
+    elif 26 <= len(name) <= 35:
+        return 200
+    elif 36 <= len(name) <= 50:
+        return 250
+    else:
+        return 400
+
+
 def render_buttons(screen: Surface, buttons: list[Button]) -> None:
     for b in buttons:
         b.y = screen.get_height()-TOOLBAR_HEIGHT+50
@@ -125,7 +162,7 @@ def render_toolbar(screen, time_elapsed, buttons):
     toolbar_rect = pygame.Rect(0, screen.get_height()-TOOLBAR_HEIGHT,screen.get_width(),TOOLBAR_HEIGHT)
     pygame.draw.rect(screen, pygame.Color(80,80,80), toolbar_rect)
     render_time(screen,toolbar_rect, time_elapsed)
-    render_buttons(screen, buttons)
+    render_buttons
 
 def render_title(screen): 
     # draw title and version

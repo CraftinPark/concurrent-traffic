@@ -17,7 +17,7 @@ from manager.manager import Manager, manager_event_loop
 from classes.node import Node
 from classes.edge import Edge
 from classes.route import Route
-from .render import render_world, render_manager, render_vehicles, render_buttons, render_time, render_toolbar, render_title
+from .render import render_world, render_manager, render_vehicles, render_buttons, render_time, render_toolbar, render_title, create_buttons
 from .update import update_world
 
 def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: list[Edge], routes: list[Route], intersection_points, manager: Manager): # requires initialization of lanes, manager, vehicles
@@ -52,12 +52,13 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
     def toggle_route_visibility() -> None:
         nonlocal route_visible
         route_visible = not route_visible
-    
-    toggle_button = Button((40, 40, 40), (255, 50, 50), (5, screen.get_height()-TOOLBAR_HEIGHT+50), (100, 30), 'toggle update', toggle_update, ())
-    restart_button = Button((40, 40, 40), (255, 50, 50), (110, screen.get_height()-TOOLBAR_HEIGHT+50), (100, 30), 'restart', restart_func, ())
-    routes_visibility_button = Button((40, 40, 40), (255, 50, 50), (215, screen.get_height()-TOOLBAR_HEIGHT+50), (150, 30), 'toggle route visibility', toggle_route_visibility, ())
 
-    buttons = [toggle_button, restart_button, routes_visibility_button]
+    buttons = [("toggle update", toggle_update), 
+               ("restart", restart_func), 
+               ("toggle route visibility", toggle_route_visibility)]
+    button_colors_and_hover_colors = (40, 40, 40), (255, 50, 50)
+    toolbar_buttons = create_buttons(screen, buttons, button_colors_and_hover_colors)
+
     while running:
         # poll for events
         # pygame.QUIT event means the user clicked X to close your window
@@ -75,7 +76,7 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
         render_world(screen, nodes, edges, route_visible, intersection_points)
         render_manager(screen, manager)
         render_vehicles(screen, vehicles)
-        render_toolbar(screen, time_elapsed, buttons)
+        render_toolbar(screen, time_elapsed, toolbar_buttons)
         render_title(screen)
 
         # manager 'cpu'
