@@ -3,7 +3,6 @@ import pygame
 from pygame import Surface
 from manager.command import Command
 from classes.route import Route
-from scipy.interpolate import interp1d
 
 class Vehicle:
     id: int                  = None            # vehicle identifier
