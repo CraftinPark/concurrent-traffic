@@ -1,6 +1,5 @@
 import numpy as np
-from classes.vehicle import Vehicle
-from .command import update_cmd
+from classes.vehicle import Vehicle, update_cmd
 from classes.route import Route, route_position_to_world_position, world_position_to_route_position
 from itertools import combinations
 from scipy.optimize import minimize_scalar
@@ -87,12 +86,11 @@ def time_until_end_of_route(vehicle: Vehicle) -> float:
 #     return
 
 def _compute_and_send_acceleration_commands(manager: Manager, elapsed_time: float) -> None:
-
     for v in manager.vehicles:
         t, a = _compute_command(elapsed_time)
         v.command = update_cmd(v.command, t, a, elapsed_time)
 
-def _compute_command(elapsed_time: float) -> tuple[list[float], list[float]]:
+def _compute_command(elapsed_time: float) -> tuple[np.array, np.array]:
     t = [elapsed_time, elapsed_time + randint(1, 3), elapsed_time + randint(3, 5)]
     a = [randint(1, 3), randint(-3, 3), 3]
-    return t, a
+    return np.array(t), np.array(a)
