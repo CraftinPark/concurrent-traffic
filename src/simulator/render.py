@@ -146,18 +146,14 @@ def render_arrows(screen: Surface, edges: list[Edge]):
             end_position = world_to_screen_vector(screen, edge.end.position)
             midpoint_position = (start_position + end_position) / 2
 
-            width = screen.get_width()   
-            height = screen.get_height()
-
-            pygame.draw.circle(screen, "green", midpoint_position, 3)
+            pygame.draw.circle(screen, "blue", midpoint_position, 3)
 
         elif isinstance(edge, CircularEdge):
             # define rect
-            radius = world_to_screen_scalar(screen, np.linalg.norm(edge.start.position-edge.center)) # norm describes distance
-            diameter = radius*2
+            radius = np.linalg.norm(edge.start.position-edge.center) # norm describes distance
 
-            theta_start = np.arctan2(-(edge.start.position[1] - edge.center[1]), edge.start.position[0] - edge.center[0])
-            theta_end = np.arctan2(-(edge.end.position[1] - edge.center[1]), edge.end.position[0] - edge.center[0])
+            theta_start = np.arctan2((edge.start.position[1] - edge.center[1]), edge.start.position[0] - edge.center[0])
+            theta_end = np.arctan2((edge.end.position[1] - edge.center[1]), edge.end.position[0] - edge.center[0])
 
             if edge.clockwise:
                 if theta_end < theta_start:
@@ -168,9 +164,9 @@ def render_arrows(screen: Surface, edges: list[Edge]):
                     theta_start += 2*np.pi
             
             theta_midpoint = (theta_start+theta_end)/2
-            center_point_world = (edge.center[0] + np.linalg.norm(edge.start.position-edge.center)*np.cos(theta_midpoint), edge.center[1] + np.linalg.norm(edge.start.position-edge.center)*np.sin(theta_midpoint))
+            center_point_world = (edge.center[0] + radius*np.cos(theta_midpoint), edge.center[1] + radius*np.sin(theta_midpoint))
             center_point = world_to_screen_vector(screen, center_point_world)
-            pygame.draw.circle(screen, "green", center_point, 3)
+            pygame.draw.circle(screen, "blueviolet", center_point, 3)
 
 
 
