@@ -6,6 +6,9 @@ TOOLBAR_HEIGHT = 100
 MIN_ZOOM_FACTOR = 1
 MAX_ZOOM_FACTOR = 8
 
+MIN_PLAYBACK_SPEED_FACTOR = 0.25
+MAX_PLAYBACK_SPEED_FACTOR = 2
+
 # world describes 160mx160m space
 WORLD_WIDTH = 160
 WORLD_HEIGHT = 160
@@ -32,6 +35,7 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
     delta_time = 0
     time_elapsed = 0
     zoom_factor = 1
+    playback_speed_factor = 1.0
 
     vehicles = vehicle_copy(initial_vehicles)
     is_run = True
@@ -65,15 +69,25 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
         else:
             zoom_factor = MIN_ZOOM_FACTOR
         set_zoomed_render(zoom_factor)
-        
+
+    def toggle_playback_speed(operation: str) -> None:
+        nonlocal playback_speed_factor
+        if operation == "+":
+            playback_speed_factor = min(MAX_PLAYBACK_SPEED_FACTOR, playback_speed_factor + 0.25)
+        elif operation == "-":
+            playback_speed_factor = max(MIN_PLAYBACK_SPEED_FACTOR, playback_speed_factor - 0.25)
+        display_playback_speed.text = str(playback_speed_factor) + "x"
     
     toggle_button = Button((40, 40, 40), (255, 50, 50), (5, screen.get_height()-TOOLBAR_HEIGHT+50), (100, 30), 'toggle update', toggle_update, ())
     restart_button = Button((40, 40, 40), (255, 50, 50), (110, screen.get_height()-TOOLBAR_HEIGHT+50), (100, 30), 'restart', restart_func, ())
     routes_visibility_button = Button((40, 40, 40), (255, 50, 50), (215, screen.get_height()-TOOLBAR_HEIGHT+50), (150, 30), 'toggle route visibility', toggle_route_visibility, ())
     zoom_button = Button((40, 40, 40), (255, 50, 50), (370, screen.get_height()-TOOLBAR_HEIGHT+50), (70, 30), 'zoom', toggle_zoom, ())
 
+    subtract_playback_speed = Button((40, 40, 40), (255, 50, 50), (445, screen.get_height()-TOOLBAR_HEIGHT+50), (35, 30), '-', lambda: toggle_playback_speed("-"), ())
+    display_playback_speed = Button((40, 40, 40), (40, 40, 40), (480, screen.get_height()-TOOLBAR_HEIGHT+50), (45, 30), str(playback_speed_factor) + "x", None, ())
+    add_playback_speed = Button((40, 40, 40), (255, 50, 50), (525, screen.get_height()-TOOLBAR_HEIGHT+50), (35, 30), '+', lambda: toggle_playback_speed("+"), ())
 
-    buttons = [toggle_button, restart_button, routes_visibility_button, zoom_button]
+    buttons = [toggle_button, restart_button, routes_visibility_button, zoom_button, subtract_playback_speed, add_playback_speed, display_playback_speed]
     while running:
         # poll for events
         # pygame.QUIT event means the user clicked X to close your window
@@ -112,9 +126,9 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
 
         if is_run:
             # physical changes to world (updating positions, velocity, etc.)
-            update_world(delta_time, vehicles)
-            time_elapsed += delta_time
-
+            update_world(delta_time * playback_speed_factor, vehicles)
+            time_elapsed += delta_time * playback_speed_factor
+            
         # updates the screen
         pygame.display.update()
         delta_time = clock.tick(60) / 1000
