@@ -1,7 +1,7 @@
-ORIGINAL_SCREEN_WIDTH = 1000
-ORIGINAL_SCREEN_HEIGHT = 720
+ORIGINAL_SCREEN_WIDTH = 1000 #px
+ORIGINAL_SCREEN_HEIGHT = 720 #px
 
-TOOLBAR_HEIGHT = 100
+TOOLBAR_HEIGHT = 100 #px
 
 MIN_ZOOM_FACTOR = 1
 MAX_ZOOM_FACTOR = 8
@@ -10,8 +10,8 @@ MIN_PLAYBACK_SPEED_FACTOR = 0.25
 MAX_PLAYBACK_SPEED_FACTOR = 2
 
 # world describes 160mx160m space
-WORLD_WIDTH = 160
-WORLD_HEIGHT = 160
+WORLD_WIDTH = 160 # m
+WORLD_HEIGHT = 160 # m
 
 import pygame
 
@@ -122,12 +122,10 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
         # vehicles 'cpu'
         for vehicle in vehicles:
             vehicle_event_loop(vehicle, time_elapsed)
-
-        # vehicle removal 
-        for vehicle in vehicles:
+            # vehicle removal 
             if vehicle.route_position > vehicle.route.total_length:
                 vehicles.remove(vehicle)
-
+            
         if is_run:
             # physical changes to world (updating positions, velocity, etc.)
             update_world(delta_time * playback_speed_factor, vehicles)

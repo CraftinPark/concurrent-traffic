@@ -3,9 +3,28 @@ from classes.route import Route
 from classes.node import Node
 from classes.edge import Edge, StraightEdge, CircularEdge
 from classes.vehicle import Vehicle
+from manager.manager import Manager
 import sympy
 from sympy import Point2D
 from itertools import combinations
+import json
+import numpy as np
+
+def load_preset(file_path: str) -> tuple[Manager, list[Node], list[Edge], list[Route], list[Vehicle]]:
+    with open(file_path, 'r') as file:
+        presets = json.load(file)
+
+    nodes, curr_edges, routes, vehicles = [], [], [], []
+        
+    node_dict = load_nodes(presets["nodes"], nodes)
+    edge_dict = load_edges(presets['edges'], curr_edges, node_dict)
+    route_dict = load_routes(presets['routes'], routes, edge_dict)
+    load_vehicles(presets["stored_vehicles"], vehicles, route_dict)
+    
+    manager_data = presets["manager"]
+    manager = Manager(np.array(manager_data["position"]), manager_data["radius"], routes)
+
+    return manager, nodes, curr_edges, routes, get_intersections(routes), vehicles
 
 def get_intersections(routes: list[Route]) -> set[tuple[int, int, tuple[float, float]]]:
     """Return a set of intersections in the following form: (route1_id, route2_id, (x, y))."""
@@ -133,5 +152,3 @@ def load_vehicles(loaded_vehicles: object, vehicles: list[Vehicle], route_dict: 
         new_vehicle = Vehicle(v["id"], route_dict[v["route"]], v["route_position"], v["velocity"], 0, 2.23, 4.90, 1.25, 'assets/sedan.png')
         vehicle_dict[v["id"]] = new_vehicle
         vehicles.append(new_vehicle)
-
-

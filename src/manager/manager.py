@@ -78,7 +78,7 @@ def get_collisions(manager: Manager, cur_time: float) -> list[Collision]:
         result = minimize_scalar(distance_objective, bounds=(0, vehicle_out_of_bounds_time), method='bounded')
         if result.success:
             time_of_collision = result.x + cur_time
-            print(f"The objects come within 2.5 meters of each other at t = {time_of_collision}")
+            # print(f"The objects come within 2.5 meters of each other at t = {time_of_collision}")
             collisions.append(Collision(vehicle_pair[0], vehicle_pair[1], time_of_collision))
     return collisions
 
