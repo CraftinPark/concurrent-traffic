@@ -2,6 +2,7 @@ from scipy.interpolate import interp1d
 import numpy as np
 
 class Command:
+    """Command is sent to a Vehicle to dictate the Vehicle's acceleration over time."""
     accel_func: interp1d # symoblizes a piecewise function
                                                # 0: acceleration to set to
                                                # 1: the time to set corresponding acceleration
@@ -13,4 +14,5 @@ class Command:
         self.accel_func = interp1d(t, a, kind='previous', bounds_error=False, fill_value=tuple((front, end)))
     
     def __call__(self, t: float) -> float:
+        """Return the accleration value for a given time t."""
         return self.accel_func(t)

@@ -1,6 +1,6 @@
 import numpy as np
 from classes.vehicle import Vehicle, update_cmd
-from classes.route import Route, route_position_to_world_position, world_position_to_route_position
+from classes.route import Route, route_position_to_world_position
 from itertools import combinations
 from scipy.optimize import minimize_scalar
 from random import randint
@@ -8,6 +8,7 @@ from random import randint
 CAR_COLLISION_DISTANCE = 4 # meters
 
 class Collision:
+    """A Collision represents a collision between two Vehicles at a given time."""
     vehicle0: Vehicle
     vehicle1: Vehicle
     time: float
@@ -18,6 +19,8 @@ class Collision:
         self.time = time
 
 class Manager:
+    """A Manager controls all Vehicles within its radius, calculating and sending commands to ensure that Vehicles do
+    not collide with each other."""
     position: np.ndarray
     radius: float = 25
     vehicles: list[Vehicle] = []
@@ -29,15 +32,18 @@ class Manager:
         self.position = position
         self.radius = radius
 
-    def reset(self):
-        self.vehicles.clear()
+def reset(manager: Manager) -> None:
+    """Clear manager.vehicles attribute."""
+    manager.vehicles.clear()
 
 def manager_event_loop(manager: Manager, vehicles: list[Vehicle], cur_time: float) -> None:
-    if _update_manager_vehicle_list(manager, vehicles, cur_time):
+    """Event loop for Manager. Updates manager.vehicles if a Vehicle enters its radius. Also recalculates and sends Commands on update of manager.vehicles."""
+    if _update_manager_vehicle_list(manager, vehicles):
         manager.collisions = get_collisions(manager, cur_time)
         _compute_and_send_acceleration_commands(manager, cur_time)
 
-def _update_manager_vehicle_list(manager: Manager, vehicles: list[Vehicle], cur_time: float) -> list[Vehicle]:
+def _update_manager_vehicle_list(manager: Manager, vehicles: list[Vehicle]) -> bool:
+    """Return True if new vehicles have been added to manager.vehicles."""
     new_vehicle = False
     for vehicle in vehicles:
 
@@ -58,6 +64,7 @@ def _update_manager_vehicle_list(manager: Manager, vehicles: list[Vehicle], cur_
     return new_vehicle
 
 def get_collisions(manager: Manager, cur_time: float) -> list[Collision]:
+    """Return list of Collisions between Vehicles in manager's radius."""
     collisions = []
     vehicle_pairs = combinations(manager.vehicles, 2)
     
@@ -75,10 +82,12 @@ def get_collisions(manager: Manager, cur_time: float) -> list[Collision]:
             collisions.append(Collision(vehicle_pair[0], vehicle_pair[1], time_of_collision))
     return collisions
 
-def route_position_at_time(vehicle: Vehicle, time: float) -> float:
-    return vehicle.route_position + vehicle.velocity * time
+def route_position_at_time(vehicle: Vehicle, delta_time: float) -> float:
+    """Return vehicle's route position along its Route after delta_time seconds has passed."""
+    return vehicle.route_position + vehicle.velocity * delta_time
 
 def time_until_end_of_route(vehicle: Vehicle) -> float:
+    """Return time til vehicle reaches the end of its route."""
     return (vehicle.route.total_length - vehicle.route_position) / vehicle.velocity
 
 # def collision_preventing_adjustment():
@@ -86,11 +95,13 @@ def time_until_end_of_route(vehicle: Vehicle) -> float:
 #     return
 
 def _compute_and_send_acceleration_commands(manager: Manager, elapsed_time: float) -> None:
+    """Compute and send commands."""
     for v in manager.vehicles:
         t, a = _compute_command(elapsed_time)
         v.command = update_cmd(v.command, t, a, elapsed_time)
 
 def _compute_command(elapsed_time: float) -> tuple[np.array, np.array]:
+    """Return np.array of acceleration and time values."""
     t = [elapsed_time, elapsed_time + randint(1, 3), elapsed_time + randint(3, 5)]
     a = [randint(1, 3), randint(-3, 3), 3]
     return np.array(t), np.array(a)

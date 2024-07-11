@@ -14,20 +14,19 @@ WORLD_WIDTH = 160
 WORLD_HEIGHT = 160
 
 import pygame
-from copy import deepcopy
-import numpy as np
 
 from classes.vehicle import Vehicle, vehicle_event_loop, vehicle_copy
 from classes.button import Button
-from manager.manager import Manager, manager_event_loop 
+from manager.manager import Manager, manager_event_loop, reset
 from classes.node import Node
 from classes.edge import Edge
 from classes.route import Route
-from .render import render_world, render_manager, render_vehicles, render_buttons, render_time, render_toolbar, render_title, set_zoomed_render
+from .render import render_world, render_manager, render_vehicles, render_toolbar, render_title, set_zoomed_render
 from .update import update_world
 from .helper import scroll_handler
 
-def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: list[Edge], routes: list[Route], intersection_points, manager: Manager): # requires initialization of lanes, manager, vehicles
+def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: list[Edge], routes: list[Route], intersection_points, manager: Manager) -> None:
+    """Initializes and runs the pygame simulator. Requires initialization of lanes, manager, vehicles."""
     pygame.init()
     screen = pygame.display.set_mode((ORIGINAL_SCREEN_WIDTH, ORIGINAL_SCREEN_HEIGHT), pygame.RESIZABLE)
     clock = pygame.time.Clock()
@@ -42,10 +41,12 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
     route_visible = True
 
     def toggle_update() -> None:
+        """Toggles between resuming or pausing the simulator."""
         nonlocal is_run
         is_run = not is_run
 
     def restart_func() -> None:
+        """Resets the simulator."""
         nonlocal vehicles
         nonlocal clock
         nonlocal delta_time
@@ -56,13 +57,15 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
         clock = pygame.time.Clock()
         delta_time = 0
         time_elapsed = 0
-        manager.reset()
+        reset(manager)
     
     def toggle_route_visibility() -> None:
+        """Toggles route visibility."""
         nonlocal route_visible
         route_visible = not route_visible
 
     def toggle_zoom() -> None:
+        """Toggles between max and min zoom."""
         nonlocal zoom_factor
         if zoom_factor == 1:
             zoom_factor = MAX_ZOOM_FACTOR
@@ -71,6 +74,7 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
         set_zoomed_render(zoom_factor)
 
     def toggle_playback_speed(operation: str) -> None:
+        """Adjusts playback speed."""
         nonlocal playback_speed_factor
         if operation == "+":
             playback_speed_factor = min(MAX_PLAYBACK_SPEED_FACTOR, playback_speed_factor + 0.25)
