@@ -1,7 +1,6 @@
 import numpy as np
 import pygame
 from .simulator import WORLD_WIDTH, WORLD_HEIGHT, TOOLBAR_HEIGHT, MAX_ZOOM_FACTOR, MIN_ZOOM_FACTOR
-from manager.manager import Manager
 from pygame import Surface
 
 def get_x_y_shift(screen: Surface):
