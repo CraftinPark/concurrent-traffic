@@ -130,7 +130,7 @@ def load_vehicles(loaded_vehicles: object, vehicles: list[Vehicle], route_dict: 
     for v in loaded_vehicles:
         if v["id"] in vehicle_dict:
             raise ValueError(f"Duplicate vehicle ID found: {v['id']}")
-        new_vehicle = Vehicle(v["id"], route_dict[v["route"]], v["route_position"], v["velocity"], 0, 2.23, 4.90, 1.25, 'assets/sedan.png')
+        new_vehicle = Vehicle(v["id"], v["name"], route_dict[v["route"]], v["route_position"], v["velocity"], 0, 2.23, 4.90, 1.25, 'assets/sedan.png')
         vehicle_dict[v["id"]] = new_vehicle
         vehicles.append(new_vehicle)
 

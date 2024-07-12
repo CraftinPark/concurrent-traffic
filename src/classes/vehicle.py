@@ -8,6 +8,7 @@ class Vehicle:
     """A Vehicle is given commands that it follows along a given route."""
 
     id: int                  = None            # vehicle identifier
+    name: str                = None            # vehicle name
     route: Route             = None            # Route
     route_position: float     = 0               # float representing position in meters along the route
 
@@ -22,6 +23,7 @@ class Vehicle:
     command: Command          = Command([0], [0])             # Command
 
     def __init__(self,
+                 name: str,
                  id: int,
                  route: Route,
                  route_position: float,
@@ -33,6 +35,7 @@ class Vehicle:
                  image_source: str,
                  ) -> None:
         self.id = id
+        self.name = name
         self.route = route
         self.route_position = route_position
         self.velocity = velocity
@@ -55,7 +58,7 @@ class Vehicle:
 
 def vehicle_copy(vehicles: list[Vehicle]) -> list[Vehicle]:
     """Return a deep copy of a list of Vehicles."""
-    return [Vehicle(v.id, v.route, v.route_position, v.velocity, v.acceleration, v.width, v.length, v.pivot_distance, v.image_source) for v in vehicles]
+    return [Vehicle(v.id, v.name, v.route, v.route_position, v.velocity, v.acceleration, v.width, v.length, v.pivot_distance, v.image_source) for v in vehicles]
   
 def vehicle_event_loop(vehicle: Vehicle, delta_time: float) -> None:
     """Event loop for Vehicle."""
