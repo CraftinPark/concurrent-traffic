@@ -5,7 +5,7 @@ from classes.vehicle import Vehicle
 from classes.node import Node
 from classes.edge import Edge, StraightEdge, CircularEdge
 from classes.route import route_position_to_world_position, direction_at_route_position
-from manager.manager import Manager
+from manager.manager import Manager, CAR_COLLISION_DISTANCE
 from classes.button import Button
 from .helper import world_to_screen_vector, world_to_screen_scalar
 from .simulator import WORLD_WIDTH, WORLD_HEIGHT, TOOLBAR_HEIGHT
@@ -73,7 +73,7 @@ def render_vehicles(screen: Surface, vehicles: list[Vehicle]) -> None:
         car_rect = img.get_rect()
         car_rect.center = vehicle_center_screen_pos
         screen.blit(img, car_rect)
-        pygame.draw.circle(screen, "red", vehicle_center_screen_pos, 3)
+        pygame.draw.circle(screen, "red", vehicle_center_screen_pos, CAR_COLLISION_DISTANCE * 2, 1)
 
 def render_background(screen: Surface) -> None:
     """Render function for background."""

@@ -5,7 +5,7 @@ from itertools import combinations
 from scipy.optimize import minimize_scalar
 from random import randint
 
-CAR_COLLISION_DISTANCE = 4 # meters
+CAR_COLLISION_DISTANCE = 2.5 # meters
 
 class Collision:
     """A Collision represents a collision between two Vehicles at a given time."""
