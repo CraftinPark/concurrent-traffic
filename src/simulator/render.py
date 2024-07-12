@@ -4,7 +4,7 @@ from pygame import Surface
 from classes.vehicle import Vehicle
 from classes.node import Node
 from classes.edge import Edge, StraightEdge, CircularEdge
-from classes.route import Route, route_position_to_world_position, direction_at_route_position
+from classes.route import route_position_to_world_position, direction_at_route_position
 from manager.manager import Manager, CAR_COLLISION_DISTANCE
 from classes.button import Button
 from .helper import world_to_screen_vector, world_to_screen_scalar
