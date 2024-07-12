@@ -3,27 +3,31 @@ from .node import Node
 from sympy import Segment, Circle, Point
 
 class Edge():
+    """This is an abstract class for Edges. An Edge consists of a start node and an end node."""
     start: Node = None
     end: Node = None
     edge_id: str
     sympy_obj: Segment | Circle = None
 
-    def __init__(self, edge_id: str, start: Node, end: Node):
+    def __init__(self, edge_id: str, start: Node, end: Node) -> None:
         self.start = start
         self.end = end
         self.edge_id = edge_id
 
 class StraightEdge(Edge):
-    def __init__(self, edge_id, start: Node, end: Node):
+    """A StraightEdge is an Edge that is linear."""
+
+    def __init__(self, edge_id, start: Node, end: Node) -> None:
         Edge.__init__(self, edge_id, start, end)
         self.sympy_obj = Segment(Point(start.position[0], start.position[1]), Point(end.position[0], end.position[1]))
         
 class CircularEdge(Edge):
+    """A CircularEdge is an Edge that is curved around a center point."""
     center: Node
     radius: float
     clockwise: bool
 
-    def __init__(self, edge_id: str, start: Node, end: Node, center: np.ndarray, clockwise: bool=False):
+    def __init__(self, edge_id: str, start: Node, end: Node, center: np.ndarray, clockwise: bool=False) -> None:
         Edge.__init__(self, edge_id, start, end)
         self.radius = np.linalg.norm(start.position - center)
         self.center = center
@@ -31,6 +35,7 @@ class CircularEdge(Edge):
         self.sympy_obj = Circle(Point(center[0], center[1]), self.radius)
 
 def get_length(edge: Edge) -> float:
+    """Return length of edge."""
     if isinstance(edge, StraightEdge):
         return np.linalg.norm(edge.start.position - edge.end.position)
 
