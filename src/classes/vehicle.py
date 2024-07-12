@@ -77,3 +77,26 @@ def update_cmd(old_cmd: Command, t: np.array, a: np.array, elapsed_time: float=0
     new_a = np.concatenate((old_cmd.accel_func.y[:del_index], a))
 
     return Command(new_t, new_a)
+
+### FUNCTIONS FOR STANDARD TRAFFIC
+
+def driver_traffic_update_command(vehicle: Vehicle) -> None:
+    """Update command for standard traffic."""
+    cmd = None
+    # calculate command that achieves two things
+    # 1. stop before any traffic stop line if that traffic light is red
+    #    traffic light red? stop before it
+    #    traffic light green? speed up
+    # 2. maintain distance between car in front
+    #    if conditions match to calculate new command
+    #    a. is our distance to next car within X?
+    #       is their acceleration lower than ours?
+    #       -> calculate slow down
+    #    b. is our distance to next car more than Y?
+    #       is their acceleration more than ours?
+    #       -> calculate speed up
+
+    # 1 and 2 need to work together. If 2. determines that we can speed up,
+    # but the car is approaching a red traffic light,
+    # then the final command should be to slow down
+    vehicle.command = cmd
