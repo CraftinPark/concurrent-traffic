@@ -74,6 +74,9 @@ def render_vehicles(screen: Surface, vehicles: list[Vehicle]) -> None:
         car_rect.center = vehicle_center_screen_pos
         screen.blit(img, car_rect)
         pygame.draw.circle(screen, "red", vehicle_center_screen_pos, CAR_COLLISION_DISTANCE * 2, 1)
+        vehicle_text_font = pygame.font.SysFont('Consolas', 12)
+        text_surface = vehicle_text_font.render(vehicle.name, True, (139, 69, 19))
+        screen.blit(text_surface, (car_rect.center[0]-(vehicle_text_font.size(vehicle.name)[0])/2, car_rect.center[1]-vehicle_screen_length))
 
 def render_background(screen: Surface) -> None:
     """Render function for background."""
