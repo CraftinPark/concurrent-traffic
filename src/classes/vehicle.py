@@ -87,12 +87,12 @@ def driver_traffic_update_command(vehicle: Vehicle) -> None:
     # 1. stop before any traffic stop line if that traffic light is red
     #    traffic light red? stop before it
     #    traffic light green? speed up
-    # 2. maintain distance between car in front
+    # 2. maintain distance between car with closest collision (the car in front)
     #    if conditions match to calculate new command
-    #    a. is our distance to next car within X?
+    #    a. is our distance to that car within X?
     #       is their acceleration lower than ours?
     #       -> calculate slow down
-    #    b. is our distance to next car more than Y?
+    #    b. is our distance to that car more than Y?
     #       is their acceleration more than ours?
     #       -> calculate speed up
 
