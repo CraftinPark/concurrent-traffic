@@ -5,6 +5,8 @@ from manager.command import Command
 from classes.route import Route
 
 class Vehicle:
+    """A Vehicle is given commands that it follows along a given route."""
+
     id: int                  = None            # vehicle identifier
     route: Route             = None            # Route
     route_position: float     = 0               # float representing position in meters along the route
@@ -17,7 +19,7 @@ class Vehicle:
     pivot_distance: float     = 1.25            # float representing distance from pivot to center.
     image: Surface
 
-    command: Command         = None            # Command
+    command: Command          = Command([0], [0])             # Command
 
     def __init__(self,
                  id: int,
@@ -29,7 +31,7 @@ class Vehicle:
                  length: float,
                  pivot_distance: float,
                  image_source: str,
-                 ):
+                 ) -> None:
         self.id = id
         self.route = route
         self.route_position = route_position
@@ -52,10 +54,23 @@ class Vehicle:
 #     return vehicle_center_x, vehicle_center_y
 
 def vehicle_copy(vehicles: list[Vehicle]) -> list[Vehicle]:
+    """Return a deep copy of a list of Vehicles."""
     return [Vehicle(v.id, v.route, v.route_position, v.velocity, v.acceleration, v.width, v.length, v.pivot_distance, v.image_source) for v in vehicles]
   
-def vehicle_event_loop(vehicle: Vehicle, delta_time: float):
-    if vehicle.command is not None:
-        # set acceleration to what the command is telling us...
-        # TODO
-        pass
+def vehicle_event_loop(vehicle: Vehicle, delta_time: float) -> None:
+    """Event loop for Vehicle."""
+    vehicle.acceleration = vehicle.command(delta_time)
+
+def update_cmd(old_cmd: Command, t: np.array, a: np.array, elapsed_time: float=0) -> Command:
+    """Return new Command, a concatenation of the old_cmd and new acceleration-time calculations."""
+    del_index = None
+    for i in range(len(old_cmd.accel_func.x)):
+        if old_cmd.accel_func.x[i] >= elapsed_time:
+            print(i, len(old_cmd.accel_func.x))
+            del_index = i
+            break
+
+    new_t = np.concatenate((old_cmd.accel_func.x[:del_index], t))
+    new_a = np.concatenate((old_cmd.accel_func.y[:del_index], a))
+
+    return Command(new_t, new_a)
