@@ -20,7 +20,7 @@ class Vehicle:
     pivot_distance: float     = 1.25            # float representing distance from pivot to center.
     image: Surface
 
-    command: Command          = Command([0], [0])             # Command
+    command: Command          = Command(np.array([0]), np.array([0]))             # Command
 
     def __init__(self,
                  name: str,
