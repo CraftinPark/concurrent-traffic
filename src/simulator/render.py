@@ -1,6 +1,6 @@
 import pygame
 import numpy as np
-import argparse as ap
+import scipy
 from pygame import Surface
 from classes.vehicle import Vehicle
 from classes.node import Node
@@ -145,8 +145,35 @@ def render_arrows(screen: Surface, edges: list[Edge]):
             start_position = world_to_screen_vector(screen, edge.start.position)
             end_position = world_to_screen_vector(screen, edge.end.position)
             midpoint_position = (start_position + end_position) / 2
+            mid_pos_world = (edge.start.position + edge.end.position) / 2
+            # vector = edge end pos - edge start pos
+            edge_vector = 0.8*(edge.end.position - edge.start.position)
+            edge_unit_vector = edge_vector / np.linalg.norm(edge_vector)
 
-            pygame.draw.circle(screen, "blue", midpoint_position, 3)
+            theta = np.radians(140)
+            theta_negative = np.radians(-140)
+            c, s = np.cos(theta), np.sin(theta)
+            neg_c, neg_s =  np.cos(theta_negative), np.sin(theta_negative)
+            rotation_matrix = np.array(((c, -s), (s, c)))
+            neg_matrix = np.array(((neg_c, -neg_s), (neg_s, neg_c)))
+
+            rotated_vector_one = 2.5*np.dot(edge_unit_vector, rotation_matrix) + mid_pos_world
+            rotated_vector_two = 2.5*np.dot(edge_unit_vector, rotation_matrix) + mid_pos_world
+
+            negative_one = 3*np.dot(edge_unit_vector, neg_matrix) + mid_pos_world
+            negative_two = 3*np.dot(edge_unit_vector, neg_matrix) + mid_pos_world
+
+            world_one = world_to_screen_vector(screen, rotated_vector_one)
+            world_two = world_to_screen_vector(screen, rotated_vector_two)
+
+            world_neg_one = world_to_screen_vector(screen, negative_one)
+            world_neg_two = world_to_screen_vector(screen, negative_two)
+
+            pygame.draw.aaline(screen, "blue", world_one, midpoint_position, blend=20)
+            pygame.draw.aaline(screen, "blue", world_two, midpoint_position, blend=20)
+
+            pygame.draw.aaline(screen, "blue", world_neg_one, midpoint_position, blend=20)
+            pygame.draw.aaline(screen, "blue", world_neg_two, midpoint_position, blend=20)
 
         elif isinstance(edge, CircularEdge):
             # define rect
@@ -166,7 +193,7 @@ def render_arrows(screen: Surface, edges: list[Edge]):
             theta_midpoint = (theta_start+theta_end)/2
             center_point_world = (edge.center[0] + radius*np.cos(theta_midpoint), edge.center[1] + radius*np.sin(theta_midpoint))
             center_point = world_to_screen_vector(screen, center_point_world)
-            pygame.draw.circle(screen, "blueviolet", center_point, 3)
+            pygame.draw.circle(screen, "blue", center_point, 3)
 
 
 
