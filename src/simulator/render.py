@@ -139,41 +139,47 @@ def render_toolbar(screen, time_elapsed, buttons):
     render_title(screen)
 
 def render_arrows(screen: Surface, edges: list[Edge]):
+    def create_rotation_matrix(degrees):   
+        # creates rotation matrix    
+        theta = np.radians(degrees)
+        cos, sin = np.cos(theta), np.sin(theta)
+        rotation_matrix = np.array(((cos, -sin), (sin, cos)))
+        return rotation_matrix
+    
+    def rotate_vector(size, matrix, edge_unit_vector, midpoint_position):
+        # dot product of unit vector and its rotation matrix
+        vector = size * np.dot(edge_unit_vector, matrix) + midpoint_position
+        return vector
+            
     for edge in edges:
         if isinstance(edge, StraightEdge):
-
+            # converts start and end position to screen position
             start_position = world_to_screen_vector(screen, edge.start.position)
             end_position = world_to_screen_vector(screen, edge.end.position)
+            
+            # finds midpoint of edge
             midpoint_position = (start_position + end_position) / 2
             mid_pos_world = (edge.start.position + edge.end.position) / 2
-            # vector = edge end pos - edge start pos
-            edge_vector = 0.8*(edge.end.position - edge.start.position)
+
+            # finds direction of edge
+            edge_vector = edge.end.position - edge.start.position
             edge_unit_vector = edge_vector / np.linalg.norm(edge_vector)
 
-            theta = np.radians(140)
-            theta_negative = np.radians(-140)
-            c, s = np.cos(theta), np.sin(theta)
-            neg_c, neg_s =  np.cos(theta_negative), np.sin(theta_negative)
-            rotation_matrix = np.array(((c, -s), (s, c)))
-            neg_matrix = np.array(((neg_c, -neg_s), (neg_s, neg_c)))
+            # create rotation matrix to rotate edge_unit_vector
+            rotation_pos_matrix = create_rotation_matrix(140)
+            rotation_neg_matrix = create_rotation_matrix(-140)
 
-            rotated_vector_one = 2.5*np.dot(edge_unit_vector, rotation_matrix) + mid_pos_world
-            rotated_vector_two = 2.5*np.dot(edge_unit_vector, rotation_matrix) + mid_pos_world
+            # rotates vectors to creates arrows
+            positive_vector = rotate_vector(2.5, rotation_pos_matrix, edge_unit_vector, mid_pos_world)
+            negative_vector = rotate_vector(2.5, rotation_neg_matrix, edge_unit_vector, mid_pos_world)
+            
+            # converts to screen position
+            screen_pos_vector = world_to_screen_vector(screen, positive_vector)
+            screen_neg_vector = world_to_screen_vector(screen, negative_vector)
 
-            negative_one = 3*np.dot(edge_unit_vector, neg_matrix) + mid_pos_world
-            negative_two = 3*np.dot(edge_unit_vector, neg_matrix) + mid_pos_world
-
-            world_one = world_to_screen_vector(screen, rotated_vector_one)
-            world_two = world_to_screen_vector(screen, rotated_vector_two)
-
-            world_neg_one = world_to_screen_vector(screen, negative_one)
-            world_neg_two = world_to_screen_vector(screen, negative_two)
-
-            pygame.draw.aaline(screen, "blue", world_one, midpoint_position, blend=20)
-            pygame.draw.aaline(screen, "blue", world_two, midpoint_position, blend=20)
-
-            pygame.draw.aaline(screen, "blue", world_neg_one, midpoint_position, blend=20)
-            pygame.draw.aaline(screen, "blue", world_neg_two, midpoint_position, blend=20)
+            # draws onto screen
+            pygame.draw.aaline(screen, "blue", screen_pos_vector, midpoint_position, blend=40)
+            pygame.draw.aaline(screen, "blue", screen_neg_vector, midpoint_position, blend=40)
 
         elif isinstance(edge, CircularEdge):
             # define rect
@@ -190,10 +196,26 @@ def render_arrows(screen: Surface, edges: list[Edge]):
                 if theta_start < theta_end:
                     theta_start += 2*np.pi
             
-            theta_midpoint = (theta_start+theta_end)/2
-            center_point_world = (edge.center[0] + radius*np.cos(theta_midpoint), edge.center[1] + radius*np.sin(theta_midpoint))
+            theta_midpoint = (theta_start + theta_end) / 2
+            center_point_world = (edge.center[0] + radius*np.cos(theta_midpoint), edge.center[1] + radius*np.sin(theta_midpoint)) # (x,y) = (a+r*cos(theta), b+r*sin(theta))
+            tangent_line_world = (-radius*np.sin(theta_midpoint), radius*np.cos(theta_midpoint)) # derivative of center_point_world, finding tangent line of midpoint of the arc
+            unit_vector = tangent_line_world / np.linalg.norm(tangent_line_world)
+            
+            # create rotation matrix
+            pos_matrix = create_rotation_matrix(220)
+            neg_matrix = create_rotation_matrix(-220)
+            
+            # rotate unit vector to create arrows
+            positive_vector = rotate_vector(1.5, pos_matrix, unit_vector, center_point_world)
+            negative_vector = rotate_vector(1.5, neg_matrix, unit_vector, center_point_world)
+
+            # convert to screen vector & draw
             center_point = world_to_screen_vector(screen, center_point_world)
-            pygame.draw.circle(screen, "blue", center_point, 3)
+            positive_screen_vector = world_to_screen_vector(screen, positive_vector)
+            negative_screen_vector = world_to_screen_vector(screen, negative_vector)
+
+            pygame.draw.line(screen, "blue", center_point, positive_screen_vector, width=2)
+            pygame.draw.line(screen, "blue", center_point, negative_screen_vector, width=2)
 
 
 
