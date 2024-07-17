@@ -127,14 +127,12 @@ def render_title(screen):
     # draw title and version
     FONT = pygame.font.SysFont("Segoe UI", 15, bold=True, italic=False)
     text_surface = FONT.render(f"Concurent Traffic v0.0.2", True, (255, 255, 255))
-    text_rect = text_surface.get_rect()
-    text_rect.right = 150
-    screen.blit(text_surface, text_surface.get_rect(topright = (screen.get_width()-3, screen.get_height()-TOOLBAR_HEIGHT)))
+    screen.blit(text_surface, (0, screen.get_height()-TOOLBAR_HEIGHT))
 
 def render_toolbar(screen, time_elapsed, buttons):
     toolbar_rect = pygame.Rect(0, screen.get_height()-TOOLBAR_HEIGHT,screen.get_width(),TOOLBAR_HEIGHT)
     pygame.draw.rect(screen, pygame.Color(80,80,80), toolbar_rect)
-    render_time(screen,toolbar_rect, time_elapsed)
+    render_time(screen, toolbar_rect, time_elapsed)
     render_buttons(screen, buttons)
     render_title(screen)
 
@@ -170,16 +168,16 @@ def render_arrows(screen: Surface, edges: list[Edge]):
             rotation_neg_matrix = create_rotation_matrix(-140)
 
             # rotates vectors to creates arrows
-            positive_vector = rotate_vector(2.5, rotation_pos_matrix, edge_unit_vector, mid_pos_world)
-            negative_vector = rotate_vector(2.5, rotation_neg_matrix, edge_unit_vector, mid_pos_world)
+            positive_vector = rotate_vector(1.5, rotation_pos_matrix, edge_unit_vector, mid_pos_world)
+            negative_vector = rotate_vector(1.5, rotation_neg_matrix, edge_unit_vector, mid_pos_world)
             
             # converts to screen position
             screen_pos_vector = world_to_screen_vector(screen, positive_vector)
             screen_neg_vector = world_to_screen_vector(screen, negative_vector)
 
             # draws onto screen
-            pygame.draw.aaline(screen, "blue", screen_pos_vector, midpoint_position, blend=40)
-            pygame.draw.aaline(screen, "blue", screen_neg_vector, midpoint_position, blend=40)
+            pygame.draw.aaline(screen, "red", screen_pos_vector, midpoint_position, blend=40)
+            pygame.draw.aaline(screen, "red", screen_neg_vector, midpoint_position, blend=40)
 
         elif isinstance(edge, CircularEdge):
             # define rect
@@ -202,20 +200,20 @@ def render_arrows(screen: Surface, edges: list[Edge]):
             unit_vector = tangent_line_world / np.linalg.norm(tangent_line_world)
             
             # create rotation matrix
-            pos_matrix = create_rotation_matrix(220)
-            neg_matrix = create_rotation_matrix(-220)
+            pos_matrix = create_rotation_matrix(250)
+            neg_matrix = create_rotation_matrix(-225)
             
             # rotate unit vector to create arrows
-            positive_vector = rotate_vector(1.5, pos_matrix, unit_vector, center_point_world)
-            negative_vector = rotate_vector(1.5, neg_matrix, unit_vector, center_point_world)
+            positive_vector = rotate_vector(0.85, pos_matrix, unit_vector, center_point_world)
+            negative_vector = rotate_vector(0.85, neg_matrix, unit_vector, center_point_world)
 
             # convert to screen vector & draw
             center_point = world_to_screen_vector(screen, center_point_world)
             positive_screen_vector = world_to_screen_vector(screen, positive_vector)
             negative_screen_vector = world_to_screen_vector(screen, negative_vector)
 
-            pygame.draw.line(screen, "blue", center_point, positive_screen_vector, width=2)
-            pygame.draw.line(screen, "blue", center_point, negative_screen_vector, width=2)
+            pygame.draw.aaline(screen, "red", center_point, positive_screen_vector)
+            pygame.draw.aaline(screen, "red", center_point, negative_screen_vector)
 
 
 
