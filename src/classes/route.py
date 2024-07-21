@@ -9,7 +9,7 @@ class Route():
     total_length: float = 0 # float representing total length of the route in meters
     pos_to_edge_map: dict[tuple, Edge]
 
-    traffic_lights: dict[TrafficLight, float] # float represents route_position
+    # traffic_lights: dict[TrafficLight, float] # float represents route_position. 0 means before the first edge, 1 means after first edge.
 
     def __init__(self, id: int, edges: list[Edge]) -> None:
         self.current_id = id

@@ -1,7 +1,7 @@
 import numpy as np
 from .node import Node
 from sympy import Segment, Circle, Point
-from standard_traffic.traffic_light import TrafficLight, TrafficState
+# from standard_traffic.traffic_light import TrafficState
 
 class Edge():
     """This is an abstract class for Edges. An Edge consists of a start node and an end node."""
@@ -9,25 +9,25 @@ class Edge():
     end: Node = None
     edge_id: str
     sympy_obj: Segment | Circle = None
-    traffic_state: TrafficState
+    # traffic_state: TrafficState
 
-    def __init__(self, edge_id: str, start: Node, end: Node, traffic_state=TrafficState.GREEN) -> None:
+    def __init__(self, edge_id: str, start: Node, end: Node) -> None:
         self.start = start
         self.end = end
         self.edge_id = edge_id
-        self.traffic_state = traffic_state
+        # self.traffic_state = traffic_state
     
-    def change_state(self, state:TrafficState):
-        self.traffic_state = state
+    # def change_state(self, state:TrafficState):
+    #     self.traffic_state = state
 
-    def get_state(self):
-        return self.traffic_state
+    # def get_state(self):
+    #     return self.traffic_state
 
 class StraightEdge(Edge):
     """A StraightEdge is an Edge that is linear."""
 
-    def __init__(self, edge_id, start: Node, end: Node, traffic_state=TrafficState.GREEN) -> None:
-        super().__init__(self, edge_id, start, end, traffic_state)
+    def __init__(self, edge_id, start: Node, end: Node) -> None:
+        super().__init__(self, edge_id, start, end)
         self.sympy_obj = Segment(Point(start.position[0], start.position[1]), Point(end.position[0], end.position[1]))
         
 class CircularEdge(Edge):
@@ -36,8 +36,8 @@ class CircularEdge(Edge):
     radius: float
     clockwise: bool
 
-    def __init__(self, edge_id: str, start: Node, end: Node, center: np.ndarray, clockwise: bool=False, traffic_state=TrafficState.GREEN) -> None:
-        super().__init__(self, edge_id, start, end, traffic_state)
+    def __init__(self, edge_id: str, start: Node, end: Node, center: np.ndarray, clockwise: bool=False) -> None:
+        super().__init__(self, edge_id, start, end)
         self.radius = np.linalg.norm(start.position - center)
         self.center = center
         self.clockwise = clockwise

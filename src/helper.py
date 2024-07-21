@@ -3,6 +3,7 @@ from classes.route import Route
 from classes.node import Node
 from classes.edge import Edge, StraightEdge, CircularEdge
 from classes.vehicle import Vehicle
+from standard_traffic.traffic_light import TrafficLight, TrafficState
 import sympy
 from sympy import Point2D
 from itertools import combinations
@@ -133,5 +134,15 @@ def load_vehicles(loaded_vehicles: object, vehicles: list[Vehicle], route_dict: 
         new_vehicle = Vehicle(v["id"], v["name"], route_dict[v["route"]], v["route_position"], v["velocity"], 0, 2.23, 4.90, 1.25, 'assets/sedan.png')
         vehicle_dict[v["id"]] = new_vehicle
         vehicles.append(new_vehicle)
+    return vehicle_dict
 
-
+def load_traffic_lights(loaded_lights: object, traffic_lights: list[TrafficLight], edge_dict: dict[str, Edge], node_dict: dict[str, Node]) -> dict[str, TrafficLight]:
+    """Return id -> TrafficLight dictionary from the traffic_lights json object. Also populates traffic_lights list."""
+    light_dict = {}
+    for light in loaded_lights:
+        if light["id"] in light_dict:
+            raise ValueError(f"Duplicate traffic_light ID found: {light['id']}")
+        new_light = TrafficLight(light["id"], edge_dict[light["edge"]], node_dict[light["node_position"]], light["red_duration"], light["yellow_duration"], light["green_duration"], light["initial_state"])
+        light_dict[light["id"]] = new_light
+        traffic_lights.append(new_light)
+    return light_dict

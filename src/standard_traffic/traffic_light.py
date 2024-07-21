@@ -1,5 +1,7 @@
 from enum import Enum
 import time
+from classes.edge import Edge
+from classes.node import Node
 
 class TrafficState(Enum):
     RED = 1
@@ -13,14 +15,31 @@ class TrafficState(Enum):
             return TrafficState.YELLOW
         elif self == TrafficState.YELLOW:
             return TrafficState.RED
+        
+    def get_color(self) -> str:
+        if self == TrafficState.RED:
+            return "red"
+        elif self == TrafficState.GREEN:
+            return "green"
+        elif self == TrafficState.YELLOW:
+            return "yellow"
 
 class TrafficLight:
     state: TrafficState
+    id: str
+    edge: Edge
+    node: Node
+    red_duration: int
+    yellow_duration: int
+    green_duration: int
 
-    def __init__(self, red_duration=45, yellow_duration=5, green_duration=45, initial_state=TrafficState.RED) -> None:
+    def __init__(self, id: str, edge: Edge, node_pos: Node, red_duration=45, yellow_duration=5, green_duration=45, initial_state=TrafficState.RED) -> None:
         if not isinstance(initial_state, TrafficState):
             raise ValueError("initial_state must be an instance of TrafficState")
         self.state = initial_state
+        self.id = id
+        self.edge = edge
+        self.node = node_pos
         self.durations = {
             TrafficState.RED: red_duration,
             TrafficState.YELLOW: yellow_duration,
@@ -29,12 +48,15 @@ class TrafficLight:
 
     def next_state(self):
         self.state = self.state.next()
+        new_state = self.get_state
+        self.edge.change_state(new_state)
 
-    def get_state(self):
+    def get_state(self) -> TrafficState:
         return self.state
     
     def set_state(self, state: TrafficState):
         self.state = state
+        self.edge.change_state(state)
     
     def set_duration(self, state: TrafficState, duration):
         """To use: config.set_duration(TrafficLight.RED, 40)"""
@@ -54,9 +76,3 @@ class TrafficLight:
             time.sleep(self.state.value)
             self.next_state()
 
-    def run(self, cycles: int = 3):
-        for _ in range(cycles):
-            current_state = self.get_state()
-            duration = self.get_duration(current_state)
-            time.sleep(duration)
-            self.next_state()
