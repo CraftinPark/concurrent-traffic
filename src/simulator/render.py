@@ -1,6 +1,5 @@
 import pygame
 import numpy as np
-import scipy
 from pygame import Surface
 from classes.vehicle import Vehicle
 from classes.node import Node
@@ -168,8 +167,8 @@ def render_arrows(screen: Surface, edges: list[Edge]):
             rotation_neg_matrix = create_rotation_matrix(-140)
 
             # rotates vectors to creates arrows
-            positive_vector = rotate_vector(1.5, rotation_pos_matrix, edge_unit_vector, mid_pos_world)
-            negative_vector = rotate_vector(1.5, rotation_neg_matrix, edge_unit_vector, mid_pos_world)
+            positive_vector = rotate_vector(0.9, rotation_pos_matrix, edge_unit_vector, mid_pos_world)
+            negative_vector = rotate_vector(0.9, rotation_neg_matrix, edge_unit_vector, mid_pos_world)
             
             # converts to screen position
             screen_pos_vector = world_to_screen_vector(screen, positive_vector)
@@ -204,8 +203,8 @@ def render_arrows(screen: Surface, edges: list[Edge]):
             neg_matrix = create_rotation_matrix(-225)
             
             # rotate unit vector to create arrows
-            positive_vector = rotate_vector(0.85, pos_matrix, unit_vector, center_point_world)
-            negative_vector = rotate_vector(0.85, neg_matrix, unit_vector, center_point_world)
+            positive_vector = rotate_vector(0.6, pos_matrix, unit_vector, center_point_world)
+            negative_vector = rotate_vector(0.6, neg_matrix, unit_vector, center_point_world)
 
             # convert to screen vector & draw
             center_point = world_to_screen_vector(screen, center_point_world)
