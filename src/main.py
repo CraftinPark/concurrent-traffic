@@ -3,10 +3,14 @@ import numpy as np
 import json
 
 from manager.manager import Manager
+from classes.node import Node
+from classes.edge import Edge
+from classes.route import Route
+from classes.vehicle import Vehicle
 from simulator.simulator import run_simulation
 from helper import get_intersections, load_nodes, load_edges, load_routes, load_vehicles
 
-def main():
+def main() -> None:
     if len(sys.argv) != 2:
         print('Usage: python3 src/main.py <absolute_path_to_preset>')
         return
@@ -17,7 +21,7 @@ def main():
     intersection_points = get_intersections(routes)
     run_simulation(vehicles, nodes, curr_edges, routes, intersection_points, manager)
 
-def load_preset(file_path):
+def load_preset(file_path: str) -> tuple[Manager, list[Node], list[Edge], list[Route], list[Vehicle]]:
     with open(file_path, 'r') as file:
         presets = json.load(file)
 

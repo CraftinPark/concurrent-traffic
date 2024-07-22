@@ -1,13 +1,17 @@
 import numpy as np
-from .edge import Edge, StraightEdge, CircularEdge, get_length  
+from .edge import Edge, StraightEdge, CircularEdge, get_length
+from standard_traffic.traffic_light import TrafficLight
 
 class Route():
+    """A Route consists of Edges linked together."""
     current_id: int
     edges: list[Edge]
     total_length: float = 0 # float representing total length of the route in meters
     pos_to_edge_map: dict[tuple, Edge]
 
-    def __init__(self, id: int, edges: list[Edge]):
+    traffic_lights: dict[TrafficLight, float] # float represents route_position
+
+    def __init__(self, id: int, edges: list[Edge]) -> None:
         self.current_id = id
         self.edges = edges
         self.pos_to_edge_map = {}
@@ -16,7 +20,8 @@ class Route():
             self.pos_to_edge_map[(self.total_length, self.total_length + curr_length)] = e
             self.total_length += curr_length
 
-def route_position_to_world_position(route: Route, position: float):
+def route_position_to_world_position(route: Route, position: float) -> np.array:
+    """Return world coordinates given a route and position along that route."""
     edge_of_position = None
     percentage_on_edge = None
     for r in route.pos_to_edge_map:
@@ -46,7 +51,8 @@ def route_position_to_world_position(route: Route, position: float):
     
     return np.array([world_x, world_y])
 
-def direction_at_route_position(route: Route, position: float):
+def direction_at_route_position(route: Route, position: float) -> float:
+    """Return the direction at a given position on a given route."""
     edge_of_position = None
     percentage_on_edge = None
 
@@ -85,8 +91,9 @@ def direction_at_route_position(route: Route, position: float):
 
     return vehicle_angle
 
-# currently assumes position will be on the edge. Must be robustized though.
-def world_position_to_route_position(route: Route, edge: Edge, position: np.ndarray):
+def world_position_to_route_position(route: Route, edge: Edge, position: np.ndarray) -> float:
+    """Return position along route given a route, edge and world position on the edge.
+    Currently assumes the world position will be on the edge, should be enforced in the future."""
     route_position = 0
     if isinstance(edge, StraightEdge):
         arclength = np.sqrt((position[0] - edge.start.position[0])**2 + (position[1] - edge.start.position[1])**2)

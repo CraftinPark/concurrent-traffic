@@ -7,7 +7,8 @@ import sympy
 from sympy import Point2D
 from itertools import combinations
 
-def get_intersections(routes: list[Route]) -> set[int, int, tuple[float, float]]:
+def get_intersections(routes: list[Route]) -> set[tuple[int, int, tuple[float, float]]]:
+    """Return a set of intersections in the following form: (route1_id, route2_id, (x, y))."""
     intersections = set()
     for r1, r2 in combinations(routes, 2):
         for e1 in r1.edges:
@@ -17,7 +18,8 @@ def get_intersections(routes: list[Route]) -> set[int, int, tuple[float, float]]
                 intersections.update(get_edge_intersections(r1, r2, e1, e2))
     return intersections
 
-def get_edge_intersections(route1: Route, route2: Route, edge1: Edge, edge2: Edge) -> set[int, int, tuple[float, float]]: # route_position on r1, route_position on r2
+def get_edge_intersections(route1: Route, route2: Route, edge1: Edge, edge2: Edge) -> set[tuple[int, int, tuple[float, float]]]:
+    """Return the intersections between two Edges."""
     intersections = set(sympy.intersection(edge1.sympy_obj, edge2.sympy_obj))
     if isinstance(edge1, CircularEdge):
         remove_false_circle_intersects(edge1, intersections)
@@ -33,6 +35,7 @@ def get_edge_intersections(route1: Route, route2: Route, edge1: Edge, edge2: Edg
     return result
 
 def remove_false_circle_intersects(edge: CircularEdge, intersections: list[Point2D]) -> None:
+    """Removes false positives for arc intersects."""
     start_angle = np.arctan2(-(edge.start.position[1] - edge.center[1]), edge.start.position[0] - edge.center[0])
     end_angle = np.arctan2(-(edge.end.position[1] - edge.center[1]), edge.end.position[0] - edge.center[0])
 
@@ -46,6 +49,7 @@ def remove_false_circle_intersects(edge: CircularEdge, intersections: list[Point
     intersections.difference_update(intersections_to_remove)
 
 def is_angle_between(start_angle: float, end_angle: float, i_angle: float, clockwise: bool) -> bool:
+    """Return True if i_angle is between start_angle and end_angle."""
     if start_angle <= end_angle and not clockwise:
         return start_angle <= i_angle <= end_angle
     elif start_angle <= end_angle and clockwise:
@@ -55,7 +59,8 @@ def is_angle_between(start_angle: float, end_angle: float, i_angle: float, clock
     elif start_angle >= end_angle and not clockwise:
         return i_angle <= end_angle or i_angle >= start_angle
     
-def load_nodes(loaded_nodes, nodes):
+def load_nodes(loaded_nodes: object, nodes: list[Node]) -> dict[str, Node]:
+    """Return id -> Node dictionary from the loaded_nodes json object. Also populates nodes list."""
     node_dict = {}
     for node in loaded_nodes:
         if node["id"] in node_dict:
@@ -65,7 +70,8 @@ def load_nodes(loaded_nodes, nodes):
         nodes.append(new_node)
     return node_dict
 
-def load_edges(loaded_edges, curr_edges, node_dict):
+def load_edges(loaded_edges: object, edges: list[Edge], node_dict: dict[str, Node]) -> dict[str, Edge]:
+    """Return id -> Edge dictionary from the loaded_edges json object. Also populates edges list."""
     edge_dict = {}
     for edge in loaded_edges:
         if edge["id"] in edge_dict:
@@ -75,10 +81,11 @@ def load_edges(loaded_edges, curr_edges, node_dict):
         else:
             new_edge = StraightEdge(edge["id"], node_dict[edge["source"]], node_dict[edge["target"]])
         edge_dict[edge["id"]] = new_edge
-        curr_edges.append(new_edge)
+        edges.append(new_edge)
     return edge_dict
 
-def load_routes(loaded_routes, routes, edge_dict: dict[str, Edge]):
+def load_routes(loaded_routes: object, routes: list[Route], edge_dict: dict[str, Edge]) -> dict[str, Route]:
+    """Return id -> Route dictionary from the loaded_routes json object. Also populates routes list."""
     route_dict = {}
 
     for route in loaded_routes:
@@ -117,11 +124,14 @@ def load_routes(loaded_routes, routes, edge_dict: dict[str, Edge]):
 
     return route_dict
 
-def load_vehicles(loaded_vehicles, vehicles, route_dict):
+def load_vehicles(loaded_vehicles: object, vehicles: list[Vehicle], route_dict: dict[str, Vehicle]) -> dict[str, Vehicle]:
+    """Return id -> Vehicle dictionary from the loaded_vehicle json object. Also populates vehicles list."""
     vehicle_dict = {}
     for v in loaded_vehicles:
         if v["id"] in vehicle_dict:
             raise ValueError(f"Duplicate vehicle ID found: {v['id']}")
-        new_vehicle = Vehicle(v["id"], route_dict[v["route"]], v["route_position"], v["velocity"], 0, 2.23, 4.90, 1.25, 'assets/sedan.png')
+        new_vehicle = Vehicle(v["id"], v["name"], route_dict[v["route"]], v["route_position"], v["velocity"], 0, 2.23, 4.90, 1.25, 'assets/sedan.png')
         vehicle_dict[v["id"]] = new_vehicle
         vehicles.append(new_vehicle)
+
+
