@@ -142,7 +142,7 @@ def load_traffic_lights(loaded_lights: object, traffic_lights: list[TrafficLight
     for light in loaded_lights:
         if light["id"] in light_dict:
             raise ValueError(f"Duplicate traffic_light ID found: {light['id']}")
-        new_light = TrafficLight(light["id"], edge_dict[light["edge"]], node_dict[light["node_position"]], light["red_duration"], light["yellow_duration"], light["green_duration"], light["initial_state"])
+        new_light = TrafficLight(light["id"], edge_dict[light["edge"]], node_dict[light["node_position"]], light["red_duration"], light["yellow_duration"], light["green_duration"], TrafficState[light["initial_state"]])
         light_dict[light["id"]] = new_light
         traffic_lights.append(new_light)
     return light_dict

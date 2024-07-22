@@ -27,7 +27,7 @@ class StraightEdge(Edge):
     """A StraightEdge is an Edge that is linear."""
 
     def __init__(self, edge_id, start: Node, end: Node) -> None:
-        super().__init__(self, edge_id, start, end)
+        Edge.__init__(self, edge_id, start, end)
         self.sympy_obj = Segment(Point(start.position[0], start.position[1]), Point(end.position[0], end.position[1]))
         
 class CircularEdge(Edge):
@@ -37,7 +37,7 @@ class CircularEdge(Edge):
     clockwise: bool
 
     def __init__(self, edge_id: str, start: Node, end: Node, center: np.ndarray, clockwise: bool=False) -> None:
-        super().__init__(self, edge_id, start, end)
+        Edge.__init__(self, edge_id, start, end)
         self.radius = np.linalg.norm(start.position - center)
         self.center = center
         self.clockwise = clockwise

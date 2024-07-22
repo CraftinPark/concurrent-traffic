@@ -31,7 +31,7 @@ def load_preset(file_path: str) -> tuple[Manager, list[Node], list[Edge], list[R
     node_dict = load_nodes(presets["nodes"], nodes)
     edge_dict = load_edges(presets['edges'], curr_edges, node_dict)
     route_dict = load_routes(presets['routes'], routes, edge_dict)
-    load_traffic_lights(presets['traffic_lights'], edge_dict, node_dict)
+    load_traffic_lights(presets['traffic_lights'], traffic_lights, edge_dict, node_dict)
     load_vehicles(presets["stored_vehicles"], vehicles, route_dict)
     
     manager_data = presets["manager"]
