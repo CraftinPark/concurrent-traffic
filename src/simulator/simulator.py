@@ -114,6 +114,7 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
         render_manager(screen, manager)
         render_vehicles(screen, vehicles)
         render_toolbar(screen, time_elapsed, buttons)
+        render_title(screen)
 
         # manager 'cpu'
         manager_event_loop(manager, vehicles, time_elapsed)

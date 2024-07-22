@@ -138,29 +138,23 @@ def render_buttons(screen: Surface, buttons: list[Button]) -> None:
             text = font.render(b.text, 1, (255, 255, 255))
             screen.blit(text, (b.x + (b.width/2 - text.get_width()/2), b.y + (b.height/2 - text.get_height()/2)))
 
-def render_title(screen): 
-    # draw title and version
-    FONT = pygame.font.SysFont("Segoe UI", 15, bold=True, italic=False)
-    text_surface = FONT.render(f"Concurent Traffic v0.0.2", True, (255, 255, 255))
-    screen.blit(text_surface, (0, screen.get_height()-TOOLBAR_HEIGHT))
-
 def render_toolbar(screen, time_elapsed, buttons):
     toolbar_rect = pygame.Rect(0, screen.get_height()-TOOLBAR_HEIGHT,screen.get_width(),TOOLBAR_HEIGHT)
     pygame.draw.rect(screen, pygame.Color(80,80,80), toolbar_rect)
     render_time(screen, time_elapsed)
     render_buttons(screen, buttons)
-    render_title(screen)
 
 def render_arrows(screen: Surface, edges: list[Edge]):
-    def create_rotation_matrix(degrees):   
-        # creates rotation matrix    
+    """Render function for arrows."""
+    def create_rotation_matrix(degrees):
+        # function creates and returns rotation matrix    
         theta = np.radians(degrees)
         cos, sin = np.cos(theta), np.sin(theta)
         rotation_matrix = np.array(((cos, -sin), (sin, cos)))
         return rotation_matrix
     
     def rotate_vector(size, matrix, edge_unit_vector, midpoint_position):
-        # dot product of unit vector and its rotation matrix
+        # returns the dot product of unit vector and its rotation matrix
         vector = size * np.dot(edge_unit_vector, matrix) + midpoint_position
         return vector
             
@@ -210,9 +204,9 @@ def render_arrows(screen: Surface, edges: list[Edge]):
                     theta_start += 2*np.pi
             
             theta_midpoint = (theta_start + theta_end) / 2
-            center_point_world = (edge.center[0] + radius*np.cos(theta_midpoint), edge.center[1] + radius*np.sin(theta_midpoint)) # (x,y) = (a+r*cos(theta), b+r*sin(theta))
+            center_point_world = (edge.center[0] + radius*np.cos(theta_midpoint), edge.center[1] + radius*np.sin(theta_midpoint)) # (x,y) = (a+r*cos(theta), b+r*sin(theta)) <- equation
             tangent_line_world = (-radius*np.sin(theta_midpoint), radius*np.cos(theta_midpoint)) # derivative of center_point_world, finding tangent line of midpoint of the arc
-            unit_vector = tangent_line_world / np.linalg.norm(tangent_line_world)
+            unit_vector = tangent_line_world / np.linalg.norm(tangent_line_world) # <- vector divided by its magnitude
             
             # create rotation matrix
             pos_matrix = create_rotation_matrix(250)
@@ -239,7 +233,6 @@ def render_toolbar(screen: Surface, time_elapsed, buttons: list[Button]) -> None
 
 def render_title(screen) -> None: 
     """Render function for title."""
-    # draw title and version
     FONT = pygame.font.SysFont("Segoe UI", 15, bold=True, italic=False)
     text_surface = FONT.render(f"Concurent Traffic v0.0.2", True, (255, 255, 255))
     screen.blit(text_surface, (6,screen.get_height()-TOOLBAR_HEIGHT+6))
