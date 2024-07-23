@@ -21,7 +21,7 @@ from manager.manager import Manager, manager_event_loop, reset
 from classes.node import Node
 from classes.edge import Edge
 from classes.route import Route
-from standard_traffic.traffic_light import TrafficLight
+from standard_traffic.traffic_light import TrafficLight, TrafficState
 from standard_traffic.traffic_master import TrafficMaster, t_master_event_loop
 from .render import render_world, render_manager, render_vehicles, render_toolbar, render_title, set_zoomed_render, render_traffic_lights
 from .update import update_world
@@ -118,7 +118,7 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
         # optionally render nodes and edges. for now always on
         render_world(screen, nodes, edges, route_visible, intersection_points)
         # render_traffic_master(screen, traffic_master, time_elapsed)
-        render_traffic_lights(screen, traffic_master, time_elapsed)
+        render_traffic_lights(screen, traffic_master)
         render_manager(screen, manager)
         render_vehicles(screen, vehicles)
         render_toolbar(screen, time_elapsed, buttons)

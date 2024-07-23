@@ -1,6 +1,7 @@
-from enum import Enum, auto
 from classes.edge import Edge, change_state, get_state
 from classes.node import Node
+from classes.edge import TrafficState
+from enum import Enum, auto
 
 class TrafficState(Enum):
     RED = auto()

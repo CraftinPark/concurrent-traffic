@@ -5,6 +5,7 @@ from itertools import combinations
 from scipy.optimize import minimize_scalar
 from random import randint
 # from standard_traffic.traffic_light import TrafficLight, TrafficState
+# from standard_traffic.traffic_master import TrafficState
 
 CAR_COLLISION_DISTANCE = 2.5 # meters
 

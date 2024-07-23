@@ -3,10 +3,10 @@ from classes.route import Route
 from classes.node import Node
 from classes.edge import Edge, StraightEdge, CircularEdge
 from classes.vehicle import Vehicle
-from standard_traffic.traffic_light import TrafficLight, TrafficState
+from standard_traffic.traffic_light import TrafficLight
+from standard_traffic.traffic_state import TrafficState
 import sympy
 from sympy import Point2D
-import itertools
 from itertools import combinations
 
 def get_intersections(routes: list[Route]) -> set[tuple[int, int, tuple[float, float]]]:
@@ -154,6 +154,6 @@ def load_traffic_lights(loaded_lights: object, traffic_types: list[tuple], traff
                 raise KeyError(f"Identifier '{obj['identifier']}' not found in type_dict")
             new_light = TrafficLight(obj["id"], edge_dict[obj["edge"]], node_dict[obj["node_position"]], obj["identifier"])
             light_dict[obj["id"]] = new_light
-            new_light.time_to_switch = list(itertools.accumulate(type_dict[obj["identifier"]][1:-1]))
+            # new_light.time_to_switch = list(itertools.accumulate(type_dict[obj["identifier"]][1:-1]))
             traffic_lights.append(new_light)
     return type_dict, light_dict

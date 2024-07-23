@@ -1,6 +1,7 @@
-from traffic_light import TrafficLight, TrafficState, next_state, set_state, set_cycle_dur, set_tts
+from traffic_light import TrafficLight, next_state, set_state, set_cycle_dur, set_tts, TrafficState
 from math import floor
 import itertools
+from classes.edge import TrafficState
 
 class TrafficMaster:
     traffic_lights: dict[str, list[TrafficLight]] = {}
@@ -22,7 +23,6 @@ class TrafficMaster:
 
 def t_master_event_loop(traffic_master: TrafficMaster, delta_time: int) -> None:
     for l_type, light_list in traffic_master.traffic_lights.items():
-        # same durations
         for light in light_list:
             light.time_in_state += delta_time
             # delta_time - floor(delta_time/light.cycle_duration) * light.cycle_duration
