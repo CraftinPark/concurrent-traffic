@@ -16,12 +16,6 @@ class Edge():
         self.end = end
         self.edge_id = edge_id
         self.traffic_state = traffic_state
-    
-    def change_state(self, state:TrafficState):
-        self.traffic_state = state
-
-    def get_state(self):
-        return self.traffic_state
 
 class StraightEdge(Edge):
     """A StraightEdge is an Edge that is linear."""
@@ -60,3 +54,9 @@ def get_length(edge: Edge) -> float:
         return theta * radius
 
     raise TypeError("get_length returned None.")
+
+def change_state(edge: Edge, state:TrafficState):
+        edge.traffic_state = state
+
+def get_state(edge: Edge):
+    return edge.traffic_state

@@ -18,9 +18,9 @@ def main() -> None:
     
     preset_name = sys.argv[1]
     
-    manager, nodes, curr_edges, routes, vehicles, traffic_light_objects = load_preset(preset_name)
+    manager, nodes, curr_edges, routes, vehicles, traffic_types, traffic_lights = load_preset(preset_name)
     intersection_points = get_intersections(routes)
-    run_simulation(vehicles, nodes, curr_edges, routes, intersection_points, manager, traffic_light_objects[0], traffic_light_objects[1])
+    run_simulation(vehicles, nodes, curr_edges, routes, intersection_points, manager, traffic_types, traffic_lights)
 
 def load_preset(file_path: str) -> tuple[Manager, list[Node], list[Edge], list[Route], list[Vehicle], list[TrafficLight]]:
     with open(file_path, 'r') as file:

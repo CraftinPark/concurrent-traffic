@@ -1,5 +1,5 @@
 from enum import Enum, auto
-from classes.edge import Edge
+from classes.edge import Edge, change_state, get_state
 from classes.node import Node
 
 class TrafficState(Enum):
@@ -46,29 +46,29 @@ class TrafficLight:
         self.cycle_duration = 0 # set later by traffic_master
         self.time_to_switch = [] # set later by traffic_master
 
-    def next_state(self):
-        self.state = self.state.next()
-        new_state = self.get_state
-        self.edge.change_state(new_state)
-        self.reset_time_in_state()
-    
-    def reset_time_in_state(self):
-        self.time_in_state = 0
+def next_state(traffic_light: TrafficLight):
+    traffic_light.state = traffic_light.state.next()
+    new_state = get_state(traffic_light)
+    change_state(traffic_light.edge, new_state)
+    reset_time_in_state(traffic_light)
 
-    def get_state(self) -> TrafficState:
-        return self.state
-    
-    def set_state(self, state: TrafficState):
-        self.state = state
-        self.edge.change_state(state)
+def reset_time_in_state(traffic_light: TrafficLight):
+    traffic_light.time_in_state = 0
 
-    def set_cycle_dur(self, duration: int):
-        if duration < 1:
-            raise ValueError(f"Cycle duration cannot be less than 1.")
-        self.cycle_duration = duration
-    
-    def set_tts(self, tts:list[float]):
-        self.time_to_switch = tts
+def get_state(traffic_light: TrafficLight) -> TrafficState:
+    return traffic_light.state
+
+def set_state(traffic_light: TrafficLight, state: TrafficState):
+    traffic_light.state = state
+    change_state(traffic_light.edge, state)
+
+def set_cycle_dur(traffic_light: TrafficLight, duration: int):
+    if duration < 1:
+        raise ValueError(f"Cycle duration cannot be less than 1.")
+    traffic_light.cycle_duration = duration
+
+def set_tts(traffic_light: TrafficLight, tts:list[float]):
+    traffic_light.time_to_switch = tts
 
     # def run(self):
     #     """Simulates the traffic light running through its states."""

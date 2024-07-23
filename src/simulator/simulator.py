@@ -22,8 +22,8 @@ from classes.node import Node
 from classes.edge import Edge
 from classes.route import Route
 from standard_traffic.traffic_light import TrafficLight
-from standard_traffic.traffic_master import TrafficMaster
-from .render import render_world, render_manager, render_vehicles, render_toolbar, render_title, set_zoomed_render, render_traffic_master
+from standard_traffic.traffic_master import TrafficMaster, t_master_event_loop
+from .render import render_world, render_manager, render_vehicles, render_toolbar, render_title, set_zoomed_render, render_traffic_lights
 from .update import update_world
 from .helper import scroll_handler
 
@@ -41,6 +41,7 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
     vehicles = vehicle_copy(initial_vehicles)
     is_run = True
     route_visible = True
+    standard_traffic = True
 
     def toggle_update() -> None:
         """Toggles between resuming or pausing the simulator."""
@@ -116,7 +117,8 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
 
         # optionally render nodes and edges. for now always on
         render_world(screen, nodes, edges, route_visible, intersection_points)
-        render_traffic_master(screen, traffic_master, delta_time)
+        # render_traffic_master(screen, traffic_master, time_elapsed)
+        render_traffic_lights(screen, traffic_master, time_elapsed)
         render_manager(screen, manager)
         render_vehicles(screen, vehicles)
         render_toolbar(screen, time_elapsed, buttons)
@@ -129,9 +131,12 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
         for vehicle in vehicles:
             vehicle_event_loop(vehicle, time_elapsed)
 
-        standard_traffic = True
         if standard_traffic:
-            traffic_master.sequence()
+            # traffic_master.sequence()
+            t_master_event_loop(traffic_master, time_elapsed) # change the details of each traffic light.
+        
+        # since there's no "command" like vehicles, t_master_event_loop will directly change the states of each traffic light
+        # for traffic_light in traffic_lights:
 
         # vehicle removal 
         for vehicle in vehicles:
