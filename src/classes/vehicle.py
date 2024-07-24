@@ -19,6 +19,7 @@ class Vehicle:
     length: float             = 4.90            # float representing length of car in meters. parallel to direction
     pivot_distance: float     = 1.25            # float representing distance from pivot to center.
     image: Surface
+    direction_angle           = 0
 
     command: Command          = Command(np.array([0]), np.array([0]))             # Command
 
@@ -45,6 +46,7 @@ class Vehicle:
         self.pivot_distance = pivot_distance
         self.image_source = image_source
         self.image = pygame.image.load(self.image_source)
+        self.leading_vehicle = None
 
 # helpers
 
@@ -80,9 +82,9 @@ def update_cmd(old_cmd: Command, t: np.array, a: np.array, elapsed_time: float=0
 
 ### FUNCTIONS FOR STANDARD TRAFFIC
 
-def driver_traffic_update_command(vehicle: Vehicle) -> None:
+def driver_traffic_update_command(vehicles: list, cur_time: float) -> None:
     """Update command for standard traffic."""
-    cmd = None
+
     # calculate command that achieves two things
     # 1. stop before any traffic stop line if that traffic light is red
     #    traffic light red? stop before it
@@ -99,4 +101,69 @@ def driver_traffic_update_command(vehicle: Vehicle) -> None:
     # 1 and 2 need to work together. If 2. determines that we can speed up,
     # but the car is approaching a red traffic light,
     # then the final command should be to slow down
-    vehicle.command = cmd
+
+    from manager.manager import get_collisions
+    
+    collision_list = get_collisions(vehicles, cur_time)
+
+    # run a for loop to implement command for each collision
+    for collision in collision_list:
+        vehicle0, vehicle1 = collision.vehicle0, collision.vehicle1
+        
+        # assign leading and trailing vehicles based on their route_positions
+        if vehicle0.route_position > vehicle1.route_position:
+            leading_vehicle = vehicle0
+            trailing_vehicle = vehicle1
+        else:
+            leading_vehicle = vehicle1
+            trailing_vehicle = vehicle0
+
+        initial_velocity = trailing_vehicle.velocity
+        final_velocity = leading_vehicle.velocity
+        distance_to_leading = abs(leading_vehicle.route_position - trailing_vehicle.route_position) 
+
+        delta_vel = leading_vehicle.velocity - trailing_vehicle.velocity
+        # calculate time of collision 
+        if delta_vel != 0:
+            time_of_collision = (trailing_vehicle.route_position - leading_vehicle.route_position) / (delta_vel) + cur_time
+        else:
+            # two vehicles have same velocity and will never collide
+            time_of_collision = -1
+
+        # this accounts for when the previous leading vehicle disappears
+        if cur_time > time_of_collision and abs(trailing_vehicle.direction_angle - leading_vehicle.direction_angle) >= 90 and trailing_vehicle.leading_vehicle != None:
+            trailing_vehicle.leading_vehicle = None
+            final_velocity = 12 
+            time_to_reach = 2   
+
+            # Calculate the required acceleration
+            required_acceleration = (final_velocity - initial_velocity) / time_to_reach
+    
+            new_t = np.array([cur_time, cur_time + time_to_reach])
+            new_a = np.array([required_acceleration, 0])  # Maintain acceleration for 2 seconds, then set to 0
+
+            trailing_vehicle.command = update_cmd(trailing_vehicle.command, new_t, new_a, cur_time)
+            continue
+
+        # safety distance remained. No action needed
+        if distance_to_leading > 30:
+            continue
+
+        # emergency stop
+        elif distance_to_leading < 8 and trailing_vehicle.leading_vehicle != None:
+            trailing_vehicle.command = leading_vehicle.command
+            trailing_vehicle.velocity = leading_vehicle.velocity
+
+        # calculate the required deceleration and update command
+        else:
+            for edge in trailing_vehicle.route.pos_to_edge_map.values():
+                # check if they have at least one common edge, if the trailing vehicle doesn't already have a leading vehicle, and if they are facing the same relative direction 
+                if edge in leading_vehicle.route.pos_to_edge_map.values() and trailing_vehicle.leading_vehicle == None and abs(trailing_vehicle.direction_angle - leading_vehicle.direction_angle) < 90:
+                    trailing_vehicle.leading_vehicle = leading_vehicle
+
+                    leading_vehicle_delta_distance = leading_vehicle.velocity * (time_of_collision - cur_time)
+                    required_deceleration = (final_velocity**2 - initial_velocity**2) / (2 * (distance_to_leading + leading_vehicle_delta_distance))
+                    new_t = np.array([cur_time, time_of_collision])
+                    new_a = np.array([required_deceleration, leading_vehicle.acceleration])
+                    print(trailing_vehicle.velocity)
+                    trailing_vehicle.command = update_cmd(trailing_vehicle.command, new_t, new_a, cur_time)
