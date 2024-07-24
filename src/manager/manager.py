@@ -132,3 +132,20 @@ def _compute_command(elapsed_time: float) -> tuple[np.array, np.array]:
     t = [elapsed_time, elapsed_time + randint(1, 3), elapsed_time + randint(3, 5)]
     a = [randint(1, 3), randint(-3, 3), 3]
     return np.array(t), np.array(a)
+
+def detect_collisions(manager: Manager, vehicles: list[Vehicle], delta_time: float, cur_time: float, vehicle0: Vehicle, vehicle1: Vehicle) -> list[Collision]:
+    collision = False
+    vehicle_pairs = combinations(manager.vehicles, 2)
+
+    for vehicle in vehicles:
+        vehicle.route_position = route_position_at_time(vehicle, delta_time, cur_time)
+    
+        for vehicle_pair in vehicle_pairs:
+            wp0 = route_position_to_world_position(vehicle0.route, vehicle0.route_position)
+            wp1 = route_position_to_world_position(vehicle1.route, vehicle1.route_position)
+            distance = np.linalg.norm(wp1 - wp0)
+            
+            if distance <= CAR_COLLISION_DISTANCE:
+                collision = True
+    
+    return collision
