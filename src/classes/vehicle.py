@@ -20,6 +20,7 @@ class Vehicle:
     pivot_distance: float     = 1.25            # float representing distance from pivot to center.
     image: Surface
     direction_angle           = 0
+    leading_vehicle             = None          # vehicle the current vehicle is trailing if any
 
     command: Command          = Command(np.array([0]), np.array([0]))             # Command
 
