@@ -92,13 +92,14 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
     add_playback_speed = Button((40, 40, 40), (255, 50, 50), (525, screen.get_height()-TOOLBAR_HEIGHT+50), (35, 30), '+', lambda: toggle_playback_speed("+"), ())
 
     buttons = [toggle_button, restart_button, routes_visibility_button, zoom_button, subtract_playback_speed, add_playback_speed, display_playback_speed]
+
     while running:
         # poll for events
         # pygame.QUIT event means the user clicked X to close your window
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            
+        
             if event.type == pygame.MOUSEBUTTONDOWN:
                 [b.click() for b in buttons]
 
@@ -141,7 +142,18 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
         if detect_collisions(manager, vehicles, delta_time, time_elapsed) == True:
             print(f"Collision detected")
             is_run = False
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
             
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    [b.click() for b in buttons]
+
+                elif event.type == pygame.MOUSEWHEEL:
+                    zoom_factor = scroll_handler(event, zoom_factor)
+                    set_zoomed_render(zoom_factor)
+
         # updates the screen
         pygame.display.update()
         delta_time = clock.tick(60) / 1000
