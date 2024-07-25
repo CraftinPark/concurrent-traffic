@@ -1,7 +1,6 @@
-from traffic_light import TrafficLight, next_state, set_state, set_cycle_dur, set_tts, TrafficState
+from .traffic_light import TrafficLight, next_state, set_state, set_cycle_dur, set_tts, TrafficState
 from math import floor
 import itertools
-from classes.edge import TrafficState
 
 class TrafficMaster:
     traffic_lights: dict[str, list[TrafficLight]] = {}
@@ -10,6 +9,7 @@ class TrafficMaster:
     def __init__(self, types: list[tuple], t_lights: list[TrafficLight]) -> None:
         """Initialize all the differnet traffic lights in each list
         Have a central time, then send requests for each traffic light to switch light"""
+        self.traffic_types, self.traffic_lights = {}, {}
         for t_type in types:
             self.traffic_types[t_type[0]] = {TrafficState.RED : t_type[1], TrafficState.YELLOW : t_type[2], TrafficState.GREEN: t_type[3], "initial_state": t_type[4]}
             self.traffic_lights[t_type[0]] = []

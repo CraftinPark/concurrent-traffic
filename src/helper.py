@@ -3,8 +3,7 @@ from classes.route import Route
 from classes.node import Node
 from classes.edge import Edge, StraightEdge, CircularEdge
 from classes.vehicle import Vehicle
-from standard_traffic.traffic_light import TrafficLight
-from standard_traffic.traffic_state import TrafficState
+from standard_traffic.traffic_light import TrafficLight, TrafficState
 import sympy
 from sympy import Point2D
 from itertools import combinations
@@ -137,7 +136,7 @@ def load_vehicles(loaded_vehicles: object, vehicles: list[Vehicle], route_dict: 
         vehicles.append(new_vehicle)
     return vehicle_dict
 
-def load_traffic_lights(loaded_lights: object, traffic_types: list[tuple], traffic_lights: list[TrafficLight], edge_dict: dict[str, Edge], node_dict: dict[str, Node]) -> tuple[dict[str, tuple], dict[str, TrafficLight]]:
+def load_traffic_lights(loaded_lights: object, traffic_types: list[tuple], traffic_lights: list[TrafficLight], node_dict: dict[str, Node]) -> tuple[dict[str, tuple], dict[str, TrafficLight]]:
     """Return id -> TrafficLight dictionary from the traffic_lights json object. Also populates traffic_lights list."""
     light_dict, type_dict = {}, {}
     for obj in loaded_lights:
@@ -145,14 +144,14 @@ def load_traffic_lights(loaded_lights: object, traffic_types: list[tuple], traff
             if obj["type"] in type_dict:
                 raise ValueError(f"Duplicate traffic type found: {obj['type']}")
             type = (obj["type"], obj["red_duration"], obj["yellow_duration"], obj["green_duration"], TrafficState[obj["initial_state"]])
-            type_dict["type"] = type
+            type_dict[obj["type"]] = type
             traffic_types.append(type)
         else:
             if obj["id"] in light_dict:
                 raise ValueError(f"Duplicate traffic_light ID found: {obj['id']}")
             if obj["identifier"] not in type_dict:
                 raise KeyError(f"Identifier '{obj['identifier']}' not found in type_dict")
-            new_light = TrafficLight(obj["id"], edge_dict[obj["edge"]], node_dict[obj["node_position"]], obj["identifier"])
+            new_light = TrafficLight(obj["id"], node_dict[obj["node_position"]], obj["identifier"])
             light_dict[obj["id"]] = new_light
             # new_light.time_to_switch = list(itertools.accumulate(type_dict[obj["identifier"]][1:-1]))
             traffic_lights.append(new_light)

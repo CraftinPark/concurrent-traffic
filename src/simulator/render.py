@@ -6,7 +6,7 @@ from classes.node import Node
 from classes.edge import Edge, StraightEdge, CircularEdge
 from classes.route import route_position_to_world_position, direction_at_route_position
 from standard_traffic.traffic_master import TrafficMaster
-from standard_traffic.traffic_light import get_state, TrafficState
+from standard_traffic.traffic_light import get_state, TrafficLight, TrafficState
 from manager.manager import Manager, CAR_COLLISION_DISTANCE
 from classes.button import Button
 from .helper import world_to_screen_vector, world_to_screen_scalar
@@ -120,7 +120,7 @@ def render_traffic_lights(screen: Surface, traffic_master: TrafficMaster) -> Non
         for light in lights:
             light_position = world_to_screen_vector(screen, light.node.position, zoom_factor)
             color = get_state(light).get_color()
-            pygame.draw.circle(screen, color, light_position, 1)
+            pygame.draw.circle(screen, color, light_position, 3)
 
 def render_manager(screen: Surface, manager: Manager) -> None:
     """Render function for Manager."""
