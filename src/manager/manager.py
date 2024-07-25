@@ -39,7 +39,7 @@ def reset(manager: Manager) -> None:
 def manager_event_loop(manager: Manager, vehicles: list[Vehicle], cur_time: float) -> None:
     """Event loop for Manager. Updates manager.vehicles if a Vehicle enters its radius. Also recalculates and sends Commands on update of manager.vehicles."""
     if _update_manager_vehicle_list(manager, vehicles):
-        _compute_and_send_acceleration_commands(manager, cur_time)
+        # _compute_and_send_acceleration_commands(manager, cur_time)
         manager.collisions = get_collisions(manager, cur_time)
 
 def _update_manager_vehicle_list(manager: Manager, vehicles: list[Vehicle]) -> bool:
@@ -133,7 +133,7 @@ def _compute_command(elapsed_time: float) -> tuple[np.array, np.array]:
     a = [randint(1, 3), randint(-3, 3), 3]
     return np.array(t), np.array(a)
 
-def detect_collisions(manager: Manager, vehicles: list[Vehicle], delta_time: float, cur_time: float, vehicle0: Vehicle, vehicle1: Vehicle) -> list[Collision]:
+def detect_collisions(manager: Manager, vehicles: list[Vehicle], delta_time: float, cur_time: float) -> list[Collision]:
     collision = False
     vehicle_pairs = combinations(manager.vehicles, 2)
 
@@ -141,8 +141,8 @@ def detect_collisions(manager: Manager, vehicles: list[Vehicle], delta_time: flo
         vehicle.route_position = route_position_at_time(vehicle, delta_time, cur_time)
     
         for vehicle_pair in vehicle_pairs:
-            wp0 = route_position_to_world_position(vehicle0.route, vehicle0.route_position)
-            wp1 = route_position_to_world_position(vehicle1.route, vehicle1.route_position)
+            wp0 = route_position_to_world_position(vehicle_pair[0].route, vehicle.route_position)
+            wp1 = route_position_to_world_position(vehicle_pair[1].route, vehicle.route_position)
             distance = np.linalg.norm(wp1 - wp0)
             
             if distance <= CAR_COLLISION_DISTANCE:

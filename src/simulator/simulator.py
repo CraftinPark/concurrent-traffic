@@ -138,8 +138,9 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
             update_world(delta_time * playback_speed_factor, vehicles)
             time_elapsed += delta_time * playback_speed_factor
 
-        if detect_collisions == True:
+        if detect_collisions(manager, vehicles, delta_time, time_elapsed) == True:
             print(f"Collision detected")
+            is_run = False
             
         # updates the screen
         pygame.display.update()
