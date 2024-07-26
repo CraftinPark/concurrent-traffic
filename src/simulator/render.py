@@ -120,7 +120,7 @@ def render_traffic_lights(screen: Surface, traffic_master: TrafficMaster) -> Non
         for light in lights:
             light_position = world_to_screen_vector(screen, light.node.position, zoom_factor)
             color = get_state(light).get_color()
-            pygame.draw.circle(screen, color, light_position, 3)
+            pygame.draw.circle(screen, color, light_position, 3, 3)
 
 def render_manager(screen: Surface, manager: Manager) -> None:
     """Render function for Manager."""

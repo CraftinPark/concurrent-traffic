@@ -1,10 +1,12 @@
 from classes.node import Node
-from enum import Enum, auto
+from enum import Enum
 
 class TrafficState(Enum):
-    RED = auto()
-    YELLOW = auto()
-    GREEN = auto()
+    num_state: int
+
+    RED = 1
+    GREEN = 2
+    YELLOW = 3
 
     def next(self):
         if self == TrafficState.RED:
@@ -21,6 +23,23 @@ class TrafficState(Enum):
             return "green"
         elif self == TrafficState.YELLOW:
             return "yellow"
+        
+    @classmethod
+    def get_num_states(cls) -> int:
+        return len(cls.__members__)
+        
+    @classmethod
+    def get_next_state(cls, current_value: int):
+        next_value = current_value + 1
+        
+        if next_value > cls.get_num_states():
+            next_value = 1
+        
+        for state in cls:
+            if state.value == next_value:
+                return state
+
+        raise ValueError(f"No TrafficState with value {next_value}")
 
 class TrafficLight:
     state: TrafficState
@@ -29,7 +48,8 @@ class TrafficLight:
     id: str
     node: Node
     identifier: str # eg horizontal, vertical, horizontal_left_turn
-    time_to_switch: list[float]
+    time_to_switch: dict[TrafficState, int]
+    prev_dt: int
 
     def __init__(self, id: str, node_pos: Node, identifier: str) -> None:
         # if not isinstance(initial_state, TrafficState):
@@ -41,7 +61,8 @@ class TrafficLight:
         self.state = TrafficState.GREEN
         self.time_in_state = 0 # set later by traffic_master
         self.cycle_duration = 0 # set later by traffic_master
-        self.time_to_switch = [] # set later by traffic_master
+        self.time_to_switch = {} # set later by traffic_master
+        self.prev_dt = 0
 
 def next_state(traffic_light: TrafficLight):
     traffic_light.state = traffic_light.state.next()
@@ -57,14 +78,13 @@ def get_state(traffic_light: TrafficLight) -> TrafficState:
 
 def set_state(traffic_light: TrafficLight, state: TrafficState):
     traffic_light.state = state
-    # change_state(traffic_light.edge, state)
 
 def set_cycle_dur(traffic_light: TrafficLight, duration: int):
     if duration < 1:
         raise ValueError(f"Cycle duration cannot be less than 1.")
     traffic_light.cycle_duration = duration
 
-def set_tts(traffic_light: TrafficLight, tts:list[float]):
+def set_tts(traffic_light: TrafficLight, tts: dict[TrafficState, int]):
     traffic_light.time_to_switch = tts
 
 # def change_state(edge: Edge, state:TrafficState):
