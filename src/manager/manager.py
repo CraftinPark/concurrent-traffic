@@ -6,6 +6,7 @@ from scipy.optimize import minimize_scalar
 from random import randint
 
 CAR_COLLISION_DISTANCE = 2.5 # meters
+MINIMUM_CRUISING_SPEED = 0
 
 class Collision:
     """A Collision represents a collision between two Vehicles at a given time."""
@@ -148,6 +149,12 @@ def time_until_end_of_route(vehicle: Vehicle) -> float:
     """Return time til vehicle reaches the end of its route."""
     return (vehicle.route.total_length - vehicle.route_position) / vehicle.velocity
 
+# def command_to_set_velocity(vehicle: Vehicle, duration: float, velocity: float):
+#     acceleration_to_set = (velocity - vehicle.velocity) / duration
+#     t = [0, elapsed_time+0.5, elapsed_time+3, elapsed_time+3.5]
+#     a = [propsed_decceleration,0,-propsed_decceleration,0]
+
+
 def _compute_and_send_acceleration_commands(manager: Manager, elapsed_time: float) -> None:
     """Compute and send commands."""
 
@@ -167,24 +174,52 @@ def _compute_and_send_acceleration_commands(manager: Manager, elapsed_time: floa
         else:
             lower_priority_vehicle = collisions[0].vehicle1
 
+        time_until_collision = collisions[0].time - elapsed_time
+
         # send slow down command to lower priority vehicle
-        propsed_decceleration = -15
-        propsed_duration = 3
-        t = [elapsed_time, elapsed_time+0.5, elapsed_time+3, elapsed_time+3.5]
-        a = [propsed_decceleration,0,-propsed_decceleration,0]
+        proposed_decceleration = -3.5
+        proposed_duration = 0.5
+        duration_to_minimum_speed = (MINIMUM_CRUISING_SPEED-lower_priority_vehicle.velocity)/proposed_decceleration
+        acceleration_duration = min(duration_to_minimum_speed, time_until_collision)
+        
+        t = [elapsed_time,
+             elapsed_time+acceleration_duration,
+             elapsed_time+acceleration_duration+proposed_duration,
+             elapsed_time+acceleration_duration+proposed_duration+acceleration_duration]
+        a = [proposed_decceleration,
+             0,
+             -proposed_decceleration,
+             0]
         lower_priority_vehicle.command = update_cmd(lower_priority_vehicle.command, t, a, elapsed_time)
         
-        while get_collisions_between_two_vehicles(collisions[0].vehicle0, collisions[0].vehicle1, elapsed_time) is not None:
+        attempts_to_deter_collision = 0
+        undeterred_collision = get_collisions_between_two_vehicles(collisions[0].vehicle0, collisions[0].vehicle1, elapsed_time)
+        while undeterred_collision is not None:
             # we are still crashing these vehicles, send a more aggressive decceleration
-            break
+            attempts_to_deter_collision += 1
+            proposed_duration += 0.5
+            duration_to_minimum_speed = (MINIMUM_CRUISING_SPEED-lower_priority_vehicle.velocity)/proposed_decceleration
+            acceleration_duration = min(duration_to_minimum_speed, time_until_collision)
+
+            t = [elapsed_time,
+                elapsed_time+acceleration_duration,
+                elapsed_time+acceleration_duration+proposed_duration,
+                elapsed_time+acceleration_duration+proposed_duration+acceleration_duration]
+            a = [proposed_decceleration,
+                0,
+                -proposed_decceleration,
+                0]
+            lower_priority_vehicle.command = update_cmd(lower_priority_vehicle.command, t, a, elapsed_time)
+
+            undeterred_collision = get_collisions_between_two_vehicles(undeterred_collision.vehicle0, undeterred_collision.vehicle1, elapsed_time)
+
+            if attempts_to_deter_collision >= 50:
+                print("failed to deter collision, exit loop")
+                break
         
         collisions = get_collisions(manager, elapsed_time)
 
     # for i in range(len(manager.vehicles) - 1):
-        # t = [elapsed_time, elapsed_time+1.8] # this will make cars crash for presets/collision_by_command.json
-        # a = [0, 6]
-        # if manager.vehicles[i].name == "acc":
-        #     manager.vehicles[i].command = update_cmd(manager.vehicles[i].command, t, a, elapsed_time) # this will make cars crash for presets/collision_by_command.json
 
         # check for collisions with cars BEFORE itself in the priority queue
 
