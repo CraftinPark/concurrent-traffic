@@ -86,9 +86,9 @@ def get_collisions(manager: Manager, cur_time: float) -> list[Collision]:
         if result.success:
             time_of_collision = result.x + cur_time
             if distance_objective(result.x) <= CAR_COLLISION_DISTANCE:
-                # print(f"The objects come within 2.5 meters of each other at t = {time_of_collision}")
-                # print(f"{vehicle_pair[0].name}: {route_position_to_world_position(vehicle_pair[0].route, route_position_at_time(vehicle_pair[0], result.x, cur_time))}")
-                # print(f"{vehicle_pair[1].name}: {route_position_to_world_position(vehicle_pair[1].route, route_position_at_time(vehicle_pair[1], result.x, cur_time))}")
+                print(f"The objects come within 2.5 meters of each other at t = {time_of_collision}")
+                print(f"{vehicle_pair[0].name}: {route_position_to_world_position(vehicle_pair[0].route, route_position_at_delta_time(vehicle_pair[0], result.x, cur_time))}")
+                print(f"{vehicle_pair[1].name}: {route_position_to_world_position(vehicle_pair[1].route, route_position_at_delta_time(vehicle_pair[1], result.x, cur_time))}")
                 delta0 = vehicle_pair[0].route.total_length - route_position_at_delta_time(vehicle_pair[0], time_of_collision - cur_time, cur_time)
                 delta1 = vehicle_pair[1].route.total_length - route_position_at_delta_time(vehicle_pair[1], time_of_collision - cur_time, cur_time)
                 collisions.append(Collision(vehicle_pair[0], vehicle_pair[1], delta0, delta1, time_of_collision))
@@ -156,44 +156,37 @@ def _compute_and_send_acceleration_commands(manager: Manager, elapsed_time: floa
     # manager.run_once_for_debug = 1
     manager.vehicles.sort(key=lambda v: v.route_position, reverse=True)
 
-    for i in range(len(manager.vehicles) - 1):
+    collisions = get_collisions(manager, elapsed_time)
+
+    while collisions != []:
+        # find vehicle that is lower on the priority queue
+        vehicle0_index = manager.vehicles.index(collisions[0].vehicle0)
+        vehicle1_index = manager.vehicles.index(collisions[0].vehicle1)
+        if vehicle0_index > vehicle1_index:
+            lower_priority_vehicle = collisions[0].vehicle0
+        else:
+            lower_priority_vehicle = collisions[0].vehicle1
+
+        # send slow down command to lower priority vehicle
+        propsed_decceleration = -15
+        propsed_duration = 3
+        t = [elapsed_time, elapsed_time+0.5, elapsed_time+3, elapsed_time+3.5]
+        a = [propsed_decceleration,0,-propsed_decceleration,0]
+        lower_priority_vehicle.command = update_cmd(lower_priority_vehicle.command, t, a, elapsed_time)
+        
+        while get_collisions_between_two_vehicles(collisions[0].vehicle0, collisions[0].vehicle1, elapsed_time) is not None:
+            # we are still crashing these vehicles, send a more aggressive decceleration
+            break
+        
+        collisions = get_collisions(manager, elapsed_time)
+
+    # for i in range(len(manager.vehicles) - 1):
         # t = [elapsed_time, elapsed_time+1.8] # this will make cars crash for presets/collision_by_command.json
         # a = [0, 6]
         # if manager.vehicles[i].name == "acc":
         #     manager.vehicles[i].command = update_cmd(manager.vehicles[i].command, t, a, elapsed_time) # this will make cars crash for presets/collision_by_command.json
 
-
-
-        # print(manager.vehicles[i+1].name)
-        # print(f"route position at time: {elapsed_time}")
-        # print(route_position_at_delta_time(manager.vehicles[i+1], 0, elapsed_time))
-        # print(route_position_to_world_position(manager.vehicles[i+1].route, route_position_at_delta_time(manager.vehicles[i+1], 0, elapsed_time)))
-
-        # print(f"route position at time: {elapsed_time+4}")
-        # print(route_position_at_delta_time(manager.vehicles[i+1], 4, elapsed_time))
-        # print(route_position_to_world_position(manager.vehicles[i+1].route, route_position_at_delta_time(manager.vehicles[i+1], 4, elapsed_time)))
-
-        get_collisions_between_two_vehicles(manager.vehicles[i], manager.vehicles[i+1], elapsed_time)
-
-        # def distance_objective(t):
-        #     wp0 = route_position_to_world_position(manager.vehicles[i].route, route_position_at_delta_time(manager.vehicles[i], t, elapsed_time))
-        #     wp1 = route_position_to_world_position(manager.vehicles[i+1].route, route_position_at_delta_time(manager.vehicles[i+1], t, elapsed_time))
-        #     print(wp0)
-        #     print(wp1)
-        #     return np.linalg.norm(wp1-wp0) - CAR_COLLISION_DISTANCE
-        
-        # start = 0
-        # end = 10
-        # step = 0.5
-        # current = start   
-        # while current < end:
-        #     print(f"at t = {current+elapsed_time}")
-        #     print(distance_objective(current))
-        #     print("")
-        #     current += step
-
-
-
+        # check for collisions with cars BEFORE itself in the priority queue
 
 
     # manager.collisions = get_collisions(manager, elapsed_time)
