@@ -2,7 +2,7 @@ import numpy as np
 import pygame
 from pygame import Surface
 from manager.command import Command
-from classes.route import Route
+from classes.route import Route, route_position_to_world_position
 
 class Vehicle:
     """A Vehicle is given commands that it follows along a given route."""
@@ -105,7 +105,34 @@ def driver_traffic_update_command(vehicles: list, cur_time: float) -> None:
 
     from manager.manager import get_collisions
     
-    collision_list = get_collisions(vehicles, cur_time)
+    # filter out
+    
+    concerned_vehicles = []
+    
+    for i, current_vehicle in enumerate(vehicles):
+        current_vehicle_wp = route_position_to_world_position(current_vehicle.route, current_vehicle.route_position)
+        for j, other_vehicle in enumerate(vehicles):
+            if i != j:  # Avoid comparing the vehicle with itself
+                
+                if current_vehicle.route_position > other_vehicle.route_position:
+                    leading_vehicle = current_vehicle
+                    trailing_vehicle = other_vehicle
+                else:
+                    leading_vehicle = other_vehicle
+                    trailing_vehicle = current_vehicle
+                
+                other_vehicle_wp = route_position_to_world_position(other_vehicle.route, other_vehicle.route_position)
+              
+                if np.linalg.norm(other_vehicle_wp-current_vehicle_wp) <= 30 and abs(current_vehicle.direction_angle - other_vehicle.direction_angle) < 90:
+                    for edge in trailing_vehicle.route.pos_to_edge_map.values():
+                        if edge in leading_vehicle.route.pos_to_edge_map.values() and current_vehicle not in concerned_vehicles:
+                            concerned_vehicles.append(current_vehicle)
+                
+                    
+                    
+    
+    
+    collision_list = get_collisions(concerned_vehicles, cur_time)
 
     # run a for loop to implement command for each collision
     for collision in collision_list:
@@ -147,24 +174,20 @@ def driver_traffic_update_command(vehicles: list, cur_time: float) -> None:
             continue
 
         # safety distance remained. No action needed
-        if distance_to_leading > 30:
+        if distance_to_leading > 20:
             continue
-
-        # emergency stop
-        elif distance_to_leading < 8 and trailing_vehicle.leading_vehicle != None:
-            trailing_vehicle.command = leading_vehicle.command
-            trailing_vehicle.velocity = leading_vehicle.velocity
-
+        
         # calculate the required deceleration and update command
         else:
             for edge in trailing_vehicle.route.pos_to_edge_map.values():
                 # check if they have at least one common edge, if the trailing vehicle doesn't already have a leading vehicle, and if they are facing the same relative direction 
                 if edge in leading_vehicle.route.pos_to_edge_map.values() and trailing_vehicle.leading_vehicle == None and abs(trailing_vehicle.direction_angle - leading_vehicle.direction_angle) < 90:
                     trailing_vehicle.leading_vehicle = leading_vehicle
-
-                    leading_vehicle_delta_distance = leading_vehicle.velocity * (time_of_collision - cur_time)
-                    required_deceleration = (final_velocity**2 - initial_velocity**2) / (2 * (distance_to_leading + leading_vehicle_delta_distance))
+                        
+                    required_deceleration = (final_velocity - initial_velocity) / (time_of_collision - cur_time)
+                    print(time_of_collision - cur_time)
                     new_t = np.array([cur_time, time_of_collision])
                     new_a = np.array([required_deceleration, leading_vehicle.acceleration])
-                    print(trailing_vehicle.velocity)
                     trailing_vehicle.command = update_cmd(trailing_vehicle.command, new_t, new_a, cur_time)
+                    
+        
