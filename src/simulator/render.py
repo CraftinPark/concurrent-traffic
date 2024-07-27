@@ -42,8 +42,8 @@ def render_edges(screen: Surface, edges: list[Edge]) -> None:
             arc_rect = pygame.Rect(0,0,diameter,diameter)
             arc_rect.center = world_to_screen_vector(screen, edge.center, zoom_factor)
 
-            theta_start = np.arctan2(-(edge.start.position[1] - edge.center[1]), edge.start.position[0] - edge.center[0])
-            theta_end = np.arctan2(-(edge.end.position[1] - edge.center[1]), edge.end.position[0] - edge.center[0])
+            theta_start = np.arctan2(-(edge.end.position[1] - edge.center[1]), edge.end.position[0] - edge.center[0])
+            theta_end = np.arctan2(-(edge.start.position[1] - edge.center[1]), edge.start.position[0] - edge.center[0])
 
             if edge.clockwise:
                 if theta_end < theta_start:
