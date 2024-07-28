@@ -116,14 +116,14 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
         render_toolbar(screen, time_elapsed, buttons)
         render_title(screen)
 
-        # # manager 'cpu'
-        # manager_event_loop(manager, vehicles, time_elapsed)
+        # manager 'cpu'
+        manager_event_loop(manager, vehicles, time_elapsed)
 
         # vehicles 'cpu'
         for vehicle in vehicles:
             vehicle_event_loop(vehicle, time_elapsed)
 
-        standard_traffic = True
+        standard_traffic = False
         if standard_traffic:
             driver_traffic_update_command(vehicles, time_elapsed)
 
