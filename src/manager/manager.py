@@ -40,7 +40,7 @@ def manager_event_loop(manager: Manager, vehicles: list[Vehicle], cur_time: floa
     """Event loop for Manager. Updates manager.vehicles if a Vehicle enters its radius. Also recalculates and sends Commands on update of manager.vehicles."""
     if _update_manager_vehicle_list(manager, vehicles):
         _compute_and_send_acceleration_commands(manager, cur_time)
-        manager.collisions = get_collisions(manager.vehicles, cur_time)
+        manager.collisions = get_collisions(manager, cur_time)
 
 def _update_manager_vehicle_list(manager: Manager, vehicles: list[Vehicle]) -> bool:
     """Return True if new vehicles have been added to manager.vehicles."""
@@ -63,10 +63,10 @@ def _update_manager_vehicle_list(manager: Manager, vehicles: list[Vehicle]) -> b
             manager.vehicles.remove(vehicle)
     return new_vehicle
 
-def get_collisions(vehicles: list[Vehicle], cur_time: float) -> list[Collision]:
+def get_collisions(manager: Manager, cur_time: float) -> list[Collision]:
     """Return list of Collisions between Vehicles in manager's radius."""
     collisions = []
-    vehicle_pairs = combinations(vehicles, 2)
+    vehicle_pairs = combinations(manager.vehicles, 2)
     
     for vehicle_pair in vehicle_pairs:
         vehicle_out_of_bounds_time = int(min(time_until_end_of_route(vehicle_pair[0]), time_until_end_of_route(vehicle_pair[1])))

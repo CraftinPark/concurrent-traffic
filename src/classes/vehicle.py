@@ -12,6 +12,7 @@ class Vehicle:
     route: Route             = None            # Route
     route_position: float     = 0               # float representing position in meters along the route
 
+    default_velocity          = 0               # float representing default velocity in meters/second along route
     velocity: float           = 0               # float representing velocity in meters/second along route
     acceleration: float       = 0               # float representing acceleration in meters/second^2 along route
 
@@ -23,7 +24,6 @@ class Vehicle:
     leading_vehicle             = None          # vehicle the current vehicle is trailing if any
 
     command: Command          = Command(np.array([0]), np.array([0]))             # Command
-    default_velocity          = 0
 
     def __init__(self,
                  name: str,
