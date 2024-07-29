@@ -151,8 +151,8 @@ def update_driver_lead(vehicles: list) -> None:
                
                 distance_between_vehicle = np.linalg.norm(leading_vehicle_wp-trailing_vehicle_wp)
                 
-                central_vision_angle = 80
-                if distance_between_vehicle > 30 or abs(current_vehicle.direction_angle - other_vehicle.direction_angle) > central_vision_angle:
+                max_angle_diff = 80
+                if distance_between_vehicle > 30 or abs(current_vehicle.direction_angle - other_vehicle.direction_angle) > max_angle_diff:
                     if trailing_vehicle.leading_vehicle == leading_vehicle:
                         trailing_vehicle.leading_vehicle = None
                     continue
