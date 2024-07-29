@@ -139,8 +139,9 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
             update_world(delta_time * playback_speed_factor, vehicles)
             time_elapsed += delta_time * playback_speed_factor
 
-        if detect_collisions(manager, vehicles, delta_time, time_elapsed) == True:
-            print(f"Collision detected")
+        collision_check, car_info = detect_collisions(manager, vehicles, delta_time, time_elapsed)
+
+        if collision_check == True:
             is_run = False
 
             for event in pygame.event.get():

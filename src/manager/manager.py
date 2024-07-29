@@ -78,9 +78,9 @@ def get_collisions(manager: Manager, cur_time: float) -> list[Collision]:
         result = minimize_scalar(distance_objective, bounds=(0, vehicle_out_of_bounds_time), method='bounded')
         if result.success:
             time_of_collision = result.x + cur_time
-            # print(f"The objects come within 2.5 meters of each other at t = {time_of_collision}")
-            # print(f"{vehicle_pair[0].name}: {route_position_to_world_position(vehicle_pair[0].route, route_position_at_time(vehicle_pair[0], result.x, cur_time))}")
-            # print(f"{vehicle_pair[1].name}: {route_position_to_world_position(vehicle_pair[1].route, route_position_at_time(vehicle_pair[1], result.x, cur_time))}")
+            print(f"The objects come within 2.5 meters of each other at t = {time_of_collision}")
+            print(f"{vehicle_pair[0].name}: {route_position_to_world_position(vehicle_pair[0].route, route_position_at_time(vehicle_pair[0], result.x, cur_time))}")
+            print(f"{vehicle_pair[1].name}: {route_position_to_world_position(vehicle_pair[1].route, route_position_at_time(vehicle_pair[1], result.x, cur_time))}")
             collisions.append(Collision(vehicle_pair[0], vehicle_pair[1], time_of_collision))
     return collisions
 
@@ -136,6 +136,7 @@ def _compute_command(elapsed_time: float) -> tuple[np.array, np.array]:
 def detect_collisions(manager: Manager, vehicles: list[Vehicle], delta_time: float, cur_time: float) -> list[Collision]:
     collision = False
     vehicle_pairs = combinations(manager.vehicles, 2)
+    car_info = []
 
     for vehicle in vehicles:
         vehicle.route_position = route_position_at_time(vehicle, delta_time, cur_time)
@@ -147,5 +148,7 @@ def detect_collisions(manager: Manager, vehicles: list[Vehicle], delta_time: flo
             
             if distance <= CAR_COLLISION_DISTANCE:
                 collision = True
-    
-    return collision
+                car_info = [vehicle_pair[0].name, vehicle_pair[1].name, cur_time]
+                print(f"Collision detected between {car_info[0]} and {car_info[1]} at time: {car_info[2]}")
+
+    return collision, car_info
