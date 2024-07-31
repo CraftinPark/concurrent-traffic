@@ -6,7 +6,7 @@ from classes.node import Node
 from classes.edge import Edge, StraightEdge, CircularEdge
 from classes.route import route_position_to_world_position, direction_at_route_position
 from standard_traffic.traffic_master import TrafficMaster
-from standard_traffic.traffic_light import get_state, TrafficLight, TrafficState
+from standard_traffic.traffic_light import get_state
 from manager.manager import Manager, CAR_COLLISION_DISTANCE
 from classes.button import Button
 from .helper import world_to_screen_vector, world_to_screen_scalar
@@ -53,7 +53,7 @@ def render_edges(screen: Surface, edges: list[Edge]) -> None:
                 if theta_start < theta_end:
                     theta_start += 2*np.pi
 
-            pygame.draw.arc(screen, "red", arc_rect, theta_end, theta_start)
+            pygame.draw.arc(screen, "red", arc_rect, theta_start, theta_end)
 
 def render_intersections(screen: Surface, intersection_points) -> None:
     """Render function for intersecting Routes."""

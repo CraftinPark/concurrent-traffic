@@ -75,6 +75,10 @@
     {"id": "route_7", "source": "edge_1", "intermediate": [ "edge_9"], "target": "edge_2", "comment": "right from south"}
   ],
 
+  "traffic_lights": [
+
+  ],
+
   "manager": {
     "position": [0, 0],
     "radius": 50
