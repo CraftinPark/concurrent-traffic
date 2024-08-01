@@ -144,6 +144,10 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
         if collision_check == True:
             is_run = False
 
+            var = pygame.PixelArray('assets/sedan.png')
+            var.replace((255,255,255), (255,0,0))
+            del var
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
