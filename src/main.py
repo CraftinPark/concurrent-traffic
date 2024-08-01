@@ -9,17 +9,30 @@ from classes.route import Route
 from classes.vehicle import Vehicle
 from simulator.simulator import run_simulation
 from helper import get_intersections, load_nodes, load_edges, load_routes, load_vehicles
+import argparse
 
 def main() -> None:
+    verbose = False
+    # Check if -v flag is present
+    if '-v' in sys.argv:
+        verbose = True
+        sys.argv.remove('-v')
+    
     if len(sys.argv) != 2:
         print('Usage: python3 src/main.py <absolute_path_to_preset>')
         return
     
     preset_name = sys.argv[1]
+    if verbose:
+        print(f"Logging is enabled for preset: {preset_name}")
     
     manager, nodes, curr_edges, routes, vehicles = load_preset(preset_name)
     intersection_points = get_intersections(routes)
     run_simulation(vehicles, nodes, curr_edges, routes, intersection_points, manager)
+    
+    if(verbose):
+        print(manager.events)
+        #TODO: gotta log in a file as well
 
 def load_preset(file_path: str) -> tuple[Manager, list[Node], list[Edge], list[Route], list[Vehicle]]:
     with open(file_path, 'r') as file:

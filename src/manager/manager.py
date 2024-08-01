@@ -26,6 +26,7 @@ class Manager:
     vehicles: list[Vehicle] = []
     intersecting_points = None
     collisions: list[Collision] = []
+    events: str = ""
 
     def __init__(self, position: np.ndarray, radius: float, routes: list[Route]) -> None:
         # initialize
@@ -82,6 +83,7 @@ def get_collisions(manager: Manager, cur_time: float) -> list[Collision]:
             # print(f"{vehicle_pair[0].name}: {route_position_to_world_position(vehicle_pair[0].route, route_position_at_time(vehicle_pair[0], result.x, cur_time))}")
             # print(f"{vehicle_pair[1].name}: {route_position_to_world_position(vehicle_pair[1].route, route_position_at_time(vehicle_pair[1], result.x, cur_time))}")
             collisions.append(Collision(vehicle_pair[0], vehicle_pair[1], time_of_collision))
+            manager.events += f"Collision between {vehicle_pair[0].name}({vehicle_pair[0].id}) and {vehicle_pair[1]} ({vehicle_pair[1].id}) at time {time_of_collision}\n"
     return collisions
 
 def route_position_at_time(vehicle: Vehicle, delta_time: float, cur_time: float) -> float:
@@ -124,6 +126,7 @@ def _compute_and_send_acceleration_commands(manager: Manager, elapsed_time: floa
         # if v.name == "acc":
         #     v.command = update_cmd(v.command, t, a, elapsed_time) # this will make cars crash for presets/collision_by_command.json
         v.command = update_cmd(v.command, t, a, elapsed_time)
+        manager.events += f"Command sent to {v.name}({v.id}) | T: {t}, A: {a}\n"
 
 def _compute_command(elapsed_time: float) -> tuple[np.array, np.array]:
     """Return np.array of acceleration and time values."""
