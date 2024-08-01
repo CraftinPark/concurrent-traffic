@@ -83,7 +83,7 @@ def get_collisions(manager: Manager, cur_time: float) -> list[Collision]:
             # print(f"{vehicle_pair[0].name}: {route_position_to_world_position(vehicle_pair[0].route, route_position_at_time(vehicle_pair[0], result.x, cur_time))}")
             # print(f"{vehicle_pair[1].name}: {route_position_to_world_position(vehicle_pair[1].route, route_position_at_time(vehicle_pair[1], result.x, cur_time))}")
             collisions.append(Collision(vehicle_pair[0], vehicle_pair[1], time_of_collision))
-            manager.events += f"Collision between {vehicle_pair[0].name}({vehicle_pair[0].id}) and {vehicle_pair[1]} ({vehicle_pair[1].id}) at time {time_of_collision}\n"
+            manager.events += f"Collision between {vehicle_pair[0].name}({vehicle_pair[0].id}) and {vehicle_pair[1].name} ({vehicle_pair[1].id}) at time {time_of_collision}\n"
     return collisions
 
 def route_position_at_time(vehicle: Vehicle, delta_time: float, cur_time: float) -> float:
