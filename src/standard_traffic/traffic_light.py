@@ -1,5 +1,5 @@
 from enum import Enum
-from classes.route import Route
+# from classes.route import Route
 
 class TrafficState(Enum):
     RED = 1
