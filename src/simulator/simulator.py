@@ -97,7 +97,7 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
     display_playback_speed = Button((40, 40, 40), (40, 40, 40), (480, screen.get_height()-TOOLBAR_HEIGHT+50), (45, 30), str(playback_speed_factor) + "x", None, ())
     add_playback_speed = Button((40, 40, 40), (255, 50, 50), (525, screen.get_height()-TOOLBAR_HEIGHT+50), (35, 30), '+', lambda: toggle_playback_speed("+"), ())
     
-    algorithm_selector = Button((40, 40, 40), (255, 50, 50), (565, screen.get_height()-TOOLBAR_HEIGHT+50), (185, 30), 'Change to Standard Traffic', toggle_algorithm_selector,())
+    algorithm_selector = Button((40, 40, 40), (255, 50, 50), (565, screen.get_height()-TOOLBAR_HEIGHT+50), (135, 30), 'Change Algorithm', toggle_algorithm_selector,())
 
     buttons = [toggle_button, restart_button, routes_visibility_button, zoom_button, subtract_playback_speed, add_playback_speed, display_playback_speed, algorithm_selector]
     while running:
