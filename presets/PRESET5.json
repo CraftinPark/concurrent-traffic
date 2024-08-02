@@ -67,12 +67,14 @@
     {"id": "route_3", "source": "edge_7", "intermediate": ["edge_19"], "target": "edge_4", "comment": "left from west"}
   ], 
 
-  "traffic_lights": [
-      {"type": "horizontal", "red_duration": 60, "yellow_duration": 5, "green_duration": 45, "initial_state": "GREEN"},
-      {"type": "vertical", "red_duration": 60, "yellow_duration": 5, "green_duration": 45, "initial_state": "RED"},
-      {"id": "light_0", "node_position": "node_9",  "identifier": "horizontal"},
-      {"id": "light_1", "node_position": "node_10", "identifier": "vertical"}
-    ],
+  "traffic_lights": [ 
+        {"type": "horizontal", "red_duration": 4, "yellow_duration": 1, "green_duration": 5, "initial_state": "GREEN"}, 
+        {"type": "vertical", "red_duration": 3, "yellow_duration": 2, "green_duration": 6, "initial_state": "RED"}, 
+        {"id": "light_0", "node_position": "node_14", "identifier": "horizontal"}, 
+        {"id": "light_1", "node_position": "node_12", "identifier": "vertical"}, 
+        {"id": "light_2", "node_position": "node_10", "identifier": "horizontal"}, 
+        {"id": "light_3", "node_position": "node_8", "identifier": "vertical"}
+  ],
   
   "manager": {
     "position": [0, 0],

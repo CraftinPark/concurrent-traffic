@@ -78,7 +78,7 @@ def load_edges(loaded_edges: object, edges: list[Edge], node_dict: dict[str, Nod
         if edge["id"] in edge_dict:
             raise ValueError(f"Duplicate edge ID found: {edge['id']}")
         if edge.get("center"):
-            new_edge = CircularEdge(edge["id"], node_dict[edge["source"]], node_dict[edge["target"]], np.array(edge["center"]), edge["clockwise"])
+            new_edge = CircularEdge(edge["id"], node_dict[edge["source"]], node_dict[edge["target"]], np.array(edge["center"]), clockwise=edge["clockwise"])
         else:
             new_edge = StraightEdge(edge["id"], node_dict[edge["source"]], node_dict[edge["target"]])
         edge_dict[edge["id"]] = new_edge
