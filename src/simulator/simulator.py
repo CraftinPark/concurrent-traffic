@@ -117,6 +117,7 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
 
         # optionally render nodes and edges. for now always on
         render_world(screen, nodes, edges, route_visible, intersection_points)
+        # render_traffic_master(screen, traffic_master, time_elapsed)
         render_traffic_lights(screen, traffic_master)
         render_manager(screen, manager)
         render_vehicles(screen, vehicles)
@@ -131,7 +132,11 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
             vehicle_event_loop(vehicle, time_elapsed)
 
         if standard_traffic:
+            # traffic_master.sequence()
             t_master_event_loop(traffic_master, time_elapsed) # change the details of each traffic light.
+        
+        # since there's no "command" like vehicles, t_master_event_loop will directly change the states of each traffic light
+        # for traffic_light in traffic_lights:
 
         # vehicle removal 
         for vehicle in vehicles:

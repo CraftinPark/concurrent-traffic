@@ -10,13 +10,13 @@ class Edge():
     end: Node = None
     edge_id: str
     sympy_obj: Segment | Circle = None
-    traffic_light: Optional[TrafficLight]
+    traffic_state: Optional[TrafficLight]
 
     def __init__(self, edge_id: str, start: Node, end: Node, traffic_light: Optional[TrafficLight]=None) -> None:
         self.start = start
         self.end = end
         self.edge_id = edge_id
-        self.traffic_light = traffic_light
+        self.traffic_state = traffic_light
 
 class StraightEdge(Edge):
     """A StraightEdge is an Edge that is linear."""
@@ -55,3 +55,9 @@ def get_length(edge: Edge) -> float:
         return theta * radius
 
     raise TypeError("get_length returned None.")
+
+# def change_state(edge: Edge, state:TrafficState):
+#         edge.traffic_state = state
+
+# def get_state(edge: Edge):
+#     return edge.traffic_state
