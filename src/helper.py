@@ -134,7 +134,7 @@ def load_vehicles(loaded_vehicles: object, vehicles: list[Vehicle], route_dict: 
         new_vehicle = Vehicle(v["id"], v["name"], route_dict[v["route"]], v["route_position"], v["velocity"], 0, 2.23, 4.90, 1.25, 'assets/sedan.png')
         vehicle_dict[v["id"]] = new_vehicle
         vehicles.append(new_vehicle)
-    # return vehicle_dict
+    return vehicle_dict
 
 def load_traffic_lights(loaded_lights: object, traffic_types: list[tuple], traffic_lights: list[TrafficLight], node_dict: dict[str, Node]) -> tuple[dict[str, tuple], dict[str, TrafficLight]]:
     """Return id -> TrafficLight dictionary from the traffic_lights json object. Also populates traffic_lights list."""
