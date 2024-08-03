@@ -68,8 +68,8 @@
   ], 
 
   "traffic_lights": [ 
-        {"type": "horizontal", "red_duration": 4, "yellow_duration": 1, "green_duration": 5, "initial_state": "GREEN"}, 
-        {"type": "vertical", "red_duration": 3, "yellow_duration": 2, "green_duration": 6, "initial_state": "RED"}, 
+        {"type": "horizontal", "red_duration": 3, "yellow_duration": 2, "green_duration": 5, "initial_state": "GREEN"}, 
+        {"type": "vertical", "red_duration": 3, "yellow_duration": 2, "green_duration": 5, "initial_state": "RED"}, 
         {"id": "light_0", "node_position": "node_14", "identifier": "horizontal"}, 
         {"id": "light_1", "node_position": "node_12", "identifier": "vertical"}, 
         {"id": "light_2", "node_position": "node_10", "identifier": "horizontal"}, 

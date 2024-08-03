@@ -52,13 +52,10 @@ class TrafficLight:
     prev_dt: int
 
     def __init__(self, id: str, node_pos: Node, identifier: str) -> None:
-        # if not isinstance(initial_state, TrafficState):
-        #     raise ValueError("initial_state must be an instance of TrafficState")
-        # self.state = initial_state
         self.id = id
         self.node = node_pos
         self.identifier = identifier
-        self.state = TrafficState.GREEN
+        self.state = TrafficState.GREEN # will be changed by traffic_master according to the identifier/type
         self.time_in_state = 0 # set later by traffic_master
         self.cycle_duration = 0 # set later by traffic_master
         self.time_to_switch = {} # set later by traffic_master
@@ -66,8 +63,6 @@ class TrafficLight:
 
 def next_state(traffic_light: TrafficLight):
     traffic_light.state = traffic_light.state.next()
-    # new_state = get_state(traffic_light)
-    # change_state(traffic_light.edge, new_state)
     reset_time_in_state(traffic_light)
 
 def reset_time_in_state(traffic_light: TrafficLight):
@@ -86,16 +81,3 @@ def set_cycle_dur(traffic_light: TrafficLight, duration: int):
 
 def set_tts(traffic_light: TrafficLight, tts: dict[TrafficState, int]):
     traffic_light.time_to_switch = tts
-
-# def change_state(edge: Edge, state:TrafficState):
-#     edge.traffic_state = state
-
-# def get_state(edge: Edge):
-#     return edge.traffic_state
-
-    # def run(self):
-    #     """Simulates the traffic light running through its states."""
-    #     while True:
-    #         time.sleep(self.state.value)
-    #         self.next_state()
-

@@ -55,9 +55,3 @@ def get_length(edge: Edge) -> float:
         return theta * radius
 
     raise TypeError("get_length returned None.")
-
-# def change_state(edge: Edge, state:TrafficState):
-#         edge.traffic_state = state
-
-# def get_state(edge: Edge):
-#     return edge.traffic_state

@@ -137,7 +137,7 @@ def load_vehicles(loaded_vehicles: object, vehicles: list[Vehicle], route_dict: 
     return vehicle_dict
 
 def load_traffic_lights(loaded_lights: object, traffic_types: list[tuple], traffic_lights: list[TrafficLight], node_dict: dict[str, Node]) -> tuple[dict[str, tuple], dict[str, TrafficLight]]:
-    """Return id -> TrafficLight dictionary from the traffic_lights json object. Also populates traffic_lights list."""
+    """Return id -> Tuple of dictionary of types of traffic lights and their attributes, and dictionary of traffight lights."""
     light_dict, type_dict = {}, {}
     for obj in loaded_lights:
         if obj.get("type"):
@@ -153,6 +153,5 @@ def load_traffic_lights(loaded_lights: object, traffic_types: list[tuple], traff
                 raise KeyError(f"Identifier '{obj['identifier']}' not found in type_dict")
             new_light = TrafficLight(obj["id"], node_dict[obj["node_position"]], obj["identifier"])
             light_dict[obj["id"]] = new_light
-            # new_light.time_to_switch = list(itertools.accumulate(type_dict[obj["identifier"]][1:-1]))
             traffic_lights.append(new_light)
     return type_dict, light_dict

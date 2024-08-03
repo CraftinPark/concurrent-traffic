@@ -133,10 +133,7 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
 
         if standard_traffic:
             # traffic_master.sequence()
-            t_master_event_loop(traffic_master, time_elapsed) # change the details of each traffic light.
-        
-        # since there's no "command" like vehicles, t_master_event_loop will directly change the states of each traffic light
-        # for traffic_light in traffic_lights:
+            t_master_event_loop(traffic_master, time_elapsed) # change the details of each traffic light
 
         # vehicle removal 
         for vehicle in vehicles:

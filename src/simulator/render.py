@@ -105,15 +105,6 @@ def render_world(screen: Surface, nodes: list[Node], edges: list[Edge], route_vi
     render_border(screen)
     # render_scenery()
 
-# def render_traffic_master(screen: Surface, traffic_master: TrafficMaster, dt: int) -> None:
-#     """Render function for TrafficMaster that controls all the TrafficLights."""
-
-#     for type_list in traffic_master.traffic_lights:
-#         for light in type_list:
-#             light_position = world_to_screen_vector(screen, light.node.position, zoom_factor)
-#             color = light.get_state().get_color()
-#             pygame.draw.circle(screen, color, light_position, 1)
-
 def render_traffic_lights(screen: Surface, traffic_master: TrafficMaster) -> None:
     """Render function for TrafficMaster that controls all the TrafficLights."""
     for type_list, lights in traffic_master.traffic_lights.items():
