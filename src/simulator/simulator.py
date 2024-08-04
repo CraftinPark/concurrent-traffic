@@ -123,10 +123,9 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
         for vehicle in vehicles:
             vehicle_event_loop(vehicle, time_elapsed)
 
-        # standard_traffic = True
-        # if standard_traffic:
-        #     for vehicle in vehicles:
-        #         driver_traffic_update_command(vehicle)
+        standard_traffic = True
+        if standard_traffic:
+            driver_traffic_update_command(vehicles, time_elapsed)
 
         # vehicle removal 
         for vehicle in vehicles:
