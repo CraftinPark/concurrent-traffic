@@ -74,7 +74,7 @@ def update_cmd(old_cmd: Command, t: np.array, a: np.array, elapsed_time: float=0
     del_index = None
     for i in range(len(old_cmd.accel_func.x)):
         if old_cmd.accel_func.x[i] >= elapsed_time:
-            print(i, len(old_cmd.accel_func.x))
+            # print(i, len(old_cmd.accel_func.x))
             del_index = i
             break
 
@@ -145,7 +145,7 @@ def update_driver_lead(vehicles: list) -> None:
         distance_curr_lv = np.linalg.norm(curr_lv_wp - tv_wp) if curr_lv else None
 
         for j, potential_lv in enumerate(vehicles):
-            if i != j:  # Avoid comparing the vehicle with itself
+            if i == j:  # Avoid comparing the vehicle with itself
                 continue
 
             if tv.route_position > potential_lv.route_position:
@@ -164,7 +164,7 @@ def update_driver_lead(vehicles: list) -> None:
         # if this is the last iteration, and the vehicle is greater than 30 meters,
         # the leading vehicle will be set to None, regardless of closer cars
         # This issue is resolved
-        if distance_curr_lv > MIN_LEADING_DIST and tv.leading_vehicle == curr_lv:
+        if distance_curr_lv is None or distance_curr_lv > MIN_LEADING_DIST:
             tv.leading_vehicle = None
         else:
             tv.leading_vehicle = curr_lv
