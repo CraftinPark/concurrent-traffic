@@ -1,20 +1,16 @@
 {
   "stored_vehicles": [
-    {"id": "vehicle_0", "name": "Toyota", "route": "route_0", "route_position": 10, "velocity": 8},
-    {"id": "vehicle_1", "name": "Honda", "route": "route_1", "route_position": 20, "velocity": 8}, 
+    {"id": "vehicle_0", "name": "Porsche 911", "route": "route_0", "route_position": 10, "velocity": 8},
+    {"id": "vehicle_1", "name": "Koenigsegg", "route": "route_1", "route_position": 20, "velocity": 8}, 
     {"id": "vehicle_2", "name": "Ford", "route": "route_2", "route_position": 30, "velocity": 8},
-    {"id": "vehicle_3", "name": "Chevrolet", "route": "route_3", "route_position": 40, "velocity": 8},
-    {"id": "vehicle_4", "name": "Nissan", "route": "route_4", "route_position": 50, "velocity": 8}, 
-    {"id": "vehicle_5", "name": "BMW", "route": "route_5", "route_position": 60, "velocity": 8}, 
-    {"id": "vehicle_6", "name": "Mercedes-Benz", "route": "route_6", "route_position": 70, "velocity": 8}, 
+    {"id": "vehicle_4", "name": "McLaren", "route": "route_4", "route_position": 50, "velocity": 8}, 
+    {"id": "vehicle_5", "name": "BMW", "route": "route_5", "route_position": 60, "velocity": 8},
     {"id": "vehicle_7", "name": "Audi", "route": "route_7", "route_position": 80, "velocity": 8},
     {"id": "vehicle_8", "name": "Toyota", "route": "route_0", "route_position": 40, "velocity": 8},
-    {"id": "vehicle_9", "name": "Honda", "route": "route_1", "route_position": 70, "velocity": 8}, 
-    {"id": "vehicle_10", "name": "Ford", "route": "route_2", "route_position": 0, "velocity": 8},
-    {"id": "vehicle_11", "name": "Chevrolet", "route": "route_3", "route_position": 0, "velocity": 8},
+    {"id": "vehicle_9", "name": "Buggati", "route": "route_1", "route_position": 70, "velocity": 8}, 
+    {"id": "vehicle_11", "name": "Lamboughini Reventon", "route": "route_3", "route_position": 0, "velocity": 8},
     {"id": "vehicle_12", "name": "Nissan", "route": "route_4", "route_position": 90, "velocity": 8}, 
-    {"id": "vehicle_13", "name": "BMW", "route": "route_5", "route_position": 0, "velocity": 8}, 
-    {"id": "vehicle_14", "name": "Mercedes-Benz", "route": "route_6", "route_position": 0, "velocity": 8}, 
+    {"id": "vehicle_13", "name": "Ferrari", "route": "route_5", "route_position": 0, "velocity": 8},
     {"id": "vehicle_15", "name": "Audi", "route": "route_7", "route_position": 0, "velocity": 8}    
   ],
 

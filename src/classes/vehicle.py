@@ -133,40 +133,38 @@ def driver_traffic_update_command(vehicles: list, cur_time: float) -> None:
             
             vehicle.command = update_cmd(vehicle.command, new_t, new_a, cur_time)
             
+MIN_LEADING_DIST = 30
+
 def update_driver_lead(vehicles: list) -> None:
-    for i, current_vehicle in enumerate(vehicles):
-        for j, other_vehicle in enumerate(vehicles):
+
+    max_angle_diff = 80
+    for i, tv in enumerate(vehicles):
+        curr_lv = tv.leading_vehicle
+        curr_lv_wp = route_position_to_world_position(curr_lv.route, curr_lv.route_position) if curr_lv else None
+        tv_wp = route_position_to_world_position(tv.route, tv.route_position)
+        distance_curr_lv = np.linalg.norm(curr_lv_wp - tv_wp) if curr_lv else None
+
+        for j, potential_lv in enumerate(vehicles):
             if i != j:  # Avoid comparing the vehicle with itself
-                
-                 # determine trailing and leading vehicle
-                if current_vehicle.route_position > other_vehicle.route_position:
-                    leading_vehicle = current_vehicle
-                    trailing_vehicle = other_vehicle
-                else:
-                    leading_vehicle = other_vehicle
-                    trailing_vehicle = current_vehicle
-                    
-                leading_vehicle_wp = route_position_to_world_position(leading_vehicle.route, leading_vehicle.route_position)
-                trailing_vehicle_wp = route_position_to_world_position(trailing_vehicle.route, trailing_vehicle.route_position)
-               
-                distance_between_vehicle = np.linalg.norm(leading_vehicle_wp-trailing_vehicle_wp)
-                
-                max_angle_diff = 80
-                if distance_between_vehicle > 30 or abs(current_vehicle.direction_angle - other_vehicle.direction_angle) > max_angle_diff:
-                    if trailing_vehicle.leading_vehicle == leading_vehicle:
-                        trailing_vehicle.leading_vehicle = None
-                    continue
-                
-                else:
-                    # if trailing_vehicle.leading_vehicle exists, determine if current or previous leading_vehicle is closer to the trailing_vehicle
-                    prev_leading_vehicle = trailing_vehicle.leading_vehicle    
-                    if prev_leading_vehicle:
-                
-                        prev_leading_vehicle_wp = route_position_to_world_position(prev_leading_vehicle.route, prev_leading_vehicle.route_position)
-                        
-                        if np.linalg.norm(trailing_vehicle_wp-prev_leading_vehicle_wp) > np.linalg.norm(trailing_vehicle_wp-leading_vehicle_wp):
-                            # determined that the new leading vehicle is closer -> update trailing vehicle's leading vehicle
-                            trailing_vehicle.leading_vehicle = leading_vehicle
-                    else:
-                        trailing_vehicle.leading_vehicle = leading_vehicle
-        
+                continue
+
+            if tv.route_position > potential_lv.route_position:
+                continue
+
+            if abs(tv.direction_angle - potential_lv.direction_angle) > max_angle_diff:
+                continue
+
+            potential_lv_wp = route_position_to_world_position(potential_lv.route, potential_lv.route_position)
+            distance_potential_lv = np.linalg.norm(potential_lv_wp - tv_wp)
+            
+            if distance_curr_lv is None or distance_potential_lv < distance_curr_lv:
+                curr_lv = potential_lv
+                distance_curr_lv = distance_potential_lv
+
+        # if this is the last iteration, and the vehicle is greater than 30 meters,
+        # the leading vehicle will be set to None, regardless of closer cars
+        # This issue is resolved
+        if distance_curr_lv > MIN_LEADING_DIST and tv.leading_vehicle == curr_lv:
+            tv.leading_vehicle = None
+        else:
+            tv.leading_vehicle = curr_lv
