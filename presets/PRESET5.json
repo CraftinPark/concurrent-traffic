@@ -66,6 +66,15 @@
     {"id": "route_2", "source": "edge_5", "intermediate": ["edge_16"], "target": "edge_2", "comment": "left from north"},
     {"id": "route_3", "source": "edge_7", "intermediate": ["edge_19"], "target": "edge_4", "comment": "left from west"}
   ], 
+
+  "traffic_lights": [ 
+        {"type": "horizontal", "red_duration": 3, "yellow_duration": 2, "green_duration": 5, "initial_state": "GREEN"}, 
+        {"type": "vertical", "red_duration": 3, "yellow_duration": 2, "green_duration": 5, "initial_state": "RED"}, 
+        {"id": "light_0", "node_position": "node_14", "identifier": "horizontal"}, 
+        {"id": "light_1", "node_position": "node_12", "identifier": "vertical"}, 
+        {"id": "light_2", "node_position": "node_10", "identifier": "horizontal"}, 
+        {"id": "light_3", "node_position": "node_8", "identifier": "vertical"}
+  ],
   
   "manager": {
     "position": [0, 0],

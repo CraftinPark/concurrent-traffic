@@ -3,6 +3,7 @@ from classes.route import Route
 from classes.node import Node
 from classes.edge import Edge, StraightEdge, CircularEdge
 from classes.vehicle import Vehicle
+from standard_traffic.traffic_light import TrafficLight, TrafficState
 import sympy
 from sympy import Point2D
 from itertools import combinations
@@ -77,7 +78,7 @@ def load_edges(loaded_edges: object, edges: list[Edge], node_dict: dict[str, Nod
         if edge["id"] in edge_dict:
             raise ValueError(f"Duplicate edge ID found: {edge['id']}")
         if edge.get("center"):
-            new_edge = CircularEdge(edge["id"], node_dict[edge["source"]], node_dict[edge["target"]], np.array(edge["center"]), edge["clockwise"])
+            new_edge = CircularEdge(edge["id"], node_dict[edge["source"]], node_dict[edge["target"]], np.array(edge["center"]), clockwise=edge["clockwise"])
         else:
             new_edge = StraightEdge(edge["id"], node_dict[edge["source"]], node_dict[edge["target"]])
         edge_dict[edge["id"]] = new_edge
@@ -133,5 +134,24 @@ def load_vehicles(loaded_vehicles: object, vehicles: list[Vehicle], route_dict: 
         new_vehicle = Vehicle(v["id"], v["name"], route_dict[v["route"]], v["route_position"], v["velocity"], 0, 2.23, 4.90, 1.25, 'assets/sedan.png')
         vehicle_dict[v["id"]] = new_vehicle
         vehicles.append(new_vehicle)
+    return vehicle_dict
 
-
+def load_traffic_lights(loaded_lights: object, traffic_types: list[tuple], traffic_lights: list[TrafficLight], node_dict: dict[str, Node]) -> tuple[dict[str, tuple], dict[str, TrafficLight]]:
+    """Return id -> Tuple of dictionary of types of traffic lights and their attributes, and dictionary of traffight lights."""
+    light_dict, type_dict = {}, {}
+    for obj in loaded_lights:
+        if obj.get("type"):
+            if obj["type"] in type_dict:
+                raise ValueError(f"Duplicate traffic type found: {obj['type']}")
+            type = (obj["type"], obj["red_duration"], obj["yellow_duration"], obj["green_duration"], TrafficState[obj["initial_state"]])
+            type_dict[obj["type"]] = type
+            traffic_types.append(type)
+        else:
+            if obj["id"] in light_dict:
+                raise ValueError(f"Duplicate traffic_light ID found: {obj['id']}")
+            if obj["identifier"] not in type_dict:
+                raise KeyError(f"Identifier '{obj['identifier']}' not found in type_dict")
+            new_light = TrafficLight(obj["id"], node_dict[obj["node_position"]], obj["identifier"])
+            light_dict[obj["id"]] = new_light
+            traffic_lights.append(new_light)
+    return type_dict, light_dict
