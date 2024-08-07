@@ -144,16 +144,6 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
         if collision_check == True:
             is_run = False
 
-            for x in range(2): 
-                y = 0  
-                vehicle_screen_width = world_to_screen_scalar(screen, vehicle.width, zoom_factor)
-                vehicle_screen_length = world_to_screen_scalar(screen, vehicle.length, zoom_factor)
-                car_hue = pygame.Surface((vehicle_screen_width, vehicle_screen_length))
-                car_hue.fill((255, 0, 0))
-                car_hue.set_alpha(100)
-                screen.blit(car_hue, (vehicle_position[0][0], vehicle_position[0][1]), special_flags=pygame.BLEND_RGBA_MULT)
-                y += 1
-
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False

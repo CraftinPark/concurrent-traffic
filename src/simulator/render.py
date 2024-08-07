@@ -73,7 +73,8 @@ def render_vehicles(screen: Surface, vehicles: list[Vehicle]) -> None:
         car_rect = img.get_rect()
         car_rect.center = vehicle_center_screen_pos
         screen.blit(img, car_rect)
-        pygame.draw.circle(screen, "red", vehicle_center_screen_pos, CAR_COLLISION_DISTANCE * 2, 1)
+        car_collision_screen_distance = world_to_screen_scalar(screen, CAR_COLLISION_DISTANCE/2, zoom_factor)
+        pygame.draw.circle(screen, "red", vehicle_center_screen_pos, car_collision_screen_distance, 1)
         vehicle_text_font = pygame.font.SysFont('Consolas', 12)
         text_surface = vehicle_text_font.render(vehicle.name, True, (139, 69, 19))
         screen.blit(text_surface, (car_rect.center[0]-(vehicle_text_font.size(vehicle.name)[0])/2, car_rect.center[1]-vehicle_screen_length))
@@ -117,7 +118,7 @@ def render_manager(screen: Surface, manager: Manager) -> None:
     
     for i, vehicle in enumerate(manager.vehicles):
         font = pygame.font.SysFont('Segoe UI', 15)
-        text_surface = font.render(f"id: {vehicle.id}, pos: {vehicle.route_position:.2f}, accel: {vehicle.acceleration:.2f}, stamps: {vehicle.command.accel_func.x}", True, (0, 0, 0))
+        text_surface = font.render(f"name: {vehicle.name}, pos: {vehicle.route_position:.2f}, accel: {vehicle.acceleration:.2f}, stamps: {vehicle.command.accel_func.x}", True, (0, 0, 0))
         screen.blit(text_surface, (5,i*20 + 5))
 
 def render_time(screen: Surface, time_elapsed) -> None: 
