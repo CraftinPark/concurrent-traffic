@@ -20,10 +20,10 @@ from classes.button import Button
 from manager.manager import Manager, manager_event_loop, reset, detect_collisions
 from classes.node import Node
 from classes.edge import Edge
-from classes.route import Route
+from classes.route import Route, route_position_to_world_position
 from .render import render_world, render_manager, render_vehicles, render_toolbar, render_title, set_zoomed_render
 from .update import update_world
-from .helper import scroll_handler
+from .helper import scroll_handler, world_to_screen_scalar
 
 def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: list[Edge], routes: list[Route], intersection_points, manager: Manager) -> None:
     """Initializes and runs the pygame simulator. Requires initialization of lanes, manager, vehicles."""
@@ -139,14 +139,20 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
             update_world(delta_time * playback_speed_factor, vehicles)
             time_elapsed += delta_time * playback_speed_factor
 
-        collision_check, car_info = detect_collisions(manager, vehicles, delta_time, time_elapsed)
+        collision_check, vehicle_position = detect_collisions(manager, vehicles, delta_time, time_elapsed)
 
         if collision_check == True:
             is_run = False
 
-            var = pygame.PixelArray('assets/sedan.png')
-            var.replace((255,255,255), (255,0,0))
-            del var
+            for x in range(2): 
+                y = 0  
+                vehicle_screen_width = world_to_screen_scalar(screen, vehicle.width, zoom_factor)
+                vehicle_screen_length = world_to_screen_scalar(screen, vehicle.length, zoom_factor)
+                car_hue = pygame.Surface((vehicle_screen_width, vehicle_screen_length))
+                car_hue.fill((255, 0, 0))
+                car_hue.set_alpha(100)
+                screen.blit(car_hue, (vehicle_position[0][0], vehicle_position[0][1]), special_flags=pygame.BLEND_RGBA_MULT)
+                y += 1
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:

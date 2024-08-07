@@ -140,6 +140,7 @@ def detect_collisions(manager: Manager, vehicles: list[Vehicle], delta_time: flo
 
     for vehicle in vehicles:
         vehicle.route_position = route_position_at_time(vehicle, delta_time, cur_time)
+        car_position = []
     
         for vehicle_pair in vehicle_pairs:
             wp0 = route_position_to_world_position(vehicle_pair[0].route, vehicle.route_position)
@@ -149,6 +150,7 @@ def detect_collisions(manager: Manager, vehicles: list[Vehicle], delta_time: flo
             if distance <= CAR_COLLISION_DISTANCE:
                 collision = True
                 car_info = [vehicle_pair[0].name, vehicle_pair[1].name, cur_time]
+                car_position = np.array([wp0, wp1])
                 print(f"Collision detected between {car_info[0]} and {car_info[1]} at time: {car_info[2]}")
 
-    return collision, car_info
+    return collision, car_position
