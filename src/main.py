@@ -43,10 +43,6 @@ def main() -> None:
     manager, nodes, curr_edges, routes, vehicles = load_preset(preset_name)
     intersection_points = get_intersections(routes)
     run_simulation(vehicles, nodes, curr_edges, routes, intersection_points, manager)
-    
-    if(verbose):
-        print(manager.events)
-        #TODO: gotta log in a file as well
 
 def load_preset(file_path: str) -> tuple[Manager, list[Node], list[Edge], list[Route], list[Vehicle]]:
     with open(file_path, 'r') as file:
