@@ -1,0 +1,4 @@
+2024-08-07 01:28:47,515 - Logging is enabled for preset: PRESET1.json
+2024-08-07 01:28:51,397 - Command sent to Toyota(vehicle_0) | T: [3.759 4.759 6.759], A: [3 2 3]
+2024-08-07 01:28:51,397 - Command sent to Honda(vehicle_1) | T: [3.759 6.759 8.759], A: [ 1 -2  3]
+2024-08-07 01:28:51,399 - Collision between Toyota(vehicle_0) and Honda(vehicle_1) at time 19.75899497080356

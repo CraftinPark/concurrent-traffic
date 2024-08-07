@@ -1,6 +1,8 @@
 import sys
 import numpy as np
 import json
+import logging
+from datetime import datetime
 
 from manager.manager import Manager
 from classes.node import Node
@@ -24,8 +26,20 @@ def main() -> None:
     
     preset_name = sys.argv[1]
     if verbose:
-        print(f"Logging is enabled for preset: {preset_name}")
-    
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        logging.basicConfig(
+            level=logging.DEBUG,
+            # More info can be provided to logger, example: format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'  
+            format='%(asctime)s - %(message)s',
+            handlers=[
+                logging.FileHandler(f"logs/events-{timestamp}.log"), # To overwrite same log file: logging.FileHandler('vehicle_manager.log', w)
+                logging.StreamHandler()
+            ]
+        )
+        logging.info(f"Logging is enabled for preset: {preset_name}")
+    else:
+        logging.basicConfig(level=logging.CRITICAL)
+
     manager, nodes, curr_edges, routes, vehicles = load_preset(preset_name)
     intersection_points = get_intersections(routes)
     run_simulation(vehicles, nodes, curr_edges, routes, intersection_points, manager)
