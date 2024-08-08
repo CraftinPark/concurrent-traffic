@@ -12,7 +12,6 @@ from classes.route import Route
 from classes.vehicle import Vehicle
 from simulator.simulator import run_simulation
 from helper import get_intersections, load_nodes, load_edges, load_routes, load_vehicles
-import argparse
 
 def main() -> None:
     verbose = False
