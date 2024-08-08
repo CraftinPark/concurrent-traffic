@@ -3,6 +3,7 @@ import numpy as np
 import json
 import logging
 from datetime import datetime
+import os
 
 from manager.manager import Manager
 from classes.node import Node
@@ -27,12 +28,14 @@ def main() -> None:
     preset_name = sys.argv[1]
     if verbose:
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        log_dir = 'logs'
+        os.makedirs(log_dir, exist_ok=True)
         logging.basicConfig(
             level=logging.DEBUG,
             # More info can be provided to logger, example: format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'  
-            format='%(asctime)s - %(message)s',
+            format='%(message)s',
             handlers=[
-                logging.FileHandler(f"logs/events-{timestamp}.log"), # To overwrite same log file: logging.FileHandler('vehicle_manager.log', w)
+                logging.FileHandler(os.path.join(log_dir, f"events-{timestamp}.log")), # To overwrite same log file: logging.FileHandler('vehicle_manager.log', w)
                 logging.StreamHandler()
             ]
         )

@@ -95,7 +95,7 @@ def get_collisions(manager: Manager, cur_time: float) -> list[Collision]:
                 delta0 = vehicle_pair[0].route.total_length - route_position_at_delta_time(vehicle_pair[0], time_of_collision - cur_time, cur_time)
                 delta1 = vehicle_pair[1].route.total_length - route_position_at_delta_time(vehicle_pair[1], time_of_collision - cur_time, cur_time)
                 collisions.append(Collision(vehicle_pair[0], vehicle_pair[1], delta0, delta1, time_of_collision))
-                manager.logger.info(f"Collision predicted between {vehicle_pair[0].name}({vehicle_pair[0].id}) and {vehicle_pair[1].name}({vehicle_pair[1].id}) at time {time_of_collision}")
+                manager.logger.info(f"{cur_time} - Collision predicted between {vehicle_pair[0].name}({vehicle_pair[0].id}) and {vehicle_pair[1].name}({vehicle_pair[1].id}) at time {time_of_collision}")
     return collisions
 
 def get_collisions_between_two_vehicles(vehicle0: Vehicle, vehicle1: Vehicle, cur_time: float) -> Collision | None:
@@ -236,7 +236,7 @@ def _compute_and_send_acceleration_commands(manager: Manager, elapsed_time: floa
                 print("failed to deter collision, exit loop")
                 break
         print(f"detered collision on {attempts_to_deter_collision} attempt, proposed acc_dur: {proposed_acceleration_duration}")
-        manager.logger.info(f"Command sent to {lower_priority_vehicle.name}({lower_priority_vehicle.id}) | T: {t}, A: {a}")
+        manager.logger.info(f"{elapsed_time} - Command sent to {lower_priority_vehicle.name}({lower_priority_vehicle.id}) | T: {t}, A: {a}")
         manager.vehicles.sort(key=lambda v: v.route_position, reverse=True)
         collisions = get_collisions(manager, elapsed_time)
 
