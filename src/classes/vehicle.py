@@ -1,3 +1,4 @@
+from __future__ import annotations
 import numpy as np
 import pygame
 from pygame import Surface
@@ -20,24 +21,25 @@ class Vehicle:
     pivot_distance: float     = 1.25            # float representing distance from pivot to center.
     image: Surface
 
+    spawn_at: int             = 0               # the time (in sec) the vehicle enters into the pygame visualizer
+
     command: Command          = Command(np.array([0]), np.array([0]))             # Command
 
     def __init__(self,
                  name: str,
                  id: int,
                  route: Route,
-                 route_position: float,
                  velocity: float,
                  acceleration: float,
                  width: float,
                  length: float,
                  pivot_distance: float,
                  image_source: str,
-                 ) -> None:
+                 spawn_at: int,
+                 route_position: float) -> None:
         self.id = id
         self.name = name
         self.route = route
-        self.route_position = route_position
         self.velocity = velocity
         self.acceleration = acceleration
         self.width = width
@@ -45,6 +47,14 @@ class Vehicle:
         self.pivot_distance = pivot_distance
         self.image_source = image_source
         self.image = pygame.image.load(self.image_source)
+        self.spawn_at = spawn_at
+        self.route_position = route_position
+    
+    def __lt__(self, other: Vehicle):  # used for sorting scheduled_vehicles list
+        return self.spawn_at < other.spawn_at
+    
+    def __repr__(self):
+        return self.name
 
 # helpers
 
@@ -58,11 +68,11 @@ class Vehicle:
 
 def vehicle_copy(vehicles: list[Vehicle]) -> list[Vehicle]:
     """Return a deep copy of a list of Vehicles."""
-    return [Vehicle(v.id, v.name, v.route, v.route_position, v.velocity, v.acceleration, v.width, v.length, v.pivot_distance, v.image_source) for v in vehicles]
+    return [Vehicle(v.id, v.name, v.route, v.velocity, v.acceleration, v.width, v.length, v.pivot_distance, v.image_source, v.spawn_at, v.route_position) for v in vehicles]
   
 def vehicle_event_loop(vehicle: Vehicle, delta_time: float) -> None:
     """Event loop for Vehicle."""
-    vehicle.acceleration = vehicle.command(delta_time)
+    vehicle.acceleration = vehicle.command(delta_time - vehicle.spawn_at)
 
 def update_cmd(old_cmd: Command, t: np.array, a: np.array, elapsed_time: float=0) -> Command:
     """Return new Command, a concatenation of the old_cmd and new acceleration-time calculations."""

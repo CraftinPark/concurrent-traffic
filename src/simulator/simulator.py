@@ -15,17 +15,26 @@ WORLD_HEIGHT = 160
 
 import pygame
 
-from classes.vehicle import Vehicle, vehicle_event_loop, vehicle_copy, driver_traffic_update_command
+from classes.vehicle import Vehicle, vehicle_event_loop, vehicle_copy, driver_traffic_update_command, update_cmd
 from classes.button import Button
 from manager.manager import Manager, manager_event_loop, reset
 from classes.node import Node
 from classes.edge import Edge
 from classes.route import Route
+<<<<<<< Updated upstream
 from .render import render_world, render_manager, render_vehicles, render_toolbar, render_title, set_zoomed_render
+from .update import update_world, update_scheduled_vehicles
+=======
+from standard_traffic.traffic_light import TrafficLight
+from standard_traffic.traffic_master import TrafficMaster, t_master_event_loop
+from .render import render_world, render_manager, render_vehicles, render_toolbar, render_title, set_zoomed_render, render_traffic_lights
 from .update import update_world
+>>>>>>> Stashed changes
 from .helper import scroll_handler
+from manager.command import Command
+import numpy as np
 
-def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: list[Edge], routes: list[Route], intersection_points, manager: Manager) -> None:
+def run_simulation(initial_vehicles: list[Vehicle], scheduled_vehicles: list[Vehicle], nodes: list[Node], edges: list[Edge], routes: list[Route], intersection_points, manager: Manager) -> None:
     """Initializes and runs the pygame simulator. Requires initialization of lanes, manager, vehicles."""
     pygame.init()
     screen = pygame.display.set_mode((ORIGINAL_SCREEN_WIDTH, ORIGINAL_SCREEN_HEIGHT), pygame.RESIZABLE)
@@ -36,9 +45,10 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
     zoom_factor = 1
     playback_speed_factor = 1.0
 
-    vehicles = vehicle_copy(initial_vehicles)
+    active_vehicles = vehicle_copy(initial_vehicles)
     is_run = True
     route_visible = True
+    standard_traffic = True
 
     def toggle_update() -> None:
         """Toggles between resuming or pausing the simulator."""
@@ -47,13 +57,13 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
 
     def restart_func() -> None:
         """Resets the simulator."""
-        nonlocal vehicles
+        nonlocal active_vehicles
         nonlocal clock
         nonlocal delta_time
         nonlocal manager
         nonlocal time_elapsed
 
-        vehicles = vehicle_copy(initial_vehicles)
+        active_vehicles = vehicle_copy(initial_vehicles)
         clock = pygame.time.Clock()
         delta_time = 0
         time_elapsed = 0
@@ -111,32 +121,51 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
 
         # optionally render nodes and edges. for now always on
         render_world(screen, nodes, edges, route_visible, intersection_points)
+<<<<<<< Updated upstream
+=======
+        render_traffic_lights(screen, traffic_master)
+>>>>>>> Stashed changes
         render_manager(screen, manager)
-        render_vehicles(screen, vehicles)
+        render_vehicles(screen, active_vehicles)
         render_toolbar(screen, time_elapsed, buttons)
         render_title(screen)
 
         # manager 'cpu'
-        manager_event_loop(manager, vehicles, time_elapsed)
+        manager_event_loop(manager, active_vehicles, time_elapsed)
 
         # vehicles 'cpu'
-        for vehicle in vehicles:
+        for vehicle in active_vehicles:
             vehicle_event_loop(vehicle, time_elapsed)
 
+<<<<<<< Updated upstream
         # standard_traffic = True
         # if standard_traffic:
         #     for vehicle in vehicles:
         #         driver_traffic_update_command(vehicle)
+=======
+        if standard_traffic:
+            # traffic_master.sequence()
+            t_master_event_loop(traffic_master, time_elapsed) # change the details of each traffic light.
+      
+>>>>>>> Stashed changes
 
         # vehicle removal 
-        for vehicle in vehicles:
+        for vehicle in active_vehicles:
             if vehicle.route_position > vehicle.route.total_length:
-                vehicles.remove(vehicle)
+                active_vehicles.remove(vehicle)
 
         if is_run:
             # physical changes to world (updating positions, velocity, etc.)
-            update_world(delta_time * playback_speed_factor, vehicles)
+            update_world(time_elapsed, active_vehicles, scheduled_vehicles)
             time_elapsed += delta_time * playback_speed_factor
+            for vehicle in scheduled_vehicles:
+                print(time_elapsed, vehicle, vehicle.spawn_at)
+                if time_elapsed > vehicle.spawn_at:
+                    get_vehicle = scheduled_vehicles.pop(0)
+                    get_vehicle.command = Command(np.array([0]), np.array([0]))
+                    # update_cmd(get_vehicle.command, np.array([0]), np.array([0]), time_elapsed - get_vehicle.spawn_at)
+                    active_vehicles.append(get_vehicle)
+                    
             
         # updates the screen
         pygame.display.update()

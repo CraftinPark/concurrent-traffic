@@ -1,10 +1,12 @@
 {
     "initial_vehicles": [   
+      {"id": "vehicle_1", "name": "Toyota", "route": "route_6", "velocity": 8, "route_position": 0},
+      {"id": "vehicle_2", "name": "Mercedes", "route": "route_9", "velocity": 8, "route_position": 0}
     ],
   
     "scheduled_vehicles": [
-      {"id": "vehicle_8", "name": "Cybertruck", "route": "route_6", "velocity": 8, "spawn_at": 1},
-      {"id": "vehicle_9", "name": "P1", "route": "route_9", "velocity": 8, "spawn_at": 5}
+      {"id": "vehicle_8", "name": "Cybertruck", "route": "route_6", "velocity": 8, "spawn_at": 2},
+      {"id": "vehicle_9", "name": "P1", "route": "route_9", "velocity": 8, "spawn_at": 3}
     ],
   
     "nodes": [

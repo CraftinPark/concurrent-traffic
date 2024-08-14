@@ -117,10 +117,12 @@ def get_collisions_between_two_vehicles(vehicle0: Vehicle, vehicle1: Vehicle, cu
 def route_position_at_delta_time(vehicle: Vehicle, delta_time: float, cur_time: float) -> float:
     """Return vehicle's route position along its Route after delta_time seconds has passed."""
 
-    if delta_time == 0:
+    if delta_time == vehicle.spawn_at:
         return vehicle.route_position
     # this allows us to assume that there will always be at least 2 elements in junction_list
 
+    cur_time = cur_time - vehicle.spawn_at
+    print("sasacasdca")
     end_time = cur_time + delta_time
     # A junction is a period of time in which we can assume there is no change to acceleration
     # create junction lists

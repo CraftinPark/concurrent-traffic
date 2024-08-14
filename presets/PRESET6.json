@@ -1,5 +1,5 @@
 {
-  "stored_vehicles": [
+  "initial_vehicles": [
     {"id": "vehicle_0", "name": "Toyota", "route": "route_0", "route_position": 10, "velocity": 8},
     {"id": "vehicle_1", "name": "Honda", "route": "route_1", "route_position": 20, "velocity": 8}, 
     {"id": "vehicle_2", "name": "Ford", "route": "route_2", "route_position": 30, "velocity": 8},

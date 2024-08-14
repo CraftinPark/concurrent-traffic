@@ -1,6 +1,11 @@
 import numpy as np
 from .node import Node
 from sympy import Segment, Circle, Point
+<<<<<<< Updated upstream
+=======
+from standard_traffic.traffic_light import TrafficLight
+from typing import Optional
+>>>>>>> Stashed changes
 
 class Edge():
     """This is an abstract class for Edges. An Edge consists of a start node and an end node."""
@@ -8,17 +13,32 @@ class Edge():
     end: Node = None
     edge_id: str
     sympy_obj: Segment | Circle = None
+<<<<<<< Updated upstream
 
     def __init__(self, edge_id: str, start: Node, end: Node) -> None:
         self.start = start
         self.end = end
         self.edge_id = edge_id
+=======
+    traffic_light: Optional[TrafficLight]
+
+    def __init__(self, edge_id: str, start: Node, end: Node, traffic_light=None) -> None:
+        self.start = start
+        self.end = end
+        self.edge_id = edge_id
+        self.traffic_light = traffic_light
+>>>>>>> Stashed changes
 
 class StraightEdge(Edge):
     """A StraightEdge is an Edge that is linear."""
 
+<<<<<<< Updated upstream
     def __init__(self, edge_id, start: Node, end: Node) -> None:
         Edge.__init__(self, edge_id, start, end)
+=======
+    def __init__(self, edge_id, start: Node, end: Node, traffic_light=None) -> None:
+        Edge.__init__(self, edge_id, start, end, traffic_light)
+>>>>>>> Stashed changes
         self.sympy_obj = Segment(Point(start.position[0], start.position[1]), Point(end.position[0], end.position[1]))
         
 class CircularEdge(Edge):
@@ -27,8 +47,13 @@ class CircularEdge(Edge):
     radius: float
     clockwise: bool
 
+<<<<<<< Updated upstream
     def __init__(self, edge_id: str, start: Node, end: Node, center: np.ndarray, clockwise: bool=False) -> None:
         Edge.__init__(self, edge_id, start, end)
+=======
+    def __init__(self, edge_id: str, start: Node, end: Node, center: np.ndarray, traffic_light=None, clockwise: bool=False) -> None:
+        Edge.__init__(self, edge_id, start, end, traffic_light)
+>>>>>>> Stashed changes
         self.radius = np.linalg.norm(start.position - center)
         self.center = center
         self.clockwise = clockwise

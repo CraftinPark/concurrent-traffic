@@ -6,6 +6,7 @@ from classes.vehicle import Vehicle
 import sympy
 from sympy import Point2D
 from itertools import combinations
+import bisect
 
 def get_intersections(routes: list[Route]) -> set[tuple[int, int, tuple[float, float]]]:
     """Return a set of intersections in the following form: (route1_id, route2_id, (x, y))."""
@@ -124,14 +125,48 @@ def load_routes(loaded_routes: object, routes: list[Route], edge_dict: dict[str,
 
     return route_dict
 
-def load_vehicles(loaded_vehicles: object, vehicles: list[Vehicle], route_dict: dict[str, Vehicle]) -> dict[str, Vehicle]:
+def load_initial_vehicles(loaded_vehicles: object, initial_vehicles: list[Vehicle], route_dict: dict[str, Vehicle]) -> dict[str, Vehicle]:
     """Return id -> Vehicle dictionary from the loaded_vehicle json object. Also populates vehicles list."""
     vehicle_dict = {}
     for v in loaded_vehicles:
         if v["id"] in vehicle_dict:
             raise ValueError(f"Duplicate vehicle ID found: {v['id']}")
-        new_vehicle = Vehicle(v["id"], v["name"], route_dict[v["route"]], v["route_position"], v["velocity"], 0, 2.23, 4.90, 1.25, 'assets/sedan.png')
+        new_vehicle = Vehicle(v["id"], v["name"], route_dict[v["route"]], v["velocity"], 0, 2.23, 4.90, 1.25, 'assets/sedan.png', 0, v["route_position"])
         vehicle_dict[v["id"]] = new_vehicle
-        vehicles.append(new_vehicle)
+        initial_vehicles.append(new_vehicle)
+    return vehicle_dict
 
+def load_scheduled_vehicles(loaded_vehicles: object, initial_vehicles_dict: dict[str, Vehicle], scheduled_vehicles: list[Vehicle], route_dict: dict[str, Vehicle]) -> dict[str, Vehicle]:
+    """Return id -> Vehicle dictionary from the loaded_vehicle json object. Also populates vehicles list."""
+    vehicle_dict = {}
+    for v in loaded_vehicles:
+        if v["id"] in vehicle_dict or v["id"] in initial_vehicles_dict:
+            raise ValueError(f"Duplicate vehicle ID found: {v['id']}")
+        new_vehicle = Vehicle(v["id"], v["name"], route_dict[v["route"]], v["velocity"], 0, 2.23, 4.90, 1.25, 'assets/sedan.png', v["spawn_at"], 0)
+        vehicle_dict[v["id"]] = new_vehicle
+        bisect.insort(scheduled_vehicles, new_vehicle)  # works because added __lt__ in Vehicle class
+    return vehicle_dict
 
+<<<<<<< Updated upstream
+=======
+def load_traffic_lights(loaded_lights: object, traffic_types: list[tuple], traffic_lights: list[TrafficLight], node_dict: dict[str, Node]) -> tuple[dict[str, tuple], dict[str, TrafficLight]]:
+    """Return id -> TrafficLight dictionary from the traffic_lights json object. Also populates traffic_lights list."""
+    light_dict, type_dict = {}, {}
+    for obj in loaded_lights:
+        if obj.get("type"):
+            if obj["type"] in type_dict:
+                raise ValueError(f"Duplicate traffic type found: {obj['type']}")
+            type = (obj["type"], obj["red_duration"], obj["yellow_duration"], obj["green_duration"], TrafficState[obj["initial_state"]])
+            type_dict[obj["type"]] = type
+            traffic_types.append(type)
+        else:
+            if obj["id"] in light_dict:
+                raise ValueError(f"Duplicate traffic_light ID found: {obj['id']}")
+            if obj["identifier"] not in type_dict:
+                raise KeyError(f"Identifier '{obj['identifier']}' not found in type_dict")
+            new_light = TrafficLight(obj["id"], node_dict[obj["node_position"]], obj["identifier"])
+            light_dict[obj["id"]] = new_light
+            # new_light.time_to_switch = list(itertools.accumulate(type_dict[obj["identifier"]][1:-1]))
+            traffic_lights.append(new_light)
+    return type_dict, light_dict
+>>>>>>> Stashed changes
