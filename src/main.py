@@ -49,6 +49,7 @@ def main() -> None:
     intersection_points = get_intersections(routes)
     run_simulation(vehicles, nodes, curr_edges, routes, intersection_points, manager, traffic_master)
 
+
 def load_preset(file_path: str) -> tuple[Manager, TrafficMaster, list[Node], list[Edge], list[Route], list[Vehicle]]:
     with open(file_path, 'r') as file:
         presets = json.load(file)
@@ -56,11 +57,11 @@ def load_preset(file_path: str) -> tuple[Manager, TrafficMaster, list[Node], lis
     nodes, curr_edges, routes, vehicles, t_master_intersections, traffic_lights = [], [], [], [], [], []
         
     node_dict = load_nodes(presets["nodes"], nodes)
-    edge_dict = load_edges(presets['edges'], curr_edges, node_dict)
+    traffic_lights, traffic_dict = load_traffic_lights(presets['traffic_lights'], node_dict)
+    edge_dict = load_edges(presets['edges'], curr_edges, node_dict, traffic_dict)
     route_dict = load_routes(presets['routes'], routes, edge_dict)
     load_vehicles(presets["stored_vehicles"], vehicles, route_dict)
 
-    traffic_lights = load_traffic_lights(presets['traffic_lights'], node_dict)
     traffic_master = TrafficMaster(traffic_lights)
     
     manager_data = presets["manager"]
