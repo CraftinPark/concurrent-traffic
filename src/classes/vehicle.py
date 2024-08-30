@@ -2,7 +2,9 @@ import numpy as np
 import pygame
 from pygame import Surface
 from manager.command import Command
-from classes.route import Route, route_position_to_world_position
+from classes.route import Route, route_position_to_world_position, world_position_to_route_position
+from classes.edge import get_length
+from standard_traffic.traffic_light import get_light_state, TrafficState
 
 class Vehicle:
     """A Vehicle is given commands that it follows along a given route."""
@@ -69,7 +71,7 @@ def vehicle_copy(vehicles: list[Vehicle]) -> list[Vehicle]:
 def vehicle_event_loop(vehicle: Vehicle, delta_time: float) -> None:
     """Event loop for Vehicle."""
     vehicle.acceleration = vehicle.command(delta_time)
-
+            
 def update_cmd(old_cmd: Command, t: np.array, a: np.array, elapsed_time: float=0) -> Command:
     """Return new Command, a concatenation of the old_cmd and new acceleration-time calculations."""
     del_index = None
@@ -124,7 +126,7 @@ def driver_traffic_update_command(vehicles: list, cur_time: float) -> None:
                 continue
             required_deceleration = (final_velocity**2 - initial_velocity**2) / (2 * distance)
             
-            new_t = np.array([cur_time, cur_time + 0.1])
+            new_t = np.array([cur_time, cur_time + 0.01])
             new_a = np.array([required_deceleration, leading_vehicle.acceleration])
             
             vehicle.command = update_cmd(vehicle.command, new_t, new_a, cur_time)
@@ -133,10 +135,56 @@ def driver_traffic_update_command(vehicles: list, cur_time: float) -> None:
             acceleration_distance = 10
             required_deceleration = (vehicle.default_velocity**2 - initial_velocity**2) / (2 * acceleration_distance)
             
-            new_t = np.array([cur_time, cur_time + 0.1])
+            new_t = np.array([cur_time, cur_time + 0.01])
             new_a = np.array([required_deceleration, vehicle.acceleration])   
             
             vehicle.command = update_cmd(vehicle.command, new_t, new_a, cur_time)
+            
+        
+        # for edge in vehicle.route.edges:
+        #     if edge.traffic_light and get_light_state(edge.traffic_light) != TrafficState.GREEN:
+        #         traffic_light_route_position = world_position_to_route_position(vehicle.route, edge, edge.traffic_light.node.position)
+        #         distance_to_traffic_light = abs(vehicle.route_position - traffic_light_route_position) 
+        #         safety_distance = 9
+        #         distance = distance_to_traffic_light - safety_distance
+                
+        #         if traffic_light_route_position < vehicle.route_position:
+        #             continue
+                
+        #         if get_light_state(edge.traffic_light) == TrafficState.RED:
+                    
+        #             required_deceleration = (0**2 - initial_velocity**2) / (2 * (distance + 6))
+                
+        #             new_t = np.array([cur_time, cur_time + 0.01])
+        #             new_a = np.array([required_deceleration, vehicle.acceleration])
+                    
+        #             vehicle.command = update_cmd(vehicle.command, new_t, new_a, cur_time)
+                    
+        #         elif get_light_state(edge.traffic_light) == TrafficState.YELLOW:
+        #             if distance > 0:
+        #                 required_deceleration = (0**2 - initial_velocity**2) / (2 * (distance + 6))
+                    
+        #                 new_t = np.array([cur_time, cur_time + 0.01])
+        #                 new_a = np.array([required_deceleration, vehicle.acceleration])
+                        
+        #                 vehicle.command = update_cmd(vehicle.command, new_t, new_a, cur_time)
+                    
+                
+                
+        # conditions to consider:
+        # red => stop no matter what 
+        # yellow =>
+            # if distance < safety distance => pass
+            # if distance > safety distance => stop
+        # green => nothing happens
+        
+        
+        # TODO: calculate the distance to the stop line 
+        
+        # also think about the future where there will be more than one traffic light for each route
+        # PROBLEM: for loop cycle is too long. by the time the leading car in front slows down cos of TL, the 
+        # trailing car after a delay calculates its deceleration with the car in front in which the safety distance
+        # has already been broken 
             
 MIN_LEADING_DIST = 30
 
@@ -147,8 +195,10 @@ def update_driver_lead(vehicles: list) -> None:
         curr_lv = tv.leading_vehicle
         curr_lv_wp = route_position_to_world_position(curr_lv.route, curr_lv.route_position) if curr_lv else None
         tv_wp = route_position_to_world_position(tv.route, tv.route_position)
+        print(curr_lv_wp)
+        print(tv.name)
+        # print(tv_wp)
         distance_curr_lv = np.linalg.norm(curr_lv_wp - tv_wp) if curr_lv else None
-
         for j, potential_lv in enumerate(vehicles):
             if i == j:  # Avoid comparing the vehicle with itself
                 continue
@@ -158,18 +208,26 @@ def update_driver_lead(vehicles: list) -> None:
 
             if abs(tv.direction_angle - potential_lv.direction_angle) > max_angle_diff:
                 continue
+            
+            
+            potential_lv_wp = route_position_to_world_position(potential_lv.route, potential_lv.route_position) if potential_lv.route else None
+            
+            if potential_lv_wp is None or tv_wp is None:
+                continue
 
-            potential_lv_wp = route_position_to_world_position(potential_lv.route, potential_lv.route_position)
             distance_potential_lv = np.linalg.norm(potential_lv_wp - tv_wp)
             
             if distance_curr_lv is None or distance_potential_lv < distance_curr_lv:
                 curr_lv = potential_lv
                 distance_curr_lv = distance_potential_lv
-
+                
         # if this is the last iteration, and the vehicle is greater than 30 meters,
         # the leading vehicle will be set to None, regardless of closer cars
         # This issue is resolved
+
         if distance_curr_lv is None or distance_curr_lv > MIN_LEADING_DIST:
             tv.leading_vehicle = None
         else:
             tv.leading_vehicle = curr_lv
+
+       
