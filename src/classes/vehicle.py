@@ -126,6 +126,7 @@ def driver_traffic_update_command(vehicles: list, cur_time: float) -> None:
             # this prevents division of negative and 0
             if distance < emergency_distance:
                 vehicle.velocity = 0
+                print(str(vehicle.name) + "has the leading v: " + str(vehicle.leading_vehicle.name))
                 print("Invalid Implement Command Regarding Emergency Distance")
                 continue
             elif distance == safety_distance:
@@ -148,21 +149,36 @@ def driver_traffic_update_command(vehicles: list, cur_time: float) -> None:
             
             vehicle.command = update_cmd(vehicle.command, new_t, new_a, cur_time)
             
-            
-        if leading_vehicle is None:
-            for edge in vehicle.route.edges:
-                if edge.traffic_light:
-                    if get_light_state(edge.traffic_light) != TrafficState.GREEN:
-                        traffic_light_route_position = world_position_to_route_position(vehicle.route, edge, edge.traffic_light.node.position)
-                        distance_to_traffic_light = abs(vehicle.route_position - traffic_light_route_position) 
-                        safety_distance = 9
-                        distance = distance_to_traffic_light - safety_distance
+        for edge in vehicle.route.edges:
+            if edge.traffic_light and leading_vehicle:
+                distance_to_leading_vehicle = abs(vehicle.route_position - leading_vehicle.route_position)
+                
+                traffic_light_route_position = world_position_to_route_position(vehicle.route, edge, edge.traffic_light.node.position)
+                distance_to_traffic_light = abs(vehicle.route_position - traffic_light_route_position) 
+                if distance_to_traffic_light > distance_to_leading_vehicle:
+                    continue
+                
+            if edge.traffic_light:
+                if get_light_state(edge.traffic_light) != TrafficState.GREEN:
+                    traffic_light_route_position = world_position_to_route_position(vehicle.route, edge, edge.traffic_light.node.position)
+                    distance_to_traffic_light = abs(vehicle.route_position - traffic_light_route_position) 
+                    safety_distance = 9
+                    distance = distance_to_traffic_light - safety_distance
+                    
+                    if traffic_light_route_position < vehicle.route_position:
+                        continue
+                    
+                    if get_light_state(edge.traffic_light) == TrafficState.RED:
                         
-                        if traffic_light_route_position < vehicle.route_position:
-                            continue
+                        required_deceleration = (0**2 - initial_velocity**2) / (2 * (distance + 6))
+                    
+                        new_t = np.array([cur_time, cur_time + 0.01])
+                        new_a = np.array([required_deceleration, vehicle.acceleration])
                         
-                        if get_light_state(edge.traffic_light) == TrafficState.RED:
-                            
+                        vehicle.command = update_cmd(vehicle.command, new_t, new_a, cur_time)
+                        
+                    elif get_light_state(edge.traffic_light) == TrafficState.YELLOW:
+                        if distance > 0:
                             required_deceleration = (0**2 - initial_velocity**2) / (2 * (distance + 6))
                         
                             new_t = np.array([cur_time, cur_time + 0.01])
@@ -170,19 +186,12 @@ def driver_traffic_update_command(vehicles: list, cur_time: float) -> None:
                             
                             vehicle.command = update_cmd(vehicle.command, new_t, new_a, cur_time)
                             
-                        elif get_light_state(edge.traffic_light) == TrafficState.YELLOW:
-                            if distance > 0:
-                                required_deceleration = (0**2 - initial_velocity**2) / (2 * (distance + 6))
-                            
-                                new_t = np.array([cur_time, cur_time + 0.01])
-                                new_a = np.array([required_deceleration, vehicle.acceleration])
-                                
-                                vehicle.command = update_cmd(vehicle.command, new_t, new_a, cur_time)
-                            
                             
                 # run a while loop starting form the current edge and loop until a traffic light is found 
                 
                 # if they have no traffic lights, end while loop when no more edges are found ahead
+                
+                # always follow the closest TL or leading vehicle as the trailing vehicle
             
             
         
@@ -213,7 +222,8 @@ def update_driver_lead(vehicles: list) -> None:
     for i, trailing_v in enumerate(vehicles):
         cur_leading_v = trailing_v.leading_vehicle
         cur_leading_v_wp = route_position_to_world_position(cur_leading_v.route, cur_leading_v.route_position) if cur_leading_v else None
-        if cur_leading_v_wp is None:
+        if cur_leading_v is not None and cur_leading_v_wp is None:
+            trailing_v.leading_vehicle = None
             continue
         trailing_v_wp = route_position_to_world_position(trailing_v.route, trailing_v.route_position)
         if trailing_v_wp is None:
