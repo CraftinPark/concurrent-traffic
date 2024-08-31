@@ -213,6 +213,8 @@ def update_driver_lead(vehicles: list) -> None:
     for i, trailing_v in enumerate(vehicles):
         cur_leading_v = trailing_v.leading_vehicle
         cur_leading_v_wp = route_position_to_world_position(cur_leading_v.route, cur_leading_v.route_position) if cur_leading_v else None
+        if cur_leading_v_wp is None:
+            continue
         trailing_v_wp = route_position_to_world_position(trailing_v.route, trailing_v.route_position)
         if trailing_v_wp is None:
             continue
