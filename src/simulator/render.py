@@ -4,7 +4,7 @@ from pygame import Surface
 from classes.vehicle import Vehicle
 from classes.node import Node
 from classes.edge import Edge, StraightEdge, CircularEdge
-from classes.route import route_position_to_world_position, direction_at_route_position
+from classes.route import route_position_to_world_position
 from standard_traffic.traffic_master import TrafficMaster
 from standard_traffic.traffic_light import get_color, get_light_state
 from manager.manager import Manager, CAR_COLLISION_DISTANCE
@@ -71,10 +71,8 @@ def render_vehicles(screen: Surface, vehicles: list[Vehicle]) -> None:
         if vehicle_center_point is None: # this vehicle is out of its route and returns no position
             continue
         vehicle_center_screen_pos = world_to_screen_vector(screen, vehicle_center_point, zoom_factor)
-        img = pygame.transform.smoothscale(vehicle.image, (vehicle_screen_length, vehicle_screen_width))
-        vehicle_angle = direction_at_route_position(vehicle.route, vehicle.route_position)
-        vehicle.direction_angle = vehicle_angle
-        img = pygame.transform.rotate(img, vehicle_angle)
+        imgNoRotation = pygame.transform.smoothscale(vehicle.image, (vehicle_screen_length, vehicle_screen_width))
+        img = pygame.transform.rotate(imgNoRotation, vehicle.direction_angle)
 
         if vehicle.collided == True:
             # gets size of image, creates a surface, and fills with with translucent red
