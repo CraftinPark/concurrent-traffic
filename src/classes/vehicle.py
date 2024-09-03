@@ -94,15 +94,15 @@ def driver_traffic_update_command(vehicles: list, cur_time: float) -> None:
 
     for vehicle in vehicles:
         if vehicle.leading_vehicle:
-            handle_leading_vehicle(vehicle, cur_time)
+            drive_vehicle_with_leading(vehicle, cur_time)
         # only accelerate when the vehicle is on a StraightEdge
         elif vehicle.direction_angle % 90 == 0:
-            handle_no_leading_vehicle(vehicle, cur_time)
+            drive_vehicle_without_leading(vehicle, cur_time)
 
         check_traffic_lights(vehicle, cur_time)
 
 
-def handle_leading_vehicle(vehicle, cur_time: float) -> None:
+def drive_vehicle_with_leading(vehicle, cur_time: float) -> None:
     """Handle the case where there is a leading vehicle."""
     
     # we want to stop the car "Safety Distance" away from leading car
@@ -128,7 +128,7 @@ def handle_leading_vehicle(vehicle, cur_time: float) -> None:
     vehicle.command = update_cmd(vehicle.command, new_t, new_a, cur_time)
 
 
-def handle_no_leading_vehicle(vehicle, cur_time: float) -> None:
+def drive_vehicle_without_leading(vehicle, cur_time: float) -> None:
     """Handle the case where there is no leading vehicle."""
     acceleration_distance = 10
     initial_velocity = vehicle.velocity
@@ -160,7 +160,6 @@ def should_ignore_light_due_to_leading_vehicle(vehicle, edge) -> bool:
     distance_to_leading_vehicle = abs(vehicle.route_position - vehicle.leading_vehicle.route_position)
     traffic_light_route_position = world_position_to_route_position(vehicle.route, edge, edge.traffic_light.node.position)
     distance_to_traffic_light = abs(vehicle.route_position - traffic_light_route_position)
-
     return distance_to_traffic_light > distance_to_leading_vehicle
 
 
@@ -198,13 +197,16 @@ def update_driver_lead(vehicles: list) -> None:
     max_angle_diff = 50
     for i, trailing_v in enumerate(vehicles):
         cur_leading_v = trailing_v.leading_vehicle
+
         cur_leading_v_wp = route_position_to_world_position(cur_leading_v.route, cur_leading_v.route_position) if cur_leading_v else None
         if cur_leading_v is not None and cur_leading_v_wp is None:
             trailing_v.leading_vehicle = None
             continue
+
         trailing_v_wp = route_position_to_world_position(trailing_v.route, trailing_v.route_position)
         if trailing_v_wp is None:
             continue
+
         cur_leading_v_dist = np.linalg.norm(cur_leading_v_wp - trailing_v_wp) if cur_leading_v else None
 
         for j, potential_leading_v in enumerate(vehicles):
@@ -217,10 +219,10 @@ def update_driver_lead(vehicles: list) -> None:
             if abs(trailing_v.direction_angle - potential_leading_v.direction_angle) > max_angle_diff:
                 continue
 
-            
             potential_leading_v_wp = route_position_to_world_position(potential_leading_v.route, potential_leading_v.route_position)
             if potential_leading_v_wp is None:
                 continue
+
             potential_leading_v_dist = np.linalg.norm(potential_leading_v_wp - trailing_v_wp)
             
             if cur_leading_v_dist is None or potential_leading_v_dist < cur_leading_v_dist:
