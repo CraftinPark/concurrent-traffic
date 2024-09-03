@@ -6,6 +6,14 @@ from classes.route import Route, route_position_to_world_position, direction_at_
 from classes.edge import get_length
 from standard_traffic.traffic_light import get_light_state, TrafficState
 
+MIN_LEADING_DIST = 30
+MAX_ANGLE_DIFF = 50
+# we want to stop the car "Safety Distance" away from leading car
+SAFETY_DISTANCE_BEHIND_VEHICLE = 6
+TRAFFIC_LIGHT_SAFETY_DISTANCE = 3
+EMERGENCY_DISTANCE = 5
+
+
 class Vehicle:
     """A Vehicle is given commands that it follows along a given route."""
 
@@ -105,24 +113,21 @@ def driver_traffic_update_command(vehicles: list, cur_time: float) -> None:
 def handle_leading_vehicle(vehicle, cur_time: float) -> None:
     """Handle the case where there is a leading vehicle."""
     
-    # we want to stop the car "Safety Distance" away from leading car
-    safety_distance = 6
-    emergency_distance = 5
-
     leading_vehicle = vehicle.leading_vehicle
     initial_velocity = vehicle.velocity
     final_velocity = leading_vehicle.velocity
     distance = abs(vehicle.route_position - leading_vehicle.route_position)
 
     # this prevents division of negative and 0
-    if distance < emergency_distance:
+    if distance < EMERGENCY_DISTANCE:
         vehicle.velocity = 0
         print("Invalid command: Distance to leading vehicle is too short")
         return
     
     # required deceleration to stop car at fake distance away
-    required_deceleration = calculate_deceleration(final_velocity, initial_velocity, distance, safety_distance)
+    required_deceleration = calculate_deceleration(final_velocity, initial_velocity, distance, SAFETY_DISTANCE_BEHIND_VEHICLE)
 
+    # since we want to constantly update the vehicle's command, we update it every fps rather than a long range of time 
     new_t = np.array([cur_time, cur_time + 0.01])
     new_a = np.array([required_deceleration, leading_vehicle.acceleration])
     vehicle.command = update_cmd(vehicle.command, new_t, new_a, cur_time)
@@ -168,21 +173,22 @@ def handle_traffic_light(vehicle, edge, cur_time: float) -> None:
     """Handle the traffic light's effect on the vehicle's command."""
     initial_velocity = vehicle.velocity
     traffic_light_state = get_light_state(edge.traffic_light)
+    
+    if traffic_light_state == TrafficState.GREEN:
+        return
 
-    if traffic_light_state != TrafficState.GREEN:
-        traffic_light_route_position = world_position_to_route_position(vehicle.route, edge, edge.traffic_light.node.position)
-        distance_to_traffic_light = abs(vehicle.route_position - traffic_light_route_position)
-        safety_distance = 9
+    traffic_light_route_position = world_position_to_route_position(vehicle.route, edge, edge.traffic_light.node.position)
+    distance_to_traffic_light = traffic_light_route_position - vehicle.route_position
 
-        if traffic_light_route_position < vehicle.route_position:
-            return
-        
-        if traffic_light_state == TrafficState.RED or (traffic_light_state == TrafficState.YELLOW and distance_to_traffic_light > 0):
-            required_deceleration = calculate_deceleration(0, initial_velocity, distance_to_traffic_light, safety_distance - 6)
+    if traffic_light_route_position < vehicle.route_position:
+        return
+    
+    if traffic_light_state == TrafficState.RED or (traffic_light_state == TrafficState.YELLOW and distance_to_traffic_light > 0):
+        required_deceleration = calculate_deceleration(0, initial_velocity, distance_to_traffic_light, TRAFFIC_LIGHT_SAFETY_DISTANCE)
 
-            new_t = np.array([cur_time, cur_time + 0.01])
-            new_a = np.array([required_deceleration, vehicle.acceleration])
-            vehicle.command = update_cmd(vehicle.command, new_t, new_a, cur_time)
+        new_t = np.array([cur_time, cur_time + 0.01])
+        new_a = np.array([required_deceleration, vehicle.acceleration])
+        vehicle.command = update_cmd(vehicle.command, new_t, new_a, cur_time)
 
 def calculate_deceleration(final_velocity: float, initial_velocity: float, distance: float, safety_distance: float) -> float:
     """Calculate the required deceleration to maintain a safe distance."""
@@ -190,12 +196,8 @@ def calculate_deceleration(final_velocity: float, initial_velocity: float, dista
         return 0
     return (final_velocity**2 - initial_velocity**2) / (2 * (distance - safety_distance))
 
-
-MIN_LEADING_DIST = 30
-
 def update_driver_lead(vehicles: list) -> None:
-
-    max_angle_diff = 50
+    """updates each vehicle's leading_vehicle if existing"""
     for i, trailing_v in enumerate(vehicles):
         cur_leading_v = trailing_v.leading_vehicle
         cur_leading_v_wp = route_position_to_world_position(cur_leading_v.route, cur_leading_v.route_position) if cur_leading_v else None
@@ -214,9 +216,8 @@ def update_driver_lead(vehicles: list) -> None:
             if trailing_v.route_position > potential_leading_v.route_position:
                 continue
             
-            if abs(trailing_v.direction_angle - potential_leading_v.direction_angle) > max_angle_diff:
+            if abs(trailing_v.direction_angle - potential_leading_v.direction_angle) > MAX_ANGLE_DIFF:
                 continue
-
             
             potential_leading_v_wp = route_position_to_world_position(potential_leading_v.route, potential_leading_v.route_position)
             if potential_leading_v_wp is None:
@@ -236,7 +237,7 @@ def update_driver_lead(vehicles: list) -> None:
             trailing_v.leading_vehicle = None
             continue
 
-        is_not_within_angle_scope = abs(trailing_v.direction_angle - cur_leading_v.direction_angle) > max_angle_diff
+        is_not_within_angle_scope = abs(trailing_v.direction_angle - cur_leading_v.direction_angle) > MAX_ANGLE_DIFF
 
         if cur_leading_v_dist > MIN_LEADING_DIST or is_not_within_angle_scope:
             trailing_v.leading_vehicle = None

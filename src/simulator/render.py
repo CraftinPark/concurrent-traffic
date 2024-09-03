@@ -71,8 +71,8 @@ def render_vehicles(screen: Surface, vehicles: list[Vehicle]) -> None:
         if vehicle_center_point is None: # this vehicle is out of its route and returns no position
             continue
         vehicle_center_screen_pos = world_to_screen_vector(screen, vehicle_center_point, zoom_factor)
-        imgNoRotation = pygame.transform.smoothscale(vehicle.image, (vehicle_screen_length, vehicle_screen_width))
-        img = pygame.transform.rotate(imgNoRotation, vehicle.direction_angle)
+        img_no_rotation = pygame.transform.smoothscale(vehicle.image, (vehicle_screen_length, vehicle_screen_width))
+        img = pygame.transform.rotate(img_no_rotation, vehicle.direction_angle)
 
         if vehicle.collided == True:
             # gets size of image, creates a surface, and fills with with translucent red
