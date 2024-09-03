@@ -140,10 +140,10 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
         if selected_algorithm_button == algorithm_selector_v0:
             render_manager(screen, manager)
             manager_event_loop(manager, vehicles, time_elapsed)
-        # else:
-        #     driver_traffic_update_command(vehicles, time_elapsed)
-        #     render_traffic_lights(screen, traffic_master)
-        #     traffic_event_loop(traffic_master, time_elapsed)
+        else:
+            driver_traffic_update_command(vehicles, time_elapsed)
+            render_traffic_lights(screen, traffic_master)
+            traffic_event_loop(traffic_master, time_elapsed)
         
         render_toolbar(screen, time_elapsed, buttons)
         render_title(screen)

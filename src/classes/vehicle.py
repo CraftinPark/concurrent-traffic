@@ -103,8 +103,8 @@ def driver_traffic_update_command(vehicles: list, cur_time: float) -> None:
     for vehicle in vehicles:
         if vehicle.leading_vehicle:
             handle_leading_vehicle(vehicle, cur_time)
-        # only accelerate when the vehicle is on a StraightEdge
-        elif vehicle.direction_angle % 90 == 0:
+        # allow acceleration within +/- 10 degrees from a StraightEdge
+        elif (vehicle.direction_angle % 90) in range(-10, 11):
             handle_no_leading_vehicle(vehicle, cur_time)
 
         check_traffic_lights(vehicle, cur_time)

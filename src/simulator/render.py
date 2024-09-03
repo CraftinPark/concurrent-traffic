@@ -108,7 +108,7 @@ def render_vehicles(screen: Surface, vehicles: list[Vehicle]) -> None:
             car_rect.center = vehicle_center_screen_pos
             screen.blit(img, car_rect)
 
-        draw_vehicle_safety_points(screen, vehicle_center_screen_pos, vehicle_screen_length, vehicle_angle)
+        draw_vehicle_safety_points(screen, vehicle_center_screen_pos, vehicle_screen_length, vehicle.direction_angle)
 
         vehicle_text_font = pygame.font.SysFont('Consolas', 12)
         text_surface = vehicle_text_font.render(vehicle.name, True, (139, 69, 19))
