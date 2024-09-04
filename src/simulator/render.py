@@ -32,7 +32,7 @@ def render_edges(screen: Surface, edges: list[Edge]) -> None:
         if isinstance(edge, StraightEdge):
             start_position = world_to_screen_vector(screen, edge.start.position, zoom_factor)
             end_position   = world_to_screen_vector(screen, edge.end.position, zoom_factor)
-            pygame.draw.line(screen, "red", start_position, end_position)
+            pygame.draw.line(screen, "blue", start_position, end_position)
         elif isinstance(edge, CircularEdge):
             # define rect
             radius = world_to_screen_scalar(screen, np.linalg.norm(edge.start.position-edge.center), zoom_factor) # norm describes distance
