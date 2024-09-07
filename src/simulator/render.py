@@ -169,6 +169,13 @@ def render_manager(screen: Surface, manager: Manager) -> None:
     for i, vehicle in enumerate(manager.vehicles):
         text_surface = DEFAULT_FONT.render(f"name: {vehicle.name}, vel: {vehicle.velocity:.2f}m/s, accel: {vehicle.acceleration:.2f}m/s^2", True, (0, 0, 0))
         screen.blit(text_surface, (5, i*20 + 5))
+    
+    # render profile stats
+    text_surface = DEFAULT_FONT.render(f"avg deter time: {(manager.avg_deter_time*1000):.3f}ms", True, (0, 0, 0))
+    screen.blit(text_surface, (screen.get_width()-250, screen.get_height()-TOOLBAR_HEIGHT-40))
+    text_surface = DEFAULT_FONT.render(f"total deter times: {manager.total_deter_runs}", True, (0, 0, 0))
+    screen.blit(text_surface, (screen.get_width()-250, screen.get_height()-TOOLBAR_HEIGHT-20))
+
 
 def render_loop_times(screen: Surface, target_time: float, actual_time: float):
     target_time_surface = DEFAULT_FONT.render(f"target frame: {target_time:.5f}", True, (0, 0, 0))

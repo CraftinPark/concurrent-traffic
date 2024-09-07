@@ -8,6 +8,7 @@ from colorama import Fore
 from colorama import Style
 colorama_init()
 import logging
+import time
 
 CAR_COLLISION_DISTANCE = 2.5 # meters
 MINIMUM_CRUISING_SPEED = 0
@@ -33,7 +34,6 @@ class Manager:
     vehicles: list[Vehicle] = []
     intersecting_points = None
     collisions: list[Collision] = []
-    run_once_for_debug = 0
 
 
     def __init__(self, position: np.ndarray, radius: float, routes: list[Route]) -> None:
@@ -42,6 +42,9 @@ class Manager:
         self.radius = radius
         self.i = 0
         self.logger = logging.getLogger(self.__class__.__name__)
+        self.avg_deter_time = 0
+        self.total_deter_time = 0
+        self.total_deter_runs = 0
 
 def reset(manager: Manager) -> None:
     """Clear manager.vehicles attribute."""
@@ -51,7 +54,13 @@ def manager_event_loop(manager: Manager, vehicles: list[Vehicle], cur_time: floa
     """Event loop for Manager. Updates manager.vehicles if a Vehicle enters its radius. Also recalculates and sends Commands on update of manager.vehicles."""
     new_vehicles = _update_manager_vehicle_list(manager, vehicles, cur_time)
     for v in new_vehicles:
+        manager.total_deter_runs = manager.total_deter_runs + 1
+        st = time.time()
         deter_vehicle_collisions(manager, v, cur_time)
+        et = time.time()
+        manager.total_deter_time = manager.total_deter_time + et - st
+        if manager.total_deter_runs != 0:
+            manager.avg_deter_time = manager.total_deter_time / manager.total_deter_runs
 
 def _update_manager_vehicle_list(manager: Manager, vehicles: list[Vehicle], elapsed_time: float) -> list[Vehicle]:
     """Return list of new vehicles added to manager.vehicles."""
