@@ -5,13 +5,20 @@ from classes.vehicle import Vehicle
 from classes.node import Node
 from classes.edge import Edge, StraightEdge, CircularEdge
 from classes.route import route_position_to_world_position, direction_at_route_position
+from standard_traffic.traffic_master import TrafficMaster
+from standard_traffic.traffic_light import get_color, get_light_state
 from manager.manager import Manager, CAR_COLLISION_DISTANCE
-from classes.button import Button
+from classes.button import Button, is_selected
 from .helper import world_to_screen_vector, world_to_screen_scalar, create_rotation_matrix, rotate_vector
 from .simulator import WORLD_WIDTH, WORLD_HEIGHT, TOOLBAR_HEIGHT
 
 pygame.font.init()
-FONT = pygame.font.SysFont('Consolas', 20)
+DEFAULT_FONT = pygame.font.SysFont('Consolas', 15)
+TIME_FONT = pygame.font.Font('assets/fonts/DMSans-Medium.ttf', 15)
+BUTTON_FONT = pygame.font.SysFont('Segoe UI', 15)
+TITLE_FONT = pygame.font.Font("assets/fonts/DMSans-BlackItalic.ttf", 24)
+SUBTITLE_FONT = pygame.font.Font("assets/fonts/DMSans-Black.ttf", 16)
+VEHICLE_FONT = pygame.font.SysFont('Consolas', 12)
 
 zoom_factor = 1
 
@@ -24,7 +31,7 @@ def render_nodes(screen: Surface, nodes: list[Node]) -> None:
     """Render function for Nodes."""
     for node in nodes:
         node_position = world_to_screen_vector(screen, node.position, zoom_factor)
-        pygame.draw.circle(screen, "red", node_position, 3)
+        pygame.draw.circle(screen, "blue", node_position, 3)
 
 def render_edges(screen: Surface, edges: list[Edge]) -> None:
     """Render function for Edges."""
@@ -51,13 +58,26 @@ def render_edges(screen: Surface, edges: list[Edge]) -> None:
                 if theta_start < theta_end:
                     theta_start += 2*np.pi
 
-            pygame.draw.arc(screen, "red", arc_rect, theta_start, theta_end)
+            pygame.draw.arc(screen, "blue", arc_rect, theta_start, theta_end)
 
 def render_intersections(screen: Surface, intersection_points) -> None:
     """Render function for intersecting Routes."""
     for intersection in intersection_points:
         node_position = world_to_screen_vector(screen, np.array(list(intersection[2])), zoom_factor)
-        pygame.draw.circle(screen, "blue", node_position, 3)
+        pygame.draw.circle(screen, "magenta", node_position, 3)
+
+def draw_vehicle_safety_point(screen: Surface, v_pos: np.ndarray, corner_vector: np.ndarray, v_angle: float):
+    """Draw safety calculation points of vehicles"""
+    x =  np.cos(np.deg2rad(v_angle)) * corner_vector[0] + np.sin(np.deg2rad(v_angle)) * corner_vector[1]
+    y = -np.sin(np.deg2rad(v_angle)) * corner_vector[0] + np.cos(np.deg2rad(v_angle)) * corner_vector[1]
+    pygame.draw.circle(screen, "green", (v_pos[0] + x, v_pos[1] + y), 3)
+
+
+def draw_vehicle_safety_points(screen: Surface, v_pos: np.ndarray, v_length: float, v_angle: float):
+    left_top_corner_vector = [v_length/2, 0]
+    left_bot_corner_vector = [-v_length/2, 0]
+    draw_vehicle_safety_point(screen, v_pos, left_top_corner_vector, v_angle)
+    draw_vehicle_safety_point(screen, v_pos, left_bot_corner_vector, v_angle)
 
 def render_vehicles(screen: Surface, vehicles: list[Vehicle]) -> None:
     """Render function for Vehicles."""
@@ -66,9 +86,12 @@ def render_vehicles(screen: Surface, vehicles: list[Vehicle]) -> None:
         vehicle_screen_length = world_to_screen_scalar(screen, vehicle.length, zoom_factor)
         
         vehicle_center_point = route_position_to_world_position(vehicle.route, vehicle.route_position)
+        if vehicle_center_point is None: # this vehicle is out of its route and returns no position
+            continue
         vehicle_center_screen_pos = world_to_screen_vector(screen, vehicle_center_point, zoom_factor)
         img = pygame.transform.smoothscale(vehicle.image, (vehicle_screen_length, vehicle_screen_width))
         vehicle_angle = direction_at_route_position(vehicle.route, vehicle.route_position)
+        vehicle.direction_angle = vehicle_angle
         img = pygame.transform.rotate(img, vehicle_angle)
 
         if vehicle.collided == True:
@@ -92,11 +115,10 @@ def render_vehicles(screen: Surface, vehicles: list[Vehicle]) -> None:
             car_rect.center = vehicle_center_screen_pos
             screen.blit(img, car_rect)
 
-        car_collision_screen_distance = world_to_screen_scalar(screen, CAR_COLLISION_DISTANCE/2, zoom_factor)
-        pygame.draw.circle(screen, "red", vehicle_center_screen_pos, car_collision_screen_distance, 1)
-        vehicle_text_font = pygame.font.SysFont('Consolas', 12)
-        text_surface = vehicle_text_font.render(vehicle.name, True, (139, 69, 19))
-        screen.blit(text_surface, (car_rect.center[0]-(vehicle_text_font.size(vehicle.name)[0])/2, car_rect.center[1]-vehicle_screen_length))
+        draw_vehicle_safety_points(screen, vehicle_center_screen_pos, vehicle_screen_length, vehicle_angle)
+
+        text_surface = VEHICLE_FONT.render(vehicle.name, True, (139, 69, 19))
+        screen.blit(text_surface, (car_rect.center[0]-(VEHICLE_FONT.size(vehicle.name)[0])/2, car_rect.center[1]-vehicle_screen_length))
 
 
 def render_background(screen: Surface) -> None:
@@ -124,6 +146,14 @@ def render_world(screen: Surface, nodes: list[Node], edges: list[Edge], route_vi
     render_border(screen)
     # render_scenery()
 
+def render_traffic_lights(screen: Surface, traffic_master: TrafficMaster) -> None:
+    """Render function for TrafficMaster that controls all the TrafficLights."""
+    for light in traffic_master.traffic_lights:
+        light_position = world_to_screen_vector(screen, light.node.position, zoom_factor)
+        color = get_color(get_light_state(light))
+        pygame.draw.circle(screen, color, light_position, 3, 3)
+
+
 def render_manager(screen: Surface, manager: Manager) -> None:
     """Render function for Manager."""
     radius = world_to_screen_scalar(screen, manager.radius, zoom_factor)
@@ -137,36 +167,39 @@ def render_manager(screen: Surface, manager: Manager) -> None:
     pygame.draw.circle(screen, "green", manager_screen_pos, circle_radius)
     
     for i, vehicle in enumerate(manager.vehicles):
-        font = pygame.font.SysFont('Segoe UI', 15)
-        text_surface = font.render(f"name: {vehicle.name}, pos: {vehicle.route_position:.2f}, accel: {vehicle.acceleration:.2f}, stamps: {vehicle.command.accel_func.x}", True, (0, 0, 0))
-        screen.blit(text_surface, (5,i*20 + 5))
+        text_surface = DEFAULT_FONT.render(f"name: {vehicle.name}, vel: {vehicle.velocity:.2f}m/s, accel: {vehicle.acceleration:.2f}m/s^2", True, (0, 0, 0))
+        screen.blit(text_surface, (5, i*20 + 5))
+    
+    # render profile stats
+    text_surface = DEFAULT_FONT.render(f"avg deter time: {(manager.avg_deter_time*1000):.3f}ms", True, (0, 0, 0))
+    screen.blit(text_surface, (screen.get_width()-250, screen.get_height()-TOOLBAR_HEIGHT-40))
+    text_surface = DEFAULT_FONT.render(f"total deter times: {manager.total_deter_runs}", True, (0, 0, 0))
+    screen.blit(text_surface, (screen.get_width()-250, screen.get_height()-TOOLBAR_HEIGHT-20))
+
+
+def render_loop_times(screen: Surface, target_time: float, actual_time: float):
+    target_time_surface = DEFAULT_FONT.render(f"target frame: {target_time:.5f}", True, (0, 0, 0))
+    actual_time_surface = DEFAULT_FONT.render(f"actual frame: {actual_time:.5f}", True, (0, 0, 0))
+    screen.blit(target_time_surface, (screen.get_width()-200, 0 + 5))
+    screen.blit(actual_time_surface, (screen.get_width()-200, 20 + 5))
 
 def render_time(screen: Surface, time_elapsed) -> None: 
     """Render function for time indicator."""
-    font = pygame.font.SysFont('Segoe UI', 15)
-    text_surface = font.render(f"Time: {time_elapsed:.3f}", True, (255, 255, 255))
+    text_surface = TIME_FONT.render(f"Time: {time_elapsed:.2f}s", True, (255, 255, 255))
     text_rect = text_surface.get_rect()
     text_rect.right = 150
-    screen.blit(text_surface, text_surface.get_rect(topright = (screen.get_width()-3, screen.get_height()-TOOLBAR_HEIGHT)))
+    screen.blit(text_surface, text_surface.get_rect(topright = (screen.get_width()-7, screen.get_height()-TOOLBAR_HEIGHT+7)))
 
 def render_buttons(screen: Surface, buttons: list[Button]) -> None:
     """Render function for Buttons."""
     for b in buttons:
         b.y = screen.get_height()-TOOLBAR_HEIGHT+50
-        pygame.draw.rect(screen, b.hover_color if b.is_selected() else b.color, [b.x , b.y, b.width, b.height])
+        pygame.draw.rect(screen, b.hover_color if is_selected(b) else b.color, [b.x , b.y, b.width, b.height])
         if b.text != '':
-            font = pygame.font.SysFont('Segoe UI', 15)
-            text = font.render(b.text, 1, (255, 255, 255))
+            text = BUTTON_FONT.render(b.text, 1, (255, 255, 255))
             screen.blit(text, (b.x + (b.width/2 - text.get_width()/2), b.y + (b.height/2 - text.get_height()/2)))
 
-def render_toolbar(screen, time_elapsed, buttons):
-    toolbar_rect = pygame.Rect(0, screen.get_height()-TOOLBAR_HEIGHT,screen.get_width(),TOOLBAR_HEIGHT)
-    pygame.draw.rect(screen, pygame.Color(80,80,80), toolbar_rect)
-    render_time(screen, time_elapsed)
-    render_buttons(screen, buttons)
-
 def render_arrows(screen: Surface, edges: list[Edge]):
-    
     """Render function for arrows."""
             
     for edge in edges:
@@ -219,18 +252,19 @@ def render_arrows(screen: Surface, edges: list[Edge]):
         negative_screen_vector = world_to_screen_vector(screen, negative_vector, zoom_factor)
         
         # draws onto screen
-        pygame.draw.aaline(screen, "red", midpoint_position, positive_screen_vector, blend=40)
-        pygame.draw.aaline(screen, "red", midpoint_position, negative_screen_vector, blend=40)
+        pygame.draw.aaline(screen, "blue", midpoint_position, positive_screen_vector, blend=40)
+        pygame.draw.aaline(screen, "blue", midpoint_position, negative_screen_vector, blend=40)
 
 def render_toolbar(screen: Surface, time_elapsed, buttons: list[Button]) -> None:
     """Render function for toolbar."""
     toolbar_rect = pygame.Rect(0, screen.get_height()-TOOLBAR_HEIGHT,screen.get_width(),TOOLBAR_HEIGHT)
-    pygame.draw.rect(screen, pygame.Color(80,80,80), toolbar_rect)
+    pygame.draw.rect(screen, pygame.Color(80,90,100), toolbar_rect)
     render_time(screen, time_elapsed)
     render_buttons(screen, buttons)
 
+title_surface = TITLE_FONT.render(f"Concurrent Traffic", True, (255, 255, 255))
+version_surface = SUBTITLE_FONT.render(f"v0.0.2", True, (255, 255, 255))
 def render_title(screen) -> None: 
     """Render function for title."""
-    FONT = pygame.font.SysFont("Segoe UI", 15, bold=True, italic=False)
-    text_surface = FONT.render(f"Concurent Traffic v0.0.2", True, (255, 255, 255))
-    screen.blit(text_surface, (6,screen.get_height()-TOOLBAR_HEIGHT+6))
+    screen.blit(title_surface, (6,screen.get_height()-TOOLBAR_HEIGHT+3))
+    screen.blit(version_surface, (235,screen.get_height()-TOOLBAR_HEIGHT+11))

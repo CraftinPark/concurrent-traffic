@@ -1,9 +1,9 @@
 {
   "stored_vehicles": [
-    {"id": "vehicle_0", "name": "Toyota", "route": "route_0", "route_position": 0, "velocity": 8},
-    {"id": "vehicle_1", "name": "Honda", "route": "route_1", "route_position": 0, "velocity": 8}, 
-    {"id": "vehicle_2", "name": "Ford", "route": "route_2", "route_position": 0, "velocity": 8},
-    {"id": "vehicle_3", "name": "Chevrolet", "route": "route_3", "route_position": 0, "velocity": 8} 
+    {"id": "vehicle_1", "name": "Camry", "route": "route_0", "route_position": -5, "velocity": 20},
+    {"id": "vehicle_4", "name": "Q3", "route": "route_8", "route_position": -1, "velocity": 20},
+    {"id": "vehicle_6", "name": "Accord", "route": "route_9", "route_position": -5, "velocity": 20},
+    {"id": "vehicle_9", "name": "Ferrari", "route": "route_4", "route_position": -5, "velocity": 20}
   ],
 
   "nodes": [
@@ -61,10 +61,21 @@
   ],
 
   "routes": [
-    {"id": "route_0", "source": "edge_1", "intermediate": ["edge_8"],  "target": "edge_4", "comment": "straight from south"},
-    {"id": "route_1", "source": "edge_3", "intermediate": ["edge_11"], "target": "edge_6", "comment": "straight from east"},
-    {"id": "route_2", "source": "edge_5", "intermediate": ["edge_14"], "target": "edge_0", "comment": "straight from north"},
-    {"id": "route_3", "source": "edge_7", "intermediate": ["edge_17"], "target": "edge_2", "comment": "straight from west"}
+    {"id": "route_1", "source": "edge_1", "intermediate": [ "edge_9"], "target": "edge_2", "comment": "right from south"},
+    {"id": "route_0", "source": "edge_1", "intermediate": [ "edge_8"], "target": "edge_4", "comment": "straight from south"},
+    {"id": "route_2", "source": "edge_1", "intermediate": [ "edge_10"], "target": "edge_6", "comment": "left from south"},
+
+    {"id": "route_4", "source": "edge_3", "intermediate": [ "edge_12"], "target": "edge_4", "comment": "right from east"},
+    {"id": "route_3", "source": "edge_3", "intermediate": [ "edge_11"], "target": "edge_6", "comment": "straight from east"},
+    {"id": "route_5", "source": "edge_3", "intermediate": [ "edge_13"], "target": "edge_0", "comment": "left from east"},
+
+    {"id": "route_6", "source": "edge_5", "intermediate": [ "edge_15"], "target": "edge_6", "comment": "right from north"},
+    {"id": "route_7", "source": "edge_5", "intermediate": [ "edge_14"], "target": "edge_0", "comment": "straight from north"},
+    {"id": "route_8", "source": "edge_5", "intermediate": [ "edge_16"], "target": "edge_2", "comment": "left from north"},
+
+    {"id": "route_9", "source": "edge_7", "intermediate": [ "edge_18"], "target": "edge_0", "comment": "right from west"},
+    {"id": "route_10", "source": "edge_7", "intermediate": [ "edge_17"], "target": "edge_2", "comment": "straight from west"},
+    {"id": "route_11", "source": "edge_7", "intermediate": [ "edge_19"], "target": "edge_4", "comment": "left from west"}
   ],
 
   "traffic_lights": [
@@ -79,9 +90,9 @@
       "cycle": [["red", 5], ["red", 1], ["green", 4], ["yellow", 1], ["red", 1]]
     }
   ],
-  
+
   "manager": {
     "position": [0, 0],
-    "radius": 50
+    "radius": 60
   }
 }
