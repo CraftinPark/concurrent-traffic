@@ -12,6 +12,8 @@ MAX_ANGLE_DIFF = 50
 SAFETY_DISTANCE_BEHIND_VEHICLE = 6
 TRAFFIC_LIGHT_SAFETY_DISTANCE = 3
 EMERGENCY_DISTANCE = 5
+MAX_ACCELERATION = 3.5
+FPS = 1/60
 
 
 class Vehicle:
@@ -128,7 +130,7 @@ def drive_vehicle_with_leading(vehicle, cur_time: float) -> None:
     required_deceleration = calculate_deceleration(final_velocity, initial_velocity, distance, SAFETY_DISTANCE_BEHIND_VEHICLE)
 
     # since we want to constantly update the vehicle's command, we update it every fps rather than a long range of time 
-    new_t = np.array([cur_time, cur_time + 0.01])
+    new_t = np.array([cur_time, cur_time + FPS])
     new_a = np.array([required_deceleration, leading_vehicle.acceleration])
     vehicle.command = update_cmd(vehicle.command, new_t, new_a, cur_time)
 
@@ -138,10 +140,13 @@ def drive_vehicle_without_leading(vehicle, cur_time: float) -> None:
     acceleration_distance = 10
     initial_velocity = vehicle.velocity
 
+    # Deceleration reduces the vehicle's speed but doesn't exactly return it to its default velocity (vehicle.default_velocity).
+    # The final speed is slightly different due to minor decimal variations.
+    # if the below is true, it has yet to reach its "default" velocity (in "" since no vehicle will ever reach its exact default velocity)
     if abs(vehicle.velocity - vehicle.default_velocity) > 0.01:
         required_acceleration = (vehicle.default_velocity**2 - initial_velocity**2) / (2 * acceleration_distance)
 
-        new_t = np.array([cur_time, cur_time + 0.01])
+        new_t = np.array([cur_time, cur_time + FPS])
         new_a = np.array([required_acceleration, vehicle.acceleration])
         vehicle.command = update_cmd(vehicle.command, new_t, new_a, cur_time)
 
@@ -182,12 +187,20 @@ def handle_traffic_light(vehicle, edge, cur_time: float) -> None:
     if traffic_light_route_position < vehicle.route_position:
         return
     
-    if traffic_light_state == TrafficState.RED or (traffic_light_state == TrafficState.YELLOW and distance_to_traffic_light > 0):
+    if traffic_light_state == TrafficState.RED or (traffic_light_state == TrafficState.YELLOW and yellow_light_decision(vehicle, traffic_light_route_position)):
         required_deceleration = calculate_deceleration(0, initial_velocity, distance_to_traffic_light, TRAFFIC_LIGHT_SAFETY_DISTANCE)
 
-        new_t = np.array([cur_time, cur_time + 0.01])
+        new_t = np.array([cur_time, cur_time + FPS])
         new_a = np.array([required_deceleration, vehicle.acceleration])
         vehicle.command = update_cmd(vehicle.command, new_t, new_a, cur_time)
+        
+
+def yellow_light_decision(vehicle, distance_to_traffic_light):
+    """Determines whether or not the the vehicle should run a yellow light"""
+    
+    distance_needed_to_stop = (-vehicle.velocity**2) / 2*(-vehicle.acceleration)
+    
+    return distance_needed_to_stop < distance_to_traffic_light - TRAFFIC_LIGHT_SAFETY_DISTANCE  
 
 def calculate_deceleration(final_velocity: float, initial_velocity: float, distance: float, safety_distance: float) -> float:
     """Calculate the required deceleration to maintain a safe distance."""
