@@ -13,7 +13,7 @@ SAFETY_DISTANCE_BEHIND_VEHICLE = 6
 TRAFFIC_LIGHT_SAFETY_DISTANCE = 3
 EMERGENCY_DISTANCE = 5
 MAX_ACCELERATION = 3.5
-FPS = 1/60
+DELTA_TIME = 0.01
 
 
 class Vehicle:
@@ -129,8 +129,8 @@ def drive_vehicle_with_leading(vehicle, cur_time: float) -> None:
     # required deceleration to stop car at fake distance away
     required_deceleration = calculate_deceleration(final_velocity, initial_velocity, distance, SAFETY_DISTANCE_BEHIND_VEHICLE)
 
-    # since we want to constantly update the vehicle's command, we update it every fps rather than a long range of time 
-    new_t = np.array([cur_time, cur_time + FPS])
+    # since we want to constantly update the vehicle's command, we update it every DELTA_TIME rather than a long range of time 
+    new_t = np.array([cur_time, cur_time + DELTA_TIME])
     new_a = np.array([required_deceleration, leading_vehicle.acceleration])
     vehicle.command = update_cmd(vehicle.command, new_t, new_a, cur_time)
 
@@ -146,7 +146,7 @@ def drive_vehicle_without_leading(vehicle, cur_time: float) -> None:
     if abs(vehicle.velocity - vehicle.default_velocity) > 0.01:
         required_acceleration = (vehicle.default_velocity**2 - initial_velocity**2) / (2 * acceleration_distance)
 
-        new_t = np.array([cur_time, cur_time + FPS])
+        new_t = np.array([cur_time, cur_time + DELTA_TIME])
         new_a = np.array([required_acceleration, vehicle.acceleration])
         vehicle.command = update_cmd(vehicle.command, new_t, new_a, cur_time)
 
@@ -190,7 +190,7 @@ def handle_traffic_light(vehicle, edge, cur_time: float) -> None:
     if traffic_light_state == TrafficState.RED or (traffic_light_state == TrafficState.YELLOW and yellow_light_decision(vehicle, traffic_light_route_position)):
         required_deceleration = calculate_deceleration(0, initial_velocity, distance_to_traffic_light, TRAFFIC_LIGHT_SAFETY_DISTANCE)
 
-        new_t = np.array([cur_time, cur_time + FPS])
+        new_t = np.array([cur_time, cur_time + DELTA_TIME])
         new_a = np.array([required_deceleration, vehicle.acceleration])
         vehicle.command = update_cmd(vehicle.command, new_t, new_a, cur_time)
         
