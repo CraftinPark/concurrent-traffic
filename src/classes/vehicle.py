@@ -15,7 +15,7 @@ EMERGENCY_DISTANCE = 5
 MAX_ACCELERATION = 3.5
 NEXT_ACCELERATION_INTERVAL = 0.01
 
-
+ 
 class Vehicle:
     """A Vehicle is given commands that it follows along a given route."""
 
