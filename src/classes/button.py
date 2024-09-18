@@ -47,10 +47,11 @@ def toggle_update(simulation_values: dict) -> None:
     """Toggles between resuming or pausing the simulator."""
     simulation_values["is_run"] = not simulation_values["is_run"]
 
-def restart_func(simulation_values: dict, initial_vehicles: list[Vehicle]) -> None:
+def restart_func(simulation_values: dict, initial_vehicles: list[Vehicle], scheduled_vehicles: list[Vehicle]) -> None:
     """Resets the simulator."""
 
-    simulation_values["vehicles"] = vehicle_copy(initial_vehicles)
+    simulation_values["initial_vehicles"] = vehicle_copy(initial_vehicles)
+    simulation_values["scheduled_vehicles"] = vehicle_copy(scheduled_vehicles)
     simulation_values["clock"] = pygame.time.Clock()
     simulation_values["delta_time"] = 0
     simulation_values["time_elapsed"] = 0

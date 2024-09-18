@@ -12,7 +12,7 @@ from classes.route import Route
 from classes.vehicle import Vehicle
 from standard_traffic.traffic_master import TrafficMaster
 from simulator.simulator import run_simulation
-from helper import get_intersections, load_nodes, load_edges, load_routes, load_vehicles, load_traffic_lights
+from helper import get_intersections, load_nodes, load_edges, load_routes, load_initial_vehicles, load_scheduled_vehicles, load_traffic_lights
 
 def main() -> None:
     verbose = False
@@ -44,31 +44,32 @@ def main() -> None:
     else:
         logging.basicConfig(level=logging.CRITICAL)
 
-    manager, traffic_master, nodes, curr_edges, routes, vehicles = load_preset(preset_name)
+    manager, traffic_master, nodes, curr_edges, routes, initial_vehicles, scheduled_vehicles = load_preset(preset_name)
 
     # intersection_points = get_intersections(routes)
     intersection_points = []
-    run_simulation(vehicles, nodes, curr_edges, routes, intersection_points, manager, traffic_master)
+    run_simulation(initial_vehicles, scheduled_vehicles, nodes, curr_edges, routes, intersection_points, manager, traffic_master)
 
 
 def load_preset(file_path: str) -> tuple[Manager, TrafficMaster, list[Node], list[Edge], list[Route], list[Vehicle]]:
     with open(file_path, 'r') as file:
         presets = json.load(file)
 
-    nodes, curr_edges, routes, vehicles, t_master_intersections, traffic_lights = [], [], [], [], [], []
+    nodes, curr_edges, routes, initial_vehicles, scheduled_vehicles, t_master_intersections, traffic_lights = [], [], [], [], [], [], []
         
     node_dict = load_nodes(presets["nodes"], nodes)
     traffic_lights, traffic_dict = load_traffic_lights(presets['traffic_lights'], node_dict)
     edge_dict = load_edges(presets['edges'], curr_edges, node_dict, traffic_dict)
     route_dict = load_routes(presets['routes'], routes, edge_dict)
-    load_vehicles(presets["stored_vehicles"], vehicles, route_dict)
+    initial_v_dict = load_initial_vehicles(presets["initial_vehicles"], initial_vehicles, route_dict)
+    load_scheduled_vehicles(presets["scheduled_vehicles"], initial_v_dict, scheduled_vehicles, route_dict)
 
     traffic_master = TrafficMaster(traffic_lights)
     
     manager_data = presets["manager"]
     manager = Manager(np.array(manager_data["position"]), manager_data["radius"], routes)
 
-    return manager, traffic_master, nodes, curr_edges, routes, vehicles, 
+    return manager, traffic_master, nodes, curr_edges, routes, initial_vehicles, scheduled_vehicles
 
 if __name__ == "__main__":
     main()
