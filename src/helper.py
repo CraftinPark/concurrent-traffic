@@ -7,6 +7,7 @@ from standard_traffic.traffic_light import TrafficLight, get_state
 import sympy
 from sympy import Point2D
 from itertools import combinations
+import bisect
 
 def get_intersections(routes: list[Route]) -> set[tuple[int, int, tuple[float, float]]]:
     """Return a set of intersections in the following form: (route1_id, route2_id, (x, y))."""
@@ -148,6 +149,28 @@ def load_routes(loaded_routes: object, routes: list[Route], edge_dict: dict[str,
         routes.append(new_route)
 
     return route_dict
+
+def load_initial_vehicles(loaded_vehicles: object, initial_vehicles: list[Vehicle], route_dict: dict[str, Vehicle]) -> dict[str, Vehicle]:
+    """Return id -> Vehicle dictionary from the loaded_vehicle json object. Also populates vehicles list."""
+    vehicle_dict = {}
+    for v in loaded_vehicles:
+        if v["id"] in vehicle_dict:
+            raise ValueError(f"Duplicate vehicle ID found: {v['id']}")
+        new_vehicle = Vehicle(v["id"], v["name"], route_dict[v["route"]], v["velocity"], 0, 2.23, 4.90, 1.25, 'assets/sedan.png', 0, v["route_position"])
+        vehicle_dict[v["id"]] = new_vehicle
+        initial_vehicles.append(new_vehicle)
+    return vehicle_dict
+
+def load_scheduled_vehicles(loaded_vehicles: object, initial_vehicles_dict: dict[str, Vehicle], scheduled_vehicles: list[Vehicle], route_dict: dict[str, Vehicle]) -> dict[str, Vehicle]:
+    """Return id -> Vehicle dictionary from the loaded_vehicle json object. Also populates vehicles list."""
+    vehicle_dict = {}
+    for v in loaded_vehicles:
+        if v["id"] in vehicle_dict or v["id"] in initial_vehicles_dict:
+            raise ValueError(f"Duplicate vehicle ID found: {v['id']}")
+        new_vehicle = Vehicle(v["id"], v["name"], route_dict[v["route"]], v["velocity"], 0, 2.23, 4.90, 1.25, 'assets/sedan.png', v["spawn_at"], 0)
+        vehicle_dict[v["id"]] = new_vehicle
+        bisect.insort(scheduled_vehicles, new_vehicle)  # works because added __lt__ in Vehicle class
+    return vehicle_dict
 
 def load_vehicles(loaded_vehicles: object, vehicles: list[Vehicle], route_dict: dict[str, Vehicle]) -> dict[str, Vehicle]:
     """Return id -> Vehicle dictionary from the loaded_vehicle json object. Also populates vehicles list."""
