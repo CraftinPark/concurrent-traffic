@@ -5,6 +5,7 @@ from manager.command import Command
 from classes.route import Route, route_position_to_world_position, direction_at_route_position, world_position_to_route_position
 from classes.edge import get_length
 from standard_traffic.traffic_light import get_light_state, TrafficState
+from classes.edge import CircularEdge
 
 MIN_LEADING_DIST = 30
 MAX_ANGLE_DIFF = 50
@@ -103,12 +104,18 @@ def driver_traffic_update_command(vehicles: list, cur_time: float) -> None:
     update_driver_lead(vehicles)
 
     for vehicle in vehicles:
+        currentEdge = is_on_left_lane(vehicle)
+        
         if vehicle.leading_vehicle:
             drive_vehicle_with_leading(vehicle, cur_time)
+            
+        elif currentEdge != None:
+            if not is_safe_to_turn_left(vehicle, vehicles):
+                step_in_front_of_traffic_light(vehicle, currentEdge, cur_time)     
+            
         # allow acceleration within +/- 10 degrees from a StraightEdge
         elif (vehicle.direction_angle % 90) in range(-10, 11):
             drive_vehicle_without_leading(vehicle, cur_time)
-
         check_traffic_lights(vehicle, cur_time)
 
 
@@ -269,6 +276,9 @@ def is_potential_lead_valid(trailing_v: Vehicle, potential_leading_v: Vehicle) -
 
     if abs(trailing_v.direction_angle - potential_leading_v.direction_angle) > MAX_ANGLE_DIFF:
         return False
+    
+    if (is_on_left_lane(trailing_v) and not is_on_left_lane(potential_leading_v)) or (not is_on_left_lane(trailing_v) and is_on_left_lane(potential_leading_v)):
+        return False
 
     return True
 
@@ -285,3 +295,52 @@ def update_leading_vehicle(trailing_v: Vehicle, cur_leading_v: Vehicle, cur_lead
         trailing_v.leading_vehicle = None
     else:
         trailing_v.leading_vehicle = cur_leading_v
+        
+        
+# Functions for left turn
+def is_on_left_lane(vehicle: Vehicle):
+    """Determines whether the current vehicle is on the left turn lane."""
+   
+    currentEdge = None
+    for r in vehicle.route.pos_to_edge_map:
+        position = vehicle.route_position
+        
+        if position < r[1] and position >= r[0]:
+            currentEdge = vehicle.route.pos_to_edge_map[r]
+            break
+        
+    if currentEdge is not None and currentEdge.leftTurn:
+        # returns the currentEdge if on left lane
+        return currentEdge
+    
+    return None
+    
+def is_safe_to_turn_left(current_vehicle: Vehicle, vehicles: list) -> bool:
+    """Confirms the safety of the current vehicle to turn left."""
+    
+    for potential_incoming_v in vehicles:
+        if potential_incoming_v == current_vehicle:  # Skip the same vehicle
+            continue
+        
+        # return False if the potential_incoming_v is incoming and is in the range of danger
+        if not (potential_incoming_v.direction_angle - current_vehicle.direction_angle) % 180 and (60 < potential_incoming_v.route_position < 80):
+            return False
+        
+    return True
+        
+def step_in_front_of_traffic_light(vehicle: Vehicle, currentEdge, cur_time) -> None:
+    """Makes the given vehicle that is about to turn left to step slightly in front of the traffic light."""
+    if currentEdge.traffic_light == None:
+        return
+    
+    initial_velocity = vehicle.velocity
+    
+    traffic_light_route_position = world_position_to_route_position(vehicle.route, currentEdge, currentEdge.traffic_light.node.position)
+    
+    distance_to_traffic_light = traffic_light_route_position - vehicle.route_position
+    
+    required_deceleration = calculate_deceleration(0, initial_velocity, distance_to_traffic_light, TRAFFIC_LIGHT_SAFETY_DISTANCE)
+
+    new_t = np.array([cur_time, cur_time + NEXT_ACCELERATION_INTERVAL])
+    new_a = np.array([required_deceleration, vehicle.acceleration])
+    vehicle.command = update_cmd(vehicle.command, new_t, new_a, cur_time)

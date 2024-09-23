@@ -102,9 +102,9 @@ def load_edges(loaded_edges: object, edges: list[Edge], node_dict: dict[str, Nod
         if edge["target"] in traffic_dict:
             t_light = traffic_dict[edge["target"]]
         if edge.get("center"):
-            new_edge = CircularEdge(edge["id"], node_dict[edge["source"]], node_dict[edge["target"]], np.array(edge["center"]), clockwise=edge["clockwise"], traffic_light=t_light)
+            new_edge = CircularEdge(edge["id"], node_dict[edge["source"]], node_dict[edge["target"]], edge["leftLane"], np.array(edge["center"]), clockwise=edge["clockwise"], traffic_light=t_light)
         else:
-            new_edge = StraightEdge(edge["id"], node_dict[edge["source"]], node_dict[edge["target"]], t_light)
+            new_edge = StraightEdge(edge["id"], node_dict[edge["source"]], node_dict[edge["target"]], edge["leftLane"], t_light)
         edge_dict[edge["id"]] = new_edge
         edges.append(new_edge)
     return edge_dict
