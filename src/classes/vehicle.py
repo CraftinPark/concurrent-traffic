@@ -209,11 +209,12 @@ def calculate_deceleration(final_velocity: float, initial_velocity: float, dista
     return (final_velocity**2 - initial_velocity**2) / (2 * (distance - safety_distance))
 
 def update_driver_lead(vehicles: list) -> None:
-    """updates each vehicle's leading_vehicle if existing"""
+    """Update each vehicle's leading_vehicle."""
     for i, trailing_v in enumerate(vehicles):
         cur_leading_v = trailing_v.leading_vehicle
+        cur_leading_v_wp = get_world_position_if_exists(cur_leading_v)
 
-        cur_leading_v_wp = route_position_to_world_position(cur_leading_v.route, cur_leading_v.route_position) if cur_leading_v else None
+        # If the current leading vehicle is out of bounds, set to None
         if cur_leading_v is not None and cur_leading_v_wp is None:
             trailing_v.leading_vehicle = None
             continue
@@ -222,39 +223,65 @@ def update_driver_lead(vehicles: list) -> None:
         if trailing_v_wp is None:
             continue
 
-        cur_leading_v_dist = np.linalg.norm(cur_leading_v_wp - trailing_v_wp) if cur_leading_v else None
+        cur_leading_v_dist = calculate_distance(cur_leading_v_wp, trailing_v_wp) if cur_leading_v else None
+        cur_leading_v, cur_leading_v_dist = find_closest_leading_vehicle(i, vehicles, trailing_v, trailing_v_wp, cur_leading_v, cur_leading_v_dist)
 
-        for j, potential_leading_v in enumerate(vehicles):
-            if i == j:  # Avoid comparing the vehicle with itself
-                continue
+        update_leading_vehicle(trailing_v, cur_leading_v, cur_leading_v_dist)
 
-            if trailing_v.route_position > potential_leading_v.route_position:
-                continue
-            
-            if abs(trailing_v.direction_angle - potential_leading_v.direction_angle) > MAX_ANGLE_DIFF:
-                continue
-            potential_leading_v_wp = route_position_to_world_position(potential_leading_v.route, potential_leading_v.route_position)
-            if potential_leading_v_wp is None:
-                continue
+def get_world_position_if_exists(vehicle: Vehicle) -> np.array:
+    """Return world position of vehicle if it exists, otherwise None."""
+    return route_position_to_world_position(vehicle.route, vehicle.route_position) if vehicle else None
 
-            potential_leading_v_dist = np.linalg.norm(potential_leading_v_wp - trailing_v_wp)
-            
-            if cur_leading_v_dist is None or potential_leading_v_dist < cur_leading_v_dist:
-                cur_leading_v = potential_leading_v
-                cur_leading_v_dist = potential_leading_v_dist
 
-        # if this is the last iteration, and the vehicle is greater than 30 meters, or the leading vehicle
-        # has an angle larger than the max angle difference,
-        # the leading vehicle will be set to None, regardless of closer cars
-        # This issue is resolved
+def calculate_distance(leading_vehicle_wp: np.array, trailing_vehicle_wp: np.array) -> float:
+    """Calculate the distance between two vehicles."""
+    return np.linalg.norm(leading_vehicle_wp - trailing_vehicle_wp)
 
-        if cur_leading_v is None:
-            trailing_v.leading_vehicle = None
+
+def find_closest_leading_vehicle(i: int, vehicles: list, trailing_v: Vehicle, trailing_v_wp: np.array, cur_leading_v: Vehicle, cur_leading_v_dist: float) -> Vehicle:
+    """Find the closest leading vehicle based on distance and direction angle."""
+    for j, potential_leading_v in enumerate(vehicles):
+        if i == j:  # Skip the same vehicle
             continue
 
-        is_not_within_angle_scope = abs(trailing_v.direction_angle - cur_leading_v.direction_angle) > MAX_ANGLE_DIFF
+        if not is_potential_lead_valid(trailing_v, potential_leading_v):
+            continue
 
-        if cur_leading_v_dist > MIN_LEADING_DIST or is_not_within_angle_scope:
-            trailing_v.leading_vehicle = None
-        else:
-            trailing_v.leading_vehicle = cur_leading_v
+        potential_leading_v_wp = route_position_to_world_position(potential_leading_v.route, potential_leading_v.route_position)
+        if potential_leading_v_wp is None:
+            continue
+
+        potential_leading_v_dist = calculate_distance(potential_leading_v_wp, trailing_v_wp)
+
+        # Update leading vehicle if the new potential lead is closer
+        if cur_leading_v_dist is None or potential_leading_v_dist < cur_leading_v_dist:
+            cur_leading_v = potential_leading_v
+            cur_leading_v_dist = potential_leading_v_dist
+            
+
+    return cur_leading_v, cur_leading_v_dist
+
+
+def is_potential_lead_valid(trailing_v: Vehicle, potential_leading_v: Vehicle) -> bool:
+    """Check if a potential leading vehicle is valid based on route position and angle difference."""
+    if trailing_v.route_position > potential_leading_v.route_position:
+        return False
+
+    if abs(trailing_v.direction_angle - potential_leading_v.direction_angle) > MAX_ANGLE_DIFF:
+        return False
+
+    return True
+
+
+def update_leading_vehicle(trailing_v: Vehicle, cur_leading_v: Vehicle, cur_leading_v_dist: float) -> None:
+    """Update the leading vehicle based on distance and angle difference."""
+    if cur_leading_v is None:
+        trailing_v.leading_vehicle = None
+        return
+
+    is_not_within_angle_scope = abs(trailing_v.direction_angle - cur_leading_v.direction_angle) > MAX_ANGLE_DIFF
+
+    if cur_leading_v_dist > MIN_LEADING_DIST or is_not_within_angle_scope:
+        trailing_v.leading_vehicle = None
+    else:
+        trailing_v.leading_vehicle = cur_leading_v
