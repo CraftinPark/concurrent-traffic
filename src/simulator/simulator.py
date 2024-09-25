@@ -38,7 +38,7 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
         "zoom_factor": 1,
         "playback_speed_factor": 1.0,
         "route_visible": True,
-        "selected_algorithm": "v000",
+        "selected_algorithm": "v0",
         "display_playback_speed": "1.0x"
     }
 

@@ -15,6 +15,8 @@ TRAFFIC_LIGHT_SAFETY_DISTANCE = 3
 EMERGENCY_DISTANCE = 5
 MAX_ACCELERATION = 3.5
 NEXT_ACCELERATION_INTERVAL = 0.01
+LEFT_TURN_DANGER_ZONE = [55, 90]
+FACING_SAME_DIRECTON_MAX_ANGLE_DIFF = 20
 
  
 class Vehicle:
@@ -104,33 +106,41 @@ def driver_traffic_update_command(vehicles: list, cur_time: float) -> None:
     update_driver_lead(vehicles)
 
     for vehicle in vehicles:
+        # if the vehicle is on a left lane, currentEdge store which edge the vehicle is currently on
         currentEdge = is_on_left_lane(vehicle)
         
-        
-        if vehicle.leading_vehicle and not currentEdge:
-            drive_vehicle_with_leading(vehicle, cur_time)
-        
-        elif vehicle.leading_vehicle and currentEdge:
-            if vehicle.direction_angle == vehicle.leading_vehicle.direction_angle:
+        # vehicle has a lead_vehicle 
+        if vehicle.leading_vehicle:
+            # NOT on left lane
+            if not currentEdge:
                 drive_vehicle_with_leading(vehicle, cur_time)
+            # on left lane
             else:
-                # vehicle.leading_vehicle = None
-                if is_safe_to_turn_left(vehicle, vehicles):
+                # if the leading vehicle is still waiting to make a left turn, stay behind the lead
+                # current vehicle should not follow it 
+                if vehicle.direction_angle == vehicle.leading_vehicle.direction_angle:
                     drive_vehicle_with_leading(vehicle, cur_time)
-                    # print(str(vehicle.name) + " should GO")
+                # if the leading vehicle makes a left turn, DONT FOLLOW.
                 else:
-                    step_in_front_of_traffic_light(vehicle, currentEdge, cur_time)  
-            
-        elif not vehicle.leading_vehicle and currentEdge:
-            if is_safe_to_turn_left(vehicle, vehicles):
+                    if is_safe_to_turn_left(vehicle, vehicles):
+                        drive_vehicle_with_leading(vehicle, cur_time)
+                    else:
+                        step_in_front_of_traffic_light(vehicle, currentEdge, cur_time) 
+        # vehicle DOESN"T have a lead_vehicle 
+        else:
+            # The current vehicle doesn't have a lead and is trying to make a left turn
+            if currentEdge:
+                if is_safe_to_turn_left(vehicle, vehicles):
+                    drive_vehicle_without_leading(vehicle, cur_time)
+                else:
+                    step_in_front_of_traffic_light(vehicle, currentEdge, cur_time) 
+                    
+            # The current vehicle doesn't have a lead and NOT making a left turn.
+            # range(-10, 11) is to make sure vehicle doesn't fully accelerate during a turn
+            elif (vehicle.direction_angle % 90) in range(-10, 11):
                 drive_vehicle_without_leading(vehicle, cur_time)
-            else:
-                step_in_front_of_traffic_light(vehicle, currentEdge, cur_time)  
                 
-        # allow acceleration within +/- 10 degrees from a StraightEdge
-        elif (vehicle.direction_angle % 90) in range(-10, 11):
-            drive_vehicle_without_leading(vehicle, cur_time)
-            
+        # traffic is our top priority 
         check_traffic_lights(vehicle, cur_time)
             
 def drive_vehicle_with_leading(vehicle, cur_time: float) -> None:
@@ -336,23 +346,18 @@ def is_safe_to_turn_left(current_vehicle: Vehicle, vehicles: list) -> bool:
         if potential_incoming_v == current_vehicle:  # Skip the same vehicle
             continue
         
-        # return False if the potential_incoming_v is incoming and is in the range of danger
-        
-        # return Falce if difference in angle is in range(-20, 21)
-        not_facing_same_direction = (potential_incoming_v.direction_angle - current_vehicle.direction_angle) not in range(-20, 21)
-        is_on_opposite_side = (potential_incoming_v.direction_angle - current_vehicle.direction_angle) % 180 in range(-20, 21)
-        incoming_car_is_in_danger_zone = (55 < potential_incoming_v.route_position < 90)
+        not_facing_same_direction = (potential_incoming_v.direction_angle - current_vehicle.direction_angle) not in range(-FACING_SAME_DIRECTON_MAX_ANGLE_DIFF, FACING_SAME_DIRECTON_MAX_ANGLE_DIFF + 1)
+        is_on_opposite_side = (potential_incoming_v.direction_angle - current_vehicle.direction_angle) % 180 in range(-FACING_SAME_DIRECTON_MAX_ANGLE_DIFF, FACING_SAME_DIRECTON_MAX_ANGLE_DIFF + 1)
+        incoming_car_is_in_danger_zone = (LEFT_TURN_DANGER_ZONE[0] < potential_incoming_v.route_position < LEFT_TURN_DANGER_ZONE[1])
 
-        # return False if 
-            
+        
         if not_facing_same_direction and are_vehicles_in_diff_lane(current_vehicle, potential_incoming_v) and is_on_opposite_side and incoming_car_is_in_danger_zone:
-            print(str(current_vehicle.name) + " is not going because of " + str(potential_incoming_v.name))
             return False
         
     return True
         
 def step_in_front_of_traffic_light(vehicle: Vehicle, currentEdge, cur_time) -> None:
-    """Makes the given vehicle that is about to turn left to step slightly in front of the traffic light."""
+    """Makes the given vehicle stop in front of the traffic light on the currentEdge."""
     if currentEdge.traffic_light == None:
         return
     
@@ -369,10 +374,7 @@ def step_in_front_of_traffic_light(vehicle: Vehicle, currentEdge, cur_time) -> N
     vehicle.command = update_cmd(vehicle.command, new_t, new_a, cur_time)
     
 def are_vehicles_in_diff_lane(vehicle1: Vehicle, vehicle2: Vehicle):
+    """returns true if one vehicle is on a left lane and the another on a straight/rightTurn lane"""
     return (is_on_left_lane(vehicle1) and not is_on_left_lane(vehicle2)) or (not is_on_left_lane(vehicle1) and is_on_left_lane(vehicle2))
     
     
-# X TODO: for the trailing car with a lead in the left lane, it will follow what the leading car is doing, instead of looking ahead to make sure it safe for IT.
-# make sure to not following the lead when in left lane but to look for themselves 
-# TODO: step_in_front_of_traffic_light is such a terrible way to code (dulicate of a diff fn)
-# TODO: the driver_traffic_update_command is very messy
