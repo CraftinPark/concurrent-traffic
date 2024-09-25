@@ -5,6 +5,7 @@ from manager.command import Command
 from classes.route import Route, route_position_to_world_position, direction_at_route_position, world_position_to_route_position
 from classes.edge import get_length
 from standard_traffic.traffic_light import get_light_state, TrafficState
+from classes.edge import CircularEdge
 
 MIN_LEADING_DIST = 30
 MAX_ANGLE_DIFF = 50
@@ -14,6 +15,8 @@ TRAFFIC_LIGHT_SAFETY_DISTANCE = 3
 EMERGENCY_DISTANCE = 5
 MAX_ACCELERATION = 3.5
 NEXT_ACCELERATION_INTERVAL = 0.01
+LEFT_TURN_DANGER_ZONE = [55, 90]
+FACING_SAME_DIRECTON_MAX_ANGLE_DIFF = 20
 
  
 class Vehicle:
@@ -103,15 +106,43 @@ def driver_traffic_update_command(vehicles: list, cur_time: float) -> None:
     update_driver_lead(vehicles)
 
     for vehicle in vehicles:
+        # if the vehicle is on a left lane, currentEdge store which edge the vehicle is currently on
+        currentEdge = is_on_left_lane(vehicle)
+        
+        # vehicle has a lead_vehicle 
         if vehicle.leading_vehicle:
-            drive_vehicle_with_leading(vehicle, cur_time)
-        # allow acceleration within +/- 10 degrees from a StraightEdge
-        elif (vehicle.direction_angle % 90) in range(-10, 11):
-            drive_vehicle_without_leading(vehicle, cur_time)
-
+            # NOT on left lane
+            if not currentEdge:
+                drive_vehicle_with_leading(vehicle, cur_time)
+            # on left lane
+            else:
+                # if the leading vehicle is still waiting to make a left turn, stay behind the lead
+                # current vehicle should not follow it 
+                if vehicle.direction_angle == vehicle.leading_vehicle.direction_angle:
+                    drive_vehicle_with_leading(vehicle, cur_time)
+                # if the leading vehicle makes a left turn, DONT FOLLOW.
+                else:
+                    if is_safe_to_turn_left(vehicle, vehicles):
+                        drive_vehicle_with_leading(vehicle, cur_time)
+                    else:
+                        step_in_front_of_traffic_light(vehicle, currentEdge, cur_time) 
+        # vehicle DOESN"T have a lead_vehicle 
+        else:
+            # The current vehicle doesn't have a lead and is trying to make a left turn
+            if currentEdge:
+                if is_safe_to_turn_left(vehicle, vehicles):
+                    drive_vehicle_without_leading(vehicle, cur_time)
+                else:
+                    step_in_front_of_traffic_light(vehicle, currentEdge, cur_time) 
+                    
+            # The current vehicle doesn't have a lead and NOT making a left turn.
+            # range(-10, 11) is to make sure vehicle doesn't fully accelerate during a turn
+            elif (vehicle.direction_angle % 90) in range(-10, 11):
+                drive_vehicle_without_leading(vehicle, cur_time)
+                
+        # traffic is our top priority 
         check_traffic_lights(vehicle, cur_time)
-
-
+            
 def drive_vehicle_with_leading(vehicle, cur_time: float) -> None:
     """Handle the case where there is a leading vehicle."""
     
@@ -209,11 +240,12 @@ def calculate_deceleration(final_velocity: float, initial_velocity: float, dista
     return (final_velocity**2 - initial_velocity**2) / (2 * (distance - safety_distance))
 
 def update_driver_lead(vehicles: list) -> None:
-    """updates each vehicle's leading_vehicle if existing"""
+    """Update each vehicle's leading_vehicle."""
     for i, trailing_v in enumerate(vehicles):
         cur_leading_v = trailing_v.leading_vehicle
+        cur_leading_v_wp = get_world_position_if_exists(cur_leading_v)
 
-        cur_leading_v_wp = route_position_to_world_position(cur_leading_v.route, cur_leading_v.route_position) if cur_leading_v else None
+        # If the current leading vehicle is out of bounds, set to None
         if cur_leading_v is not None and cur_leading_v_wp is None:
             trailing_v.leading_vehicle = None
             continue
@@ -222,39 +254,127 @@ def update_driver_lead(vehicles: list) -> None:
         if trailing_v_wp is None:
             continue
 
-        cur_leading_v_dist = np.linalg.norm(cur_leading_v_wp - trailing_v_wp) if cur_leading_v else None
+        cur_leading_v_dist = calculate_distance(cur_leading_v_wp, trailing_v_wp) if cur_leading_v else None
+        cur_leading_v, cur_leading_v_dist = find_closest_leading_vehicle(i, vehicles, trailing_v, trailing_v_wp, cur_leading_v, cur_leading_v_dist)
 
-        for j, potential_leading_v in enumerate(vehicles):
-            if i == j:  # Avoid comparing the vehicle with itself
-                continue
+        update_leading_vehicle(trailing_v, cur_leading_v, cur_leading_v_dist)
 
-            if trailing_v.route_position > potential_leading_v.route_position:
-                continue
-            
-            if abs(trailing_v.direction_angle - potential_leading_v.direction_angle) > MAX_ANGLE_DIFF:
-                continue
-            potential_leading_v_wp = route_position_to_world_position(potential_leading_v.route, potential_leading_v.route_position)
-            if potential_leading_v_wp is None:
-                continue
+def get_world_position_if_exists(vehicle: Vehicle) -> np.array:
+    """Return world position of vehicle if it exists, otherwise None."""
+    return route_position_to_world_position(vehicle.route, vehicle.route_position) if vehicle else None
 
-            potential_leading_v_dist = np.linalg.norm(potential_leading_v_wp - trailing_v_wp)
-            
-            if cur_leading_v_dist is None or potential_leading_v_dist < cur_leading_v_dist:
-                cur_leading_v = potential_leading_v
-                cur_leading_v_dist = potential_leading_v_dist
 
-        # if this is the last iteration, and the vehicle is greater than 30 meters, or the leading vehicle
-        # has an angle larger than the max angle difference,
-        # the leading vehicle will be set to None, regardless of closer cars
-        # This issue is resolved
+def calculate_distance(leading_vehicle_wp: np.array, trailing_vehicle_wp: np.array) -> float:
+    """Calculate the distance between two vehicles."""
+    return np.linalg.norm(leading_vehicle_wp - trailing_vehicle_wp)
 
-        if cur_leading_v is None:
-            trailing_v.leading_vehicle = None
+
+def find_closest_leading_vehicle(i: int, vehicles: list, trailing_v: Vehicle, trailing_v_wp: np.array, cur_leading_v: Vehicle, cur_leading_v_dist: float) -> Vehicle:
+    """Find the closest leading vehicle based on distance and direction angle."""
+    for j, potential_leading_v in enumerate(vehicles):
+        if i == j:  # Skip the same vehicle
             continue
 
-        is_not_within_angle_scope = abs(trailing_v.direction_angle - cur_leading_v.direction_angle) > MAX_ANGLE_DIFF
+        if not is_potential_lead_valid(trailing_v, potential_leading_v):
+            continue
 
-        if cur_leading_v_dist > MIN_LEADING_DIST or is_not_within_angle_scope:
-            trailing_v.leading_vehicle = None
-        else:
-            trailing_v.leading_vehicle = cur_leading_v
+        potential_leading_v_wp = route_position_to_world_position(potential_leading_v.route, potential_leading_v.route_position)
+        if potential_leading_v_wp is None:
+            continue
+
+        potential_leading_v_dist = calculate_distance(potential_leading_v_wp, trailing_v_wp)
+
+        # Update leading vehicle if the new potential lead is closer
+        if cur_leading_v_dist is None or potential_leading_v_dist < cur_leading_v_dist:
+            cur_leading_v = potential_leading_v
+            cur_leading_v_dist = potential_leading_v_dist
+            
+
+    return cur_leading_v, cur_leading_v_dist
+
+
+def is_potential_lead_valid(trailing_v: Vehicle, potential_leading_v: Vehicle) -> bool:
+    """Check if a potential leading vehicle is valid based on route position and angle difference."""
+    if trailing_v.route_position > potential_leading_v.route_position:
+        return False
+
+    if abs(trailing_v.direction_angle - potential_leading_v.direction_angle) > MAX_ANGLE_DIFF:
+        return False
+    
+    if are_vehicles_in_diff_lane(trailing_v, potential_leading_v):
+        return False
+
+    return True
+
+
+def update_leading_vehicle(trailing_v: Vehicle, cur_leading_v: Vehicle, cur_leading_v_dist: float) -> None:
+    """Update the leading vehicle based on distance and angle difference."""
+    if cur_leading_v is None:
+        trailing_v.leading_vehicle = None
+        return
+
+    is_not_within_angle_scope = abs(trailing_v.direction_angle - cur_leading_v.direction_angle) > MAX_ANGLE_DIFF
+    
+    if cur_leading_v_dist > MIN_LEADING_DIST or is_not_within_angle_scope or are_vehicles_in_diff_lane(trailing_v, cur_leading_v):
+        trailing_v.leading_vehicle = None
+    else:
+        trailing_v.leading_vehicle = cur_leading_v
+        
+        
+# Functions for left turn
+def is_on_left_lane(vehicle: Vehicle):
+    """Determines whether the current vehicle is on the left turn lane."""
+   
+    currentEdge = None
+    for r in vehicle.route.pos_to_edge_map:
+        position = vehicle.route_position
+        
+        if position < r[1] and position >= r[0]:
+            currentEdge = vehicle.route.pos_to_edge_map[r]
+            break
+        
+    if currentEdge is not None and currentEdge.leftTurn:
+        # returns the currentEdge if on left lane
+        return currentEdge
+    
+    return None
+    
+def is_safe_to_turn_left(current_vehicle: Vehicle, vehicles: list) -> bool:
+    """Confirms the safety of the current vehicle to turn left."""
+    
+    for potential_incoming_v in vehicles:
+        if potential_incoming_v == current_vehicle:  # Skip the same vehicle
+            continue
+        
+        not_facing_same_direction = (potential_incoming_v.direction_angle - current_vehicle.direction_angle) not in range(-FACING_SAME_DIRECTON_MAX_ANGLE_DIFF, FACING_SAME_DIRECTON_MAX_ANGLE_DIFF + 1)
+        is_on_opposite_side = (potential_incoming_v.direction_angle - current_vehicle.direction_angle) % 180 in range(-FACING_SAME_DIRECTON_MAX_ANGLE_DIFF, FACING_SAME_DIRECTON_MAX_ANGLE_DIFF + 1)
+        incoming_car_is_in_danger_zone = (LEFT_TURN_DANGER_ZONE[0] < potential_incoming_v.route_position < LEFT_TURN_DANGER_ZONE[1])
+
+        
+        if not_facing_same_direction and are_vehicles_in_diff_lane(current_vehicle, potential_incoming_v) and is_on_opposite_side and incoming_car_is_in_danger_zone:
+            return False
+        
+    return True
+        
+def step_in_front_of_traffic_light(vehicle: Vehicle, currentEdge, cur_time) -> None:
+    """Makes the given vehicle stop in front of the traffic light on the currentEdge."""
+    if currentEdge.traffic_light == None:
+        return
+    
+    initial_velocity = vehicle.velocity
+    
+    traffic_light_route_position = world_position_to_route_position(vehicle.route, currentEdge, currentEdge.traffic_light.node.position)
+    
+    distance_to_traffic_light = traffic_light_route_position - vehicle.route_position
+    
+    required_deceleration = calculate_deceleration(0, initial_velocity, distance_to_traffic_light, TRAFFIC_LIGHT_SAFETY_DISTANCE)
+
+    new_t = np.array([cur_time, cur_time + NEXT_ACCELERATION_INTERVAL])
+    new_a = np.array([required_deceleration, vehicle.acceleration])
+    vehicle.command = update_cmd(vehicle.command, new_t, new_a, cur_time)
+    
+def are_vehicles_in_diff_lane(vehicle1: Vehicle, vehicle2: Vehicle):
+    """returns true if one vehicle is on a left lane and the another on a straight/rightTurn lane"""
+    return (is_on_left_lane(vehicle1) and not is_on_left_lane(vehicle2)) or (not is_on_left_lane(vehicle1) and is_on_left_lane(vehicle2))
+    
+    

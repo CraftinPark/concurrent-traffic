@@ -9,20 +9,22 @@ class Edge():
     start: Node = None
     end: Node = None
     edge_id: str
+    leftTurn: bool
     sympy_obj: Segment | Circle = None
     traffic_light: Optional[TrafficLight]
 
-    def __init__(self, edge_id: str, start: Node, end: Node, traffic_light: Optional[TrafficLight]=None) -> None:
+    def __init__(self, edge_id: str, start: Node, end: Node, leftTurn: bool, traffic_light: Optional[TrafficLight]=None) -> None:
         self.start = start
         self.end = end
         self.edge_id = edge_id
+        self.leftTurn = leftTurn
         self.traffic_light = traffic_light
 
 class StraightEdge(Edge):
     """A StraightEdge is an Edge that is linear."""
 
-    def __init__(self, edge_id, start: Node, end: Node, traffic_light: Optional[TrafficLight]=None) -> None:
-        Edge.__init__(self, edge_id, start, end, traffic_light)
+    def __init__(self, edge_id, start: Node, end: Node, leftTurn: bool, traffic_light: Optional[TrafficLight]=None) -> None:
+        Edge.__init__(self, edge_id, start, end, leftTurn, traffic_light)
         self.sympy_obj = Segment(Point(start.position[0], start.position[1]), Point(end.position[0], end.position[1]))
         
 class CircularEdge(Edge):
@@ -31,8 +33,8 @@ class CircularEdge(Edge):
     radius: float
     clockwise: bool
 
-    def __init__(self, edge_id: str, start: Node, end: Node, center: np.ndarray, clockwise: bool=False, traffic_light: Optional[TrafficLight]=None) -> None:
-        Edge.__init__(self, edge_id, start, end, traffic_light)
+    def __init__(self, edge_id: str, start: Node, end: Node, leftTurn: bool, center: np.ndarray, clockwise: bool=False, traffic_light: Optional[TrafficLight]=None) -> None:
+        Edge.__init__(self, edge_id, start, end, leftTurn, traffic_light)
         self.radius = np.linalg.norm(start.position - center)
         self.center = center
         self.clockwise = clockwise
