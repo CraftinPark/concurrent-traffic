@@ -28,7 +28,7 @@ def toggle_zoom(settings: dict) -> None:
         settings["zoom_factor"] = MIN_ZOOM_FACTOR
     set_zoomed_render(settings["zoom_factor"])
 
-def run_simulation(initial_vehicles: list[Vehicle], scheduled_vehicles: list[Vehicle], nodes: list[Node], edges: list[Edge], routes: list[Route], intersection_points, manager: Manager, traffic_master: TrafficMaster) -> None:
+def run_simulation(active_vehicles: list[Vehicle], scheduled_vehicles: list[Vehicle], nodes: list[Node], edges: list[Edge], routes: list[Route], intersection_points, manager: Manager, traffic_master: TrafficMaster) -> None:
     """Initializes and runs the pygame simulator. Requires initialization of lanes, manager, vehicles."""
     pygame.init()
     screen = pygame.display.set_mode((ORIGINAL_SCREEN_WIDTH, ORIGINAL_SCREEN_HEIGHT), pygame.RESIZABLE)
@@ -46,9 +46,9 @@ def run_simulation(initial_vehicles: list[Vehicle], scheduled_vehicles: list[Veh
         "is_run": True,
         "delta_time": 0,
         "time_elapsed": 0,
-        "active_vehicles": vehicle_copy(initial_vehicles),
-        "initial_active_vehicles": initial_vehicles,
-        "initial_inactive_vehicles": scheduled_vehicles,
+        "active_vehicles_loader": active_vehicles,
+        "scheduled_vehicles_loader": scheduled_vehicles,
+        "active_vehicles": vehicle_copy(active_vehicles),
         "scheduled_vehicles": vehicle_copy(scheduled_vehicles),
         "traffic_master": traffic_master,
         "manager": manager,
@@ -59,7 +59,7 @@ def run_simulation(initial_vehicles: list[Vehicle], scheduled_vehicles: list[Veh
     selected_color = (255, 50, 50)
 
     toggle_button = Button(not_selected_color, selected_color, (5, screen.get_height()-TOOLBAR_HEIGHT+50), (100, 30), 'toggle update', toggle_update, simulation_values)
-    restart_button = Button(not_selected_color, selected_color, (110, screen.get_height()-TOOLBAR_HEIGHT+50), (100, 30), 'restart', restart_func, (simulation_values, simulation_values["initial_active_vehicles"], simulation_values["initial_inactive_vehicles"]))
+    restart_button = Button(not_selected_color, selected_color, (110, screen.get_height()-TOOLBAR_HEIGHT+50), (100, 30), 'restart', restart_func, simulation_values)
     routes_visibility_button = Button(not_selected_color, selected_color, (215, screen.get_height()-TOOLBAR_HEIGHT+50), (150, 30), 'toggle route visibility', toggle_route_visibility, settings)
     zoom_button = Button(not_selected_color, selected_color, (370, screen.get_height()-TOOLBAR_HEIGHT+50), (70, 30), 'zoom', toggle_zoom, settings)
 
