@@ -35,20 +35,22 @@ class Vehicle:
     image: Surface
     direction_angle           = 0
     leading_vehicle           = None          # vehicle the current vehicle is trailing if any
+    spawn_at                  = 0
 
     command: Command          = Command(np.array([0]), np.array([0]))             # Command
 
     def __init__(self,
-                 name: str,
                  id: int,
+                 name: str,
                  route: Route,
-                 route_position: float,
                  velocity: float,
                  acceleration: float,
                  width: float,
                  length: float,
                  pivot_distance: float,
                  image_source: str,
+                 spawn_at: int,
+                 route_position: float,
                  ) -> None:
         self.id = id
         self.name = name
@@ -63,6 +65,10 @@ class Vehicle:
         self.image = pygame.image.load(self.image_source)
         self.leading_vehicle = None
         self.default_velocity = velocity
+        self.spawn_at = spawn_at
+    
+    def __lt__(self, other):
+        return self.spawn_at < other.spawn_at
 
 # helpers
 
@@ -76,7 +82,7 @@ class Vehicle:
 
 def vehicle_copy(vehicles: list[Vehicle]) -> list[Vehicle]:
     """Return a deep copy of a list of Vehicles."""
-    return [Vehicle(v.id, v.name, v.route, v.route_position, v.velocity, v.acceleration, v.width, v.length, v.pivot_distance, v.image_source) for v in vehicles]
+    return [Vehicle(v.id, v.name, v.route, v.velocity, v.acceleration, v.width, v.length, v.pivot_distance, v.image_source, v.spawn_at, v.route_position) for v in vehicles]
   
 def vehicle_event_loop(vehicle: Vehicle, delta_time: float) -> None:
     """Event loop for Vehicle."""

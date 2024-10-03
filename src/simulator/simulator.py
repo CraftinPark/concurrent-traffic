@@ -28,7 +28,7 @@ def toggle_zoom(settings: dict) -> None:
         settings["zoom_factor"] = MIN_ZOOM_FACTOR
     set_zoomed_render(settings["zoom_factor"])
 
-def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: list[Edge], routes: list[Route], intersection_points, manager: Manager, traffic_master: TrafficMaster) -> None:
+def run_simulation(active_vehicles: list[Vehicle], scheduled_vehicles: list[Vehicle], nodes: list[Node], edges: list[Edge], routes: list[Route], intersection_points, manager: Manager, traffic_master: TrafficMaster) -> None:
     """Initializes and runs the pygame simulator. Requires initialization of lanes, manager, vehicles."""
     pygame.init()
     screen = pygame.display.set_mode((ORIGINAL_SCREEN_WIDTH, ORIGINAL_SCREEN_HEIGHT), pygame.RESIZABLE)
@@ -46,8 +46,10 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
         "is_run": True,
         "delta_time": 0,
         "time_elapsed": 0,
-        "vehicles": vehicle_copy(initial_vehicles),
-        "initial_vehicles": initial_vehicles,
+        "active_vehicles_loader": active_vehicles,
+        "scheduled_vehicles_loader": scheduled_vehicles,
+        "active_vehicles": vehicle_copy(active_vehicles),
+        "scheduled_vehicles": vehicle_copy(scheduled_vehicles),
         "traffic_master": traffic_master,
         "manager": manager,
         "clock": pygame.time.Clock()
@@ -57,7 +59,7 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
     selected_color = (255, 50, 50)
 
     toggle_button = Button(not_selected_color, selected_color, (5, screen.get_height()-TOOLBAR_HEIGHT+50), (100, 30), 'toggle update', toggle_update, simulation_values)
-    restart_button = Button(not_selected_color, selected_color, (110, screen.get_height()-TOOLBAR_HEIGHT+50), (100, 30), 'restart', restart_func, (simulation_values, initial_vehicles))
+    restart_button = Button(not_selected_color, selected_color, (110, screen.get_height()-TOOLBAR_HEIGHT+50), (100, 30), 'restart', restart_func, simulation_values)
     routes_visibility_button = Button(not_selected_color, selected_color, (215, screen.get_height()-TOOLBAR_HEIGHT+50), (150, 30), 'toggle route visibility', toggle_route_visibility, settings)
     zoom_button = Button(not_selected_color, selected_color, (370, screen.get_height()-TOOLBAR_HEIGHT+50), (70, 30), 'zoom', toggle_zoom, settings)
 
@@ -90,18 +92,18 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
         # optionally render nodes and edges. for now always on
         render_world(screen, nodes, edges, settings["route_visible"], intersection_points)
 
-        render_vehicles(screen, simulation_values["vehicles"])
+        render_vehicles(screen, simulation_values["active_vehicles"])
         render_toolbar(screen, simulation_values["time_elapsed"], buttons)
         render_title(screen)
 
         # manager 'cpu' or standard traffic 
         if settings["selected_algorithm"] == "v0":
             render_manager(screen, simulation_values["manager"])
-            manager_event_loop(simulation_values["manager"], simulation_values["vehicles"], simulation_values["time_elapsed"])
+            manager_event_loop(simulation_values["manager"], simulation_values["active_vehicles"], simulation_values["time_elapsed"])
             algorithm_selector_v0.color = selected_color
             algorithm_selector_standard_traffic.color = not_selected_color
         else:
-            driver_traffic_update_command(simulation_values["vehicles"], simulation_values["time_elapsed"])
+            driver_traffic_update_command(simulation_values["active_vehicles"], simulation_values["time_elapsed"])
             render_traffic_lights(screen, simulation_values["traffic_master"])
             traffic_event_loop(simulation_values["traffic_master"], simulation_values["time_elapsed"])
             algorithm_selector_standard_traffic.color = selected_color
@@ -109,22 +111,30 @@ def run_simulation(initial_vehicles: list[Vehicle], nodes: list[Node], edges: li
 
         display_playback_speed.text = settings["display_playback_speed"]
 
+        for vehicle in simulation_values["scheduled_vehicles"]:
+            if vehicle.spawn_at < simulation_values["time_elapsed"]:
+                print("hello")
+                v = simulation_values["scheduled_vehicles"].pop(0)
+                simulation_values["active_vehicles"].append(v)
+            else:
+                break
+
         # simulation_values["vehicles"] 'cpu'
-        for vehicle in simulation_values["vehicles"]:
+        for vehicle in simulation_values["active_vehicles"]:
             vehicle_event_loop(vehicle, simulation_values["time_elapsed"])
 
         # vehicle removal 
-        for vehicle in simulation_values["vehicles"]:
+        for vehicle in simulation_values["active_vehicles"]:
             if vehicle.route_position > vehicle.route.total_length:
-                simulation_values["vehicles"].remove(vehicle)
+                simulation_values["active_vehicles"].remove(vehicle)
 
         if simulation_values["is_run"]:
             # physical changes to world (updating positions, velocity, etc.)
-            update_world(simulation_values["delta_time"] * settings["playback_speed_factor"], simulation_values["vehicles"])
+            update_world(simulation_values["delta_time"] * settings["playback_speed_factor"], simulation_values["active_vehicles"])
             simulation_values["time_elapsed"] += simulation_values["delta_time"] * settings["playback_speed_factor"]
 
         # checks if collision has occured
-        if detect_collisions(simulation_values["manager"], simulation_values["vehicles"], simulation_values["time_elapsed"]) == True:
+        if detect_collisions(simulation_values["manager"], simulation_values["active_vehicles"], simulation_values["time_elapsed"]) == True:
             simulation_values["is_run"] = False
 
 
